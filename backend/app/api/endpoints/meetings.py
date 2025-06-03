@@ -102,27 +102,8 @@ async def list_meetings(
     """
     List all meetings with optional filtering
     """
-    # Mock implementation
-    meetings = [
-        {
-            "id": 1,
-            "title": "Weekly Team Meeting",
-            "description": "Regular weekly sync",
-            "date": datetime.now().date(),
-            "created_at": datetime.now(),
-            "updated_at": datetime.now(),
-            "created_by": 1,
-        },
-        {
-            "id": 2,
-            "title": "Project Planning Session",
-            "description": "Planning for Q3",
-            "date": (datetime.now() + timedelta(days=7)).date(),
-            "created_at": datetime.now(),
-            "updated_at": datetime.now(),
-            "created_by": 1,
-        }
-    ]
+    # Return empty list - no mock data
+    meetings = []
     
     return meetings[skip:skip+limit]
 
