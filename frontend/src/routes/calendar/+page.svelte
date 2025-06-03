@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { auth } from '$lib/stores/auth';
-  import { meetingsApi } from '$lib/api/meetings';
+  import { meetingsApi } from '$lib/api';
   
   // Component state
   let isLoading = true;

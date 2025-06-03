@@ -175,9 +175,11 @@ export const updateApi = {
 // Import API modules
 import { facultyUpdateApi } from './faculty-updates';
 import { userApi as userApiModule } from './users';
+import { meetingsApi as meetingsApiModule } from './meetings';
 
 // Re-export them
 export { facultyUpdateApi };
+export const meetingsApi = meetingsApiModule;
 
 // Override the userApi with the more complete implementation from users.js
 export const userApi = userApiModule;

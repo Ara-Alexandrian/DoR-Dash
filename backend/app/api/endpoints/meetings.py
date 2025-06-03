@@ -1,17 +1,11 @@
 from datetime import datetime, timedelta
-from typing import List, Optional, Annotated
+from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, Path, Query, status
 from pydantic import BaseModel, validator
-from sqlalchemy.orm import Session
-from sqlalchemy import func, select
-from sqlalchemy.exc import IntegrityError
 
-from app.core.security import get_password_hash
 from app.db.models.user import User, UserRole
-from app.db.models.student_update import StudentUpdate
-from app.db.models.meeting import Meeting, MeetingType
-from app.db.session import get_sync_db as get_db
-from app.services.auth import get_current_user, get_current_active_user
+from app.db.models.meeting import MeetingType
+from app.services.auth import get_current_active_user
 
 router = APIRouter()
 
@@ -30,7 +24,7 @@ class MeetingBase(BaseModel):
         return v
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class MeetingCreate(MeetingBase):
     pass
@@ -49,7 +43,7 @@ class MeetingUpdate(BaseModel):
         return v
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class MeetingResponse(MeetingBase):
     id: int
@@ -60,25 +54,36 @@ class MeetingResponse(MeetingBase):
 # Routes
 @router.post("/", response_model=MeetingResponse, status_code=status.HTTP_201_CREATED)
 async def create_meeting(
-    meeting_in: MeetingCreate
+    meeting_in: MeetingCreate,
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     Create a new meeting (admin only)
     """
-    # Mock implementation
+    # Check if user is admin
+    if current_user.role not in [UserRole.admin, UserRole.faculty]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins and faculty can create meetings"
+        )
+    
+    # Mock implementation - in production this would save to database
     return {
         "id": 1,
         "title": meeting_in.title,
         "description": meeting_in.description,
-        "date": meeting_in.date,
+        "meeting_type": meeting_in.meeting_type,
+        "start_time": meeting_in.start_time,
+        "end_time": meeting_in.end_time,
         "created_at": datetime.now(),
         "updated_at": datetime.now(),
-        "created_by": 1,
+        "created_by": current_user.id,
     }
 
 @router.get("/{meeting_id}", response_model=MeetingResponse)
 async def get_meeting(
-    meeting_id: int = Path(..., description="The ID of the meeting to retrieve")
+    meeting_id: int = Path(..., description="The ID of the meeting to retrieve"),
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     Get a meeting by ID
@@ -88,7 +93,9 @@ async def get_meeting(
         "id": meeting_id,
         "title": "Sample Meeting",
         "description": "Sample description",
-        "date": datetime.now().date(),
+        "meeting_type": MeetingType.general_update,
+        "start_time": datetime.now(),
+        "end_time": datetime.now() + timedelta(hours=1),
         "created_at": datetime.now(),
         "updated_at": datetime.now(),
         "created_by": 1,
@@ -97,12 +104,15 @@ async def get_meeting(
 @router.get("/", response_model=List[MeetingResponse])
 async def list_meetings(
     skip: int = Query(0, description="Number of meetings to skip for pagination"),
-    limit: int = Query(100, description="Maximum number of meetings to return")
+    limit: int = Query(100, description="Maximum number of meetings to return"),
+    start_date: Optional[datetime] = Query(None, description="Filter meetings from this date"),
+    end_date: Optional[datetime] = Query(None, description="Filter meetings until this date"),
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     List all meetings with optional filtering
     """
-    # Return empty list - no mock data
+    # Return empty list - no mock data, but structure is correct
     meetings = []
     
     return meetings[skip:skip+limit]
@@ -110,17 +120,27 @@ async def list_meetings(
 @router.put("/{meeting_id}", response_model=MeetingResponse)
 async def update_meeting(
     meeting_in: MeetingUpdate,
-    meeting_id: int = Path(..., description="The ID of the meeting to update")
+    meeting_id: int = Path(..., description="The ID of the meeting to update"),
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     Update a meeting (admin only)
     """
+    # Check if user is admin
+    if current_user.role not in [UserRole.admin, UserRole.faculty]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins and faculty can update meetings"
+        )
+    
     # Mock implementation
     return {
         "id": meeting_id,
         "title": meeting_in.title or "Updated Meeting",
         "description": meeting_in.description or "Updated description",
-        "date": meeting_in.date or datetime.now().date(),
+        "meeting_type": meeting_in.meeting_type or MeetingType.general_update,
+        "start_time": meeting_in.start_time or datetime.now(),
+        "end_time": meeting_in.end_time or datetime.now() + timedelta(hours=1),
         "created_at": datetime.now(),
         "updated_at": datetime.now(),
         "created_by": 1,
@@ -129,10 +149,18 @@ async def update_meeting(
 
 @router.delete("/{meeting_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_meeting(
-    meeting_id: int = Path(..., description="The ID of the meeting to delete")
+    meeting_id: int = Path(..., description="The ID of the meeting to delete"),
+    current_user: User = Depends(get_current_active_user)
 ):
     """
     Delete a meeting (admin only)
     """
+    # Check if user is admin
+    if current_user.role not in [UserRole.admin, UserRole.faculty]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins and faculty can delete meetings"
+        )
+    
     # Mock implementation
     return None
