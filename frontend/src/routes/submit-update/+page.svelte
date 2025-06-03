@@ -37,9 +37,11 @@
   let isRefining = false;
   let currentField = '';
   let refinementResult = null;
+  let refinementPosition = { x: 0, y: 0 };
+  let refinementTarget = null;
   
   // Function to handle text refinement
-  async function refineText(field) {
+  async function refineText(field, event) {
     let textToRefine = '';
     
     // Determine which field to refine
@@ -82,6 +84,36 @@
       return;
     }
     
+    // Calculate position for the floating widget
+    if (event && event.target) {
+      const rect = event.target.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+      const widgetWidth = 320; // 80 * 4 (w-80 in Tailwind)
+      
+      // Calculate initial position to the right of the button
+      let x = rect.right + scrollLeft + 20;
+      let y = rect.top + scrollTop;
+      
+      // If the widget would go off the right edge, position it to the left instead
+      if (x + widgetWidth > window.innerWidth) {
+        x = rect.left + scrollLeft - widgetWidth - 20;
+      }
+      
+      // Ensure it doesn't go off the left edge
+      if (x < 10) {
+        x = 10;
+      }
+      
+      // Ensure it doesn't go off the top
+      if (y < 10) {
+        y = 10;
+      }
+      
+      refinementPosition = { x, y };
+      refinementTarget = event.target.closest('.space-y-2');
+    }
+    
     currentField = field;
     isRefining = true;
     error = '';
@@ -92,9 +124,9 @@
       const response = await updateApi.refineText(textToRefine);
       refinementResult = response;
       
-      // Show suggestions
-      success = 'Text has been refined. Review the suggestions below.';
-      setTimeout(() => success = '', 5000);
+      // Show brief success message
+      success = 'Text refinement complete';
+      setTimeout(() => success = '', 2000);
     } catch (err) {
       error = err.message || 'Failed to refine text. Please try again.';
     } finally {
@@ -374,7 +406,7 @@
           <button 
             type="button"
             class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            on:click={() => refineText('announcements')}
+            on:click={(e) => refineText('announcements', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'announcements'}
@@ -447,7 +479,7 @@
           <button 
             type="button"
             class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            on:click={() => refineText('projects')}
+            on:click={(e) => refineText('projects', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'projects'}
@@ -480,7 +512,7 @@
           <button 
             type="button"
             class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            on:click={() => refineText('projectStatus')}
+            on:click={(e) => refineText('projectStatus', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'projectStatus'}
@@ -513,7 +545,7 @@
           <button 
             type="button"
             class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            on:click={() => refineText('facultyQuestions')}
+            on:click={(e) => refineText('facultyQuestions', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'facultyQuestions'}
@@ -608,7 +640,7 @@
           <button 
             type="button"
             class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            on:click={() => refineText('progress')}
+            on:click={(e) => refineText('progress', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'progress'}
@@ -641,7 +673,7 @@
           <button 
             type="button"
             class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            on:click={() => refineText('challenges')}
+            on:click={(e) => refineText('challenges', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'challenges'}
@@ -674,7 +706,7 @@
           <button 
             type="button"
             class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            on:click={() => refineText('goals')}
+            on:click={(e) => refineText('goals', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'goals'}
@@ -707,7 +739,7 @@
           <button 
             type="button"
             class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            on:click={() => refineText('meetingNotes')}
+            on:click={(e) => refineText('meetingNotes', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'meetingNotes'}
@@ -792,75 +824,6 @@
       </div>
     {/if}
     
-    <!-- Enhanced Refinement result display -->
-    {#if refinementResult}
-      <div class="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-700/50 shadow-sm">
-        <div class="flex justify-between items-start mb-4">
-          <div class="flex items-center space-x-2">
-            <svg class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-            </svg>
-            <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">AI Refinement Results</h3>
-          </div>
-          <button 
-            type="button" 
-            class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-800/50 hover:bg-blue-200 dark:hover:bg-blue-800/70 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            on:click={applyRefinedText}
-          >
-            <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-            </svg>
-            Apply Refined Text
-          </button>
-        </div>
-        
-        <!-- Refined text display -->
-        <div class="mb-4">
-          <h4 class="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">Refined Text:</h4>
-          <div class="text-sm text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 p-4 rounded-lg border border-blue-200 dark:border-blue-600/50 shadow-sm leading-relaxed">
-            {refinementResult.refined_text || refinementResult.refined || 'No refined text available'}
-          </div>
-        </div>
-        
-        <!-- Suggestions display -->
-        {#if refinementResult.suggestions && refinementResult.suggestions.length > 0 && !refinementResult.suggestions.includes('Could not parse suggestions from AI response')}
-          <div>
-            <h4 class="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2 flex items-center">
-              <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
-              </svg>
-              Additional Suggestions:
-            </h4>
-            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-blue-200 dark:border-blue-600/50 shadow-sm">
-              <ul class="space-y-2">
-                {#each refinementResult.suggestions as suggestion}
-                  <li class="flex items-start text-sm text-gray-700 dark:text-gray-300">
-                    <svg class="h-4 w-4 text-blue-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <circle cx="10" cy="10" r="2"/>
-                    </svg>
-                    <span class="leading-relaxed">{suggestion}</span>
-                  </li>
-                {/each}
-              </ul>
-            </div>
-          </div>
-        {/if}
-        
-        <!-- Close button -->
-        <div class="mt-4 flex justify-end">
-          <button 
-            type="button" 
-            class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-            on:click={() => refinementResult = null}
-          >
-            <svg class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            Dismiss
-          </button>
-        </div>
-      </div>
-    {/if}
     
     <!-- Submit button -->
     <div class="flex justify-end">
@@ -882,3 +845,66 @@
     </div>
   </form>
 </div>
+
+<!-- Floating AI Refinement Widget -->
+{#if refinementResult}
+  <div 
+    class="fixed z-50 w-80 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-600"
+    style="left: {refinementPosition.x}px; top: {refinementPosition.y}px; max-width: calc(100vw - 20px);"
+  >
+    <div class="flex justify-between items-start mb-3">
+      <div class="flex items-center space-x-2">
+        <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.414 10.5H9v-1.5z" />
+        </svg>
+        <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200">Grammar Check</h3>
+      </div>
+      <button 
+        type="button" 
+        class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+        on:click={() => refinementResult = null}
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Refined text display -->
+    <div class="mb-3">
+      <h4 class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Corrected Text:</h4>
+      <div class="text-sm text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 p-3 rounded border text-wrap leading-relaxed">
+        {refinementResult.refined_text || refinementResult.refined || 'No corrections needed'}
+      </div>
+    </div>
+    
+    <!-- Suggestions display -->
+    {#if refinementResult.suggestions && refinementResult.suggestions.length > 0 && !refinementResult.suggestions.some(s => s.includes('Could not parse') || s.includes('Error processing'))}
+      <div class="mb-3">
+        <h4 class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Grammar Tips:</h4>
+        <div class="bg-gray-50 dark:bg-gray-700 p-2 rounded border max-h-32 overflow-y-auto">
+          <ul class="space-y-1">
+            {#each refinementResult.suggestions as suggestion}
+              <li class="flex items-start text-xs text-gray-700 dark:text-gray-300">
+                <span class="w-1 h-1 bg-blue-400 rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
+                <span class="leading-relaxed">{suggestion}</span>
+              </li>
+            {/each}
+          </ul>
+        </div>
+      </div>
+    {/if}
+    
+    <!-- Action button -->
+    <button 
+      type="button" 
+      class="w-full inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors duration-200"
+      on:click={applyRefinedText}
+    >
+      <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      Apply Corrections
+    </button>
+  </div>
+{/if}

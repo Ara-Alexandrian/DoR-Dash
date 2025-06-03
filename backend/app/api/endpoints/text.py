@@ -20,24 +20,27 @@ async def refine_text(request: TextRefinementRequest):
     """
     try:
         # Prepare prompt for Mistral model
-        prompt = f"""You are a professional editor helping to improve academic and research text. 
+        prompt = f"""You are a copy editor focused on grammar, spelling, and communication flow. 
 
-Please proofread and refine the following text:
-- Fix any grammar, spelling, and punctuation errors
-- Improve clarity and readability  
-- Make it more concise while preserving the meaning
-- Use professional academic tone
+Please proofread the following text and fix only:
+- Grammar and spelling errors
+- Punctuation issues
+- Sentence structure problems
+- Communication flow improvements
+- Suggest bullet points if the content would benefit from a list format
 
-TEXT TO REFINE:
+Keep the original meaning and tone. Do not make creative changes or assume meanings not present in the original text.
+
+TEXT TO PROOFREAD:
 {request.text}
 
 Respond ONLY with valid JSON in this exact format:
 {{
-    "refined_text": "Your improved version of the text",
-    "suggestions": ["Specific tip 1", "Specific tip 2", "Specific tip 3"]
+    "refined_text": "Your corrected version of the text",
+    "suggestions": ["Grammar/spelling tip 1", "Flow improvement tip 2", "Formatting suggestion 3"]
 }}
 
-Do not include any other text or explanations outside the JSON."""
+Do not include any other text outside the JSON."""
         
         # Call Ollama API
         async with httpx.AsyncClient() as client:
