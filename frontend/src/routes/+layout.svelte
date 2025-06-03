@@ -6,6 +6,8 @@
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
   import ErrorFallback from '$lib/components/ErrorFallback.svelte';
+  import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+  import { theme } from '$lib/stores/theme';
   
   // Error handling
   let hasError = false;
@@ -112,42 +114,44 @@
 
 {#if isAuthRoute || !$auth.isAuthenticated}
   <!-- Auth layout (minimal, no sidebar) -->
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-[rgb(var(--color-bg-primary))]">
     <slot />
   </div>
 {:else}
   <!-- Main layout with sidebar -->
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-[rgb(var(--color-bg-primary))]">
     <!-- Mobile sidebar backdrop -->
     {#if showSidebar}
       <button 
-        class="fixed inset-0 z-20 bg-mbpblack-950 bg-opacity-50 lg:hidden" 
+        class="fixed inset-0 z-20 bg-black/50 backdrop-blur-sm lg:hidden" 
         on:click={toggleSidebar}
         on:keydown={(e) => e.key === 'Escape' && (showSidebar = false)}
         aria-label="Close menu"
       ></button>
     {/if}
     
-    <!-- Sidebar - Mary Bird Perkins burgundy theme -->
-    <div class="sidebar fixed inset-y-0 left-0 z-30 w-64 transform bg-primary-900 overflow-y-auto transition-transform duration-200 ease-in-out lg:translate-x-0 {showSidebar ? 'translate-x-0' : '-translate-x-full'}">
-      <div class="flex items-center justify-between h-20 px-4 bg-primary-950 border-b border-primary-800">
-        <div class="flex items-center">
-          <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-10 w-auto mr-3"/>
-          <h1 class="text-xl font-bold text-white">DoR-Dash</h1>
+    <!-- Enhanced Sidebar with theme support -->
+    <div class="sidebar fixed inset-y-0 left-0 z-30 w-64 transform bg-primary-900 overflow-y-auto transition-transform duration-300 ease-in-out lg:translate-x-0 {showSidebar ? 'translate-x-0' : '-translate-x-full'} shadow-2xl">
+      <div class="h-20 px-6 bg-primary-950 border-b border-primary-800 flex flex-col justify-center">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-10 w-auto mr-3 drop-shadow-md"/>
+            <h1 class="text-2xl font-bold text-white tracking-tight">DoR-Dash</h1>
+          </div>
         </div>
-        <div class="text-xs text-gold-400">
-          Mary Bird Perkins Cancer Center
+        <div class="text-xs text-gold-400 mt-1 font-medium">
+          Dose of Reality Dashboard
         </div>
       </div>
       
-      <nav class="mt-5 px-2 space-y-1">
+      <nav class="mt-6 px-3 space-y-1">
         {#each nav as item}
           <a 
             href={item.path} 
-            class="group flex items-center px-3 py-2 text-base font-medium rounded-md transition-colors {$page.url.pathname.startsWith(item.path) ? 'bg-primary-800 text-white' : 'text-primary-100 hover:bg-primary-800 hover:text-white'}"
+            class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {$page.url.pathname.startsWith(item.path) ? 'bg-primary-800 text-white shadow-md' : 'text-primary-100 hover:bg-primary-800/50 hover:text-white'}"
           >
-            <!-- Icon SVG placeholder with gold accent for active items -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 {$page.url.pathname.startsWith(item.path) ? 'text-gold-400' : 'text-primary-300 group-hover:text-gold-300'}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <!-- Icon SVG with gold accent for active items -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 flex-shrink-0 {$page.url.pathname.startsWith(item.path) ? 'text-gold-400' : 'text-primary-300 group-hover:text-gold-300'}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               {#if item.icon === 'home'}
                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
               {:else if item.icon === 'document-text'}
@@ -172,18 +176,18 @@
         
         {#if isAdmin}
           <!-- LSU Purple theme for admin section -->
-          <div class="pt-5 mt-5 border-t border-primary-700">
-            <h3 class="px-3 text-xs font-semibold text-gold-300 uppercase tracking-wider">
-              Admin
+          <div class="pt-6 mt-6 border-t border-primary-700">
+            <h3 class="px-3 mb-3 text-xs font-semibold text-gold-300 uppercase tracking-wider">
+              Administration
             </h3>
             
             {#each adminNav as item}
               <a 
                 href={item.path} 
-                class="group flex items-center px-3 py-2 text-base font-medium rounded-md transition-colors {$page.url.pathname.startsWith(item.path) ? 'bg-secondary-900 text-white' : 'text-primary-100 hover:bg-secondary-900 hover:text-white'}"
+                class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {$page.url.pathname.startsWith(item.path) ? 'bg-secondary-900 text-white shadow-md' : 'text-primary-100 hover:bg-secondary-900/50 hover:text-white'}"
               >
                 <!-- Icon SVG with gold accent for active items -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 {$page.url.pathname.startsWith(item.path) ? 'text-gold-400' : 'text-primary-300 group-hover:text-gold-300'}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 flex-shrink-0 {$page.url.pathname.startsWith(item.path) ? 'text-gold-400' : 'text-primary-300 group-hover:text-gold-300'}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   {#if item.icon === 'view-grid'}
                     <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                   {:else if item.icon === 'user-group'}
@@ -202,24 +206,25 @@
       
       <div class="mt-auto p-4 border-t border-primary-800">
         {#if $auth?.user}
-          <div class="flex items-center">
+          <div class="flex items-center p-2 rounded-lg hover:bg-primary-800/30 transition-colors duration-200">
             <div class="flex-shrink-0">
-              <div class="h-10 w-10 rounded-full bg-gold-500 flex items-center justify-center text-primary-950 font-medium">
+              <div class="h-10 w-10 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-primary-950 font-bold shadow-md">
                 {($auth.user.full_name?.[0] || $auth.user.username?.[0] || '').toUpperCase()}
               </div>
             </div>
-            <div class="ml-3">
-              <p class="text-sm font-medium text-white">{$auth.user.full_name || $auth.user.username}</p>
-              <div class="flex space-x-3">
+            <div class="ml-3 flex-1">
+              <p class="text-sm font-semibold text-white">{$auth.user.full_name || $auth.user.username}</p>
+              <div class="flex items-center gap-3 mt-1">
                 <a 
                   href="/profile"
-                  class="text-xs font-medium text-gold-300 hover:text-gold-200"
+                  class="text-xs font-medium text-gold-300 hover:text-gold-200 transition-colors"
                 >
                   Profile
                 </a>
+                <span class="text-primary-600">•</span>
                 <button 
                   on:click={logout}
-                  class="text-xs font-medium text-gold-300 hover:text-gold-200"
+                  class="text-xs font-medium text-gold-300 hover:text-gold-200 transition-colors"
                 >
                   Sign out
                 </button>
@@ -231,56 +236,74 @@
     </div>
     
     <!-- Main content -->
-    <div class="lg:pl-64">
-      <!-- Header with LSU gold accent -->
-      <header class="flex justify-between items-center h-16 bg-white shadow px-4 sm:px-6 lg:px-8 border-b-2 border-gold-400">
-        <!-- Mobile menu button -->
-        <button
-          class="lg:hidden p-2 rounded-md text-primary-900 hover:text-primary-700 hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-700"
-          on:click={toggleSidebar}
-          aria-label="Open menu"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            {#if showSidebar}
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            {:else}
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            {/if}
-          </svg>
-        </button>
+    <div class="lg:pl-64 flex flex-col min-h-screen">
+      <!-- Enhanced header with theme toggle -->
+      <header class="sticky top-0 z-10 flex items-center h-20 bg-[rgb(var(--color-bg-primary))] border-b border-[rgb(var(--color-border))] px-4 sm:px-6 lg:px-8 shadow-sm">
+        <div class="flex items-center flex-1">
+          <!-- Mobile menu button -->
+          <button
+            class="lg:hidden p-2.5 rounded-lg text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-secondary))] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-[rgb(var(--color-bg-primary))] transition-colors duration-200"
+            on:click={toggleSidebar}
+            aria-label="Open menu"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {#if showSidebar}
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              {:else}
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              {/if}
+            </svg>
+          </button>
+          
+          <!-- Page title with improved typography -->
+          <div class="ml-4 lg:ml-0">
+            <h1 class="text-2xl font-bold text-[rgb(var(--color-text-primary))] tracking-tight">
+              <!-- Dynamically get page title based on route -->
+              {#if $page.url.pathname.endsWith('/dashboard')}
+                Dashboard
+              {:else if $page.url.pathname.endsWith('/submit-update')}
+                Submit Update
+              {:else if $page.url.pathname.endsWith('/support')}
+                Request Support
+              {:else if $page.url.pathname.endsWith('/mock-exam')}
+                Schedule Mock Exam
+              {:else if $page.url.pathname.endsWith('/calendar')}
+                Calendar
+              {:else if $page.url.pathname.endsWith('/agenda')}
+                Meeting Agenda
+              {:else if $page.url.pathname.endsWith('/roster')}
+                Roster
+              {:else if $page.url.pathname.includes('/admin')}
+                Admin Panel
+              {:else if $page.url.pathname.includes('/profile')}
+                Profile
+              {:else}
+                DoR-Dash
+              {/if}
+            </h1>
+            <p class="text-sm text-[rgb(var(--color-text-secondary))] mt-0.5">Mary Bird Perkins Cancer Center</p>
+          </div>
+        </div>
         
-        <h1 class="text-xl font-semibold text-primary-900">
-          <!-- Dynamically get page title based on route -->
-          {#if $page.url.pathname.endsWith('/dashboard')}
-            Dashboard
-          {:else if $page.url.pathname.endsWith('/submit-update')}
-            Submit Update
-          {:else if $page.url.pathname.endsWith('/support')}
-            Request Support
-          {:else if $page.url.pathname.endsWith('/mock-exam')}
-            Schedule Mock Exam
-          {:else if $page.url.pathname.endsWith('/agenda')}
-            Meeting Agenda
-          {:else if $page.url.pathname.endsWith('/roster')}
-            Roster
-          {:else if $page.url.pathname.includes('/admin')}
-            Admin Panel
-          {:else}
-            DoR-Dash
-          {/if}
-        </h1>
-        
-        <!-- MBP logo for the header -->
-        <div>
-          <div class="flex items-center h-8">
-            <span class="font-bold text-primary-900 mr-1">Mary Bird Perkins</span>
-            <span class="text-secondary-900 ml-2 text-sm">with LSU</span>
+        <!-- Right side of header -->
+        <div class="flex items-center gap-4">
+          <!-- Theme toggle -->
+          <ThemeToggle />
+          
+          <!-- Institution branding -->
+          <div class="hidden sm:flex items-center gap-2 text-sm">
+            <span class="font-semibold text-[rgb(var(--color-text-primary))]">Mary Bird Perkins</span>
+            <span class="text-[rgb(var(--color-text-secondary))]">×</span>
+            <span class="font-semibold text-secondary-700">LSU</span>
           </div>
         </div>
       </header>
       
-      <main class="py-6 px-4 sm:px-6 lg:px-8">
-        <slot />
+      <!-- Main content area with improved spacing -->
+      <main class="flex-1 p-6 sm:p-8 lg:p-10">
+        <div class="max-w-7xl mx-auto">
+          <slot />
+        </div>
       </main>
     </div>
   </div>

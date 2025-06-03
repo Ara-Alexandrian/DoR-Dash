@@ -78,102 +78,93 @@
   }
 </script>
 
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-b from-white to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-  <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg border-t-4 border-primary-800">
-    <div>
-      <div class="flex justify-center mb-6">
-        <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-20 w-auto"/>
-      </div>
-      <h1 class="text-center text-3xl font-extrabold text-primary-900">DoR-Dash</h1>
-      <h2 class="mt-2 text-center text-xl text-primary-700">Dose of Reality Dashboard</h2>
-      <div class="mt-4 flex justify-center space-x-6 items-center">
-        <img src="/images/mbp.png" alt="Mary Bird Perkins Logo" class="h-6 w-auto"/>
-        <div class="h-8 flex items-center text-xs text-secondary-900 font-medium">
-          in partnership with
-          <img src="/images/lsu.png" alt="LSU Logo" class="h-6 w-auto ml-2"/>
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 via-primary-50 to-secondary-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full">
+    <!-- Main card -->
+    <div class="bg-white/95 backdrop-blur-sm p-10 rounded-2xl shadow-2xl border border-gray-100">
+      <!-- Logo and title -->
+      <div class="text-center">
+        <div class="flex justify-center mb-4">
+          <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-24 w-auto drop-shadow-lg"/>
         </div>
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-800 to-primary-600 bg-clip-text text-transparent">
+          DoR-Dash
+        </h1>
+        <p class="mt-3 text-sm text-gray-600 font-medium">
+          Sign in to access your dashboard
+        </p>
       </div>
-      <p class="mt-4 text-center text-sm text-gray-600">
-        Sign in to access your dashboard
-      </p>
+    
+      <form class="mt-10 space-y-6" on:submit|preventDefault={handleLogin}>
+        <div class="space-y-4">
+          <div>
+            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              required
+              class="appearance-none relative block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent transition-all duration-200"
+              placeholder="Enter your username"
+              bind:value={username}
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              class="appearance-none relative block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent transition-all duration-200"
+              placeholder="Enter your password"
+              bind:value={password}
+              disabled={loading}
+            />
+          </div>
+        </div>
+      
+        {#if error}
+          <div class="rounded-lg bg-red-50 border border-red-200 p-4">
+            <div class="text-sm text-red-800 font-medium">
+              {error}
+            </div>
+            {#if error.includes('credentials')}
+              <div class="mt-2 text-xs text-gray-600">
+                <p>Development credentials: <code class="bg-gray-100 px-1 py-0.5 rounded">admin / password</code></p>
+              </div>
+            {/if}
+          </div>
+        {/if}
+        
+        <div>
+          <button
+            type="submit"
+            class="relative w-full flex justify-center py-3.5 px-4 border border-transparent text-base font-semibold rounded-lg text-white bg-gradient-to-r from-primary-700 to-primary-800 hover:from-primary-800 hover:to-primary-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-600 transform transition-all duration-200 hover:scale-[1.02] shadow-lg"
+            disabled={loading}
+          >
+            {#if loading}
+              <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                <svg class="animate-spin h-5 w-5 text-white/70" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </span>
+              Signing in...
+            {:else}
+              Sign in
+            {/if}
+          </button>
+        </div>
+      </form>
     </div>
     
-    <form class="mt-8 space-y-6" on:submit|preventDefault={handleLogin}>
-      <div class="rounded-md shadow-sm -space-y-px">
-        <div>
-          <label for="username" class="sr-only">Username</label>
-          <input
-            id="username"
-            name="username"
-            type="text"
-            required
-            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-700 focus:border-primary-700 focus:z-10 sm:text-sm"
-            placeholder="Username"
-            bind:value={username}
-            disabled={loading}
-          />
-        </div>
-        <div>
-          <label for="password" class="sr-only">Password</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-700 focus:border-primary-700 focus:z-10 sm:text-sm"
-            placeholder="Password"
-            bind:value={password}
-            disabled={loading}
-          />
-        </div>
-      </div>
-      
-      {#if error}
-        <div class="rounded-md bg-primary-50 border border-primary-300 p-4">
-          <div class="text-sm text-primary-800 font-medium">
-            {error}
-          </div>
-          <div class="mt-2 text-xs text-gray-600">
-              <p>Try using username <strong>admin</strong> and password <strong>password</strong> for development</p>
-            </div>
-        </div>
-      {/if}
-      
-      <div>
-        <button
-          type="submit"
-          class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-800 hover:bg-primary-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-700 transition-colors shadow-md"
-          disabled={loading}
-        >
-          {#if loading}
-            <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-              <!-- Loading spinner -->
-              <svg class="animate-spin h-5 w-5 text-gold-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            </span>
-            Signing in...
-          {:else}
-            Sign in
-          {/if}
-        </button>
-      </div>
-      
-      <!-- MBP and LSU branding footer -->
-      <div class="mt-8 pt-4 border-t border-gray-200">
-        <div class="flex justify-between items-center">
-          <div class="text-xs text-gray-500">
-            &copy; {new Date().getFullYear()} Mary Bird Perkins Cancer Center
-          </div>
-          <div class="text-xs text-gray-500">
-            In partnership with LSU
-          </div>
-        </div>
-      </div>
-      
-      <!-- LSU color accent at the bottom -->
-      <div class="h-1 w-full bg-gradient-to-r from-secondary-900 to-gold-500 rounded-full mt-4"></div>
-    </form>
+    <!-- Partner logos at bottom -->
+    <div class="mt-8 flex items-center justify-center gap-3 text-xs text-gray-600">
+      <img src="/images/mbp.png" alt="Mary Bird Perkins" class="h-8 opacity-70 hover:opacity-100 transition-opacity" />
+      <span class="font-medium">in partnership with</span>
+      <img src="/images/lsu.png" alt="LSU" class="h-8 opacity-70 hover:opacity-100 transition-opacity" />
+    </div>
   </div>
 </div>
