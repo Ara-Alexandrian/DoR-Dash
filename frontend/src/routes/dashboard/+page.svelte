@@ -10,66 +10,7 @@
   
   onMount(async () => {
     try {
-      // Set mock data for development/demonstration
-      if (import.meta.env.DEV || window.location.hostname === 'localhost') {
-        console.log('Using mock data for dashboard');
-        
-        // Mock updates data
-        updates = [
-          {
-            id: 101,
-            user_id: $auth.user?.id || 1,
-            user_name: $auth.user?.full_name || 'Current User',
-            submitted_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-            submission_date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-            progress_text: "Completed literature review on recent radiation therapy techniques and identified key areas for improvement in current methodologies.",
-            challenges_text: "Encountered issues with data inconsistency across different patient records, requiring additional normalization steps.",
-            next_steps_text: "Plan to expand the dataset by incorporating additional patient records from our clinical partners."
-          },
-          {
-            id: 102,
-            user_id: $auth.user?.id || 1,
-            user_name: $auth.user?.full_name || 'Current User',
-            submitted_at: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
-            submission_date: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
-            progress_text: "Started data collection for pilot study with initial 5 participants.",
-            challenges_text: "Some equipment calibration issues delayed part of the data collection.",
-            next_steps_text: "Complete remaining participant sessions and begin data analysis."
-          }
-        ];
-        
-        // Mock presentations data
-        presentations = [
-          {
-            id: 1,
-            user_id: $auth.user?.id || 1,
-            user_name: $auth.user?.full_name || 'Current User',
-            title: "Research Progress Update",
-            meeting_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "scheduled",
-            files: [
-              { id: 1, name: 'progress_slides.pptx', type: 'presentation' },
-              { id: 2, name: 'research_data.xlsx', type: 'data' }
-            ]
-          },
-          {
-            id: 2,
-            user_id: $auth.user?.id || 1,
-            user_name: $auth.user?.full_name || 'Current User',
-            title: "Mock Dissertation Defense",
-            meeting_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-            status: "scheduled",
-            files: [
-              { id: 3, name: 'dissertation_draft.pdf', type: 'document' }
-            ]
-          }
-        ];
-        
-        loading = false;
-        return;
-      }
-      
-      // Try to fetch real data from API
+      // Always fetch real data from API
       // Fetch user's updates
       try {
         updates = await updateApi.getUpdates();
