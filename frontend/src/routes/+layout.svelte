@@ -131,15 +131,15 @@
     {/if}
     
     <!-- Enhanced Sidebar with theme support -->
-    <div class="sidebar fixed inset-y-0 left-0 z-30 w-64 transform bg-primary-900 overflow-y-auto transition-transform duration-300 ease-in-out lg:translate-x-0 {showSidebar ? 'translate-x-0' : '-translate-x-full'} shadow-2xl">
-      <div class="h-20 px-6 bg-primary-950 border-b border-primary-800 flex flex-col justify-center">
+    <div class="sidebar fixed inset-y-0 left-0 z-30 w-64 transform bg-primary-900 dark:bg-slate-800 dracula:bg-gray-800 mbp:bg-red-900 lsu:bg-purple-900 overflow-y-auto transition-transform duration-300 ease-in-out lg:translate-x-0 {showSidebar ? 'translate-x-0' : '-translate-x-full'} shadow-2xl">
+      <div class="h-20 px-6 bg-primary-950 dark:bg-slate-900 dracula:bg-gray-900 mbp:bg-red-950 lsu:bg-purple-950 border-b border-primary-800 dark:border-slate-700 dracula:border-gray-700 mbp:border-red-800 lsu:border-purple-800 flex flex-col justify-center">
         <div class="flex items-center justify-between">
           <div class="flex items-center">
             <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-10 w-auto mr-3 drop-shadow-md"/>
             <h1 class="text-2xl font-bold text-white tracking-tight">DoR-Dash</h1>
           </div>
         </div>
-        <div class="text-xs text-gold-400 mt-1 font-medium">
+        <div class="text-xs text-gold-400 dark:text-yellow-400 dracula:text-cyan-400 mbp:text-red-300 lsu:text-yellow-400 mt-1 font-medium">
           Dose of Reality Dashboard
         </div>
       </div>
@@ -148,10 +148,10 @@
         {#each nav as item}
           <a 
             href={item.path} 
-            class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {$page.url.pathname.startsWith(item.path) ? 'bg-primary-800 text-white shadow-md' : 'text-primary-100 hover:bg-primary-800/50 hover:text-white'}"
+            class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {$page.url.pathname.startsWith(item.path) ? 'bg-primary-800 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-red-800 lsu:bg-purple-800 text-white shadow-md' : 'text-primary-100 dark:text-slate-300 dracula:text-slate-300 mbp:text-red-100 lsu:text-purple-100 hover:bg-primary-800/50 dark:hover:bg-slate-700/50 dracula:hover:bg-gray-700/50 mbp:hover:bg-red-800/50 lsu:hover:bg-purple-800/50 hover:text-white'}"
           >
             <!-- Icon SVG with gold accent for active items -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 flex-shrink-0 {$page.url.pathname.startsWith(item.path) ? 'text-gold-400' : 'text-primary-300 group-hover:text-gold-300'}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 flex-shrink-0 {$page.url.pathname.startsWith(item.path) ? 'text-gold-400 dark:text-yellow-400 dracula:text-cyan-400 mbp:text-red-300 lsu:text-yellow-400' : 'text-primary-300 dark:text-slate-400 dracula:text-slate-400 mbp:text-red-300 lsu:text-purple-300 group-hover:text-gold-300 dark:group-hover:text-yellow-300 dracula:group-hover:text-cyan-300 mbp:group-hover:text-red-200 lsu:group-hover:text-yellow-300'}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               {#if item.icon === 'home'}
                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
               {:else if item.icon === 'document-text'}
@@ -176,18 +176,18 @@
         
         {#if isAdmin}
           <!-- LSU Purple theme for admin section -->
-          <div class="pt-6 mt-6 border-t border-primary-700">
-            <h3 class="px-3 mb-3 text-xs font-semibold text-gold-300 uppercase tracking-wider">
+          <div class="pt-6 mt-6 border-t border-primary-700 dark:border-slate-600 dracula:border-gray-600 mbp:border-red-700 lsu:border-purple-700">
+            <h3 class="px-3 mb-3 text-xs font-semibold text-gold-300 dark:text-yellow-300 dracula:text-cyan-300 mbp:text-red-300 lsu:text-yellow-300 uppercase tracking-wider">
               Administration
             </h3>
             
             {#each adminNav as item}
               <a 
                 href={item.path} 
-                class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {$page.url.pathname.startsWith(item.path) ? 'bg-secondary-900 text-white shadow-md' : 'text-primary-100 hover:bg-secondary-900/50 hover:text-white'}"
+                class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {$page.url.pathname.startsWith(item.path) ? 'bg-secondary-900 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-red-800 lsu:bg-purple-800 text-white shadow-md' : 'text-primary-100 dark:text-slate-300 dracula:text-slate-300 mbp:text-red-100 lsu:text-purple-100 hover:bg-secondary-900/50 dark:hover:bg-slate-700/50 dracula:hover:bg-gray-700/50 mbp:hover:bg-red-800/50 lsu:hover:bg-purple-800/50 hover:text-white'}"
               >
                 <!-- Icon SVG with gold accent for active items -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 flex-shrink-0 {$page.url.pathname.startsWith(item.path) ? 'text-gold-400' : 'text-primary-300 group-hover:text-gold-300'}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 flex-shrink-0 {$page.url.pathname.startsWith(item.path) ? 'text-gold-400 dark:text-yellow-400 dracula:text-cyan-400 mbp:text-red-300 lsu:text-yellow-400' : 'text-primary-300 dark:text-slate-400 dracula:text-slate-400 mbp:text-red-300 lsu:text-purple-300 group-hover:text-gold-300 dark:group-hover:text-yellow-300 dracula:group-hover:text-cyan-300 mbp:group-hover:text-red-200 lsu:group-hover:text-yellow-300'}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   {#if item.icon === 'view-grid'}
                     <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                   {:else if item.icon === 'user-group'}
@@ -204,11 +204,11 @@
         {/if}
       </nav>
       
-      <div class="mt-auto p-4 border-t border-primary-800">
+      <div class="mt-auto p-4 border-t border-primary-800 dark:border-slate-600 dracula:border-gray-600 mbp:border-red-700 lsu:border-purple-700">
         {#if $auth?.user}
-          <div class="flex items-center p-2 rounded-lg hover:bg-primary-800/30 transition-colors duration-200">
+          <div class="flex items-center p-2 rounded-lg hover:bg-primary-800/30 dark:hover:bg-slate-700/30 dracula:hover:bg-gray-700/30 mbp:hover:bg-red-800/30 lsu:hover:bg-purple-800/30 transition-colors duration-200">
             <div class="flex-shrink-0">
-              <div class="h-10 w-10 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center text-primary-950 font-bold shadow-md">
+              <div class="h-10 w-10 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 dark:from-yellow-400 dark:to-yellow-600 dracula:from-cyan-400 dracula:to-cyan-600 mbp:from-red-400 mbp:to-red-600 lsu:from-yellow-400 lsu:to-yellow-600 flex items-center justify-center text-primary-950 dark:text-slate-900 dracula:text-slate-900 mbp:text-white lsu:text-purple-900 font-bold shadow-md">
                 {($auth.user.full_name?.[0] || $auth.user.username?.[0] || '').toUpperCase()}
               </div>
             </div>
@@ -217,14 +217,14 @@
               <div class="flex items-center gap-3 mt-1">
                 <a 
                   href="/profile"
-                  class="text-xs font-medium text-gold-300 hover:text-gold-200 transition-colors"
+                  class="text-xs font-medium text-gold-300 dark:text-yellow-300 dracula:text-cyan-300 mbp:text-red-300 lsu:text-yellow-300 hover:text-gold-200 dark:hover:text-yellow-200 dracula:hover:text-cyan-200 mbp:hover:text-red-200 lsu:hover:text-yellow-200 transition-colors"
                 >
                   Profile
                 </a>
-                <span class="text-primary-600">•</span>
+                <span class="text-primary-600 dark:text-slate-500 dracula:text-slate-500 mbp:text-red-600 lsu:text-purple-600">•</span>
                 <button 
                   on:click={logout}
-                  class="text-xs font-medium text-gold-300 hover:text-gold-200 transition-colors"
+                  class="text-xs font-medium text-gold-300 dark:text-yellow-300 dracula:text-cyan-300 mbp:text-red-300 lsu:text-yellow-300 hover:text-gold-200 dark:hover:text-yellow-200 dracula:hover:text-cyan-200 mbp:hover:text-red-200 lsu:hover:text-yellow-200 transition-colors"
                 >
                   Sign out
                 </button>

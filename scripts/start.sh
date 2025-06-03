@@ -52,6 +52,7 @@ BACKEND_HOST=172.30.98.21
 BACKEND_PORT=8000
 FRONTEND_HOST=172.30.98.21
 FRONTEND_PORT=7117
+VITE_API_URL=http://172.30.98.21:8000
 EOF
 
 # Copy .env to backend directory as well
@@ -99,9 +100,13 @@ cd ..
 echo -e "${BLUE}Starting frontend...${NC}"
 cd frontend
 
-# Create frontend .env file if it doesn't exist
-cat > .env << EOF
+# Copy .env to frontend directory to ensure VITE_API_URL is available
+cp ../.env .env
+
+# Create or update .env.development to override development defaults
+cat > .env.development << EOF
 VITE_API_URL=http://172.30.98.21:8000
+VITE_USE_MOCK=false
 EOF
 
 # Install frontend dependencies if not already installed

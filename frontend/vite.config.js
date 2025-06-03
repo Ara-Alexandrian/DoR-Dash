@@ -6,6 +6,13 @@ export default defineConfig({
 	server: {
 		host: '0.0.0.0',
 		port: 3000,
-		strictPort: true
+		strictPort: true,
+		proxy: {
+			'/api': {
+				target: 'http://172.30.98.21:8000',
+				changeOrigin: true,
+				secure: false
+			}
+		}
 	}
 });

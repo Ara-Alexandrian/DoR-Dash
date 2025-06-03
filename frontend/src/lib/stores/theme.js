@@ -5,7 +5,9 @@ import { browser } from '$app/environment';
 export const themes = {
   light: 'light',
   dark: 'dark',
-  dracula: 'dracula'
+  dracula: 'dracula',
+  mbp: 'mbp',
+  lsu: 'lsu'
 };
 
 // Get saved theme or default to light
@@ -18,7 +20,7 @@ export const theme = writable(savedTheme);
 if (browser) {
   theme.subscribe(value => {
     localStorage.setItem('theme', value);
-    document.documentElement.classList.remove('light', 'dark', 'dracula');
+    document.documentElement.classList.remove('light', 'dark', 'dracula', 'mbp', 'lsu');
     document.documentElement.classList.add(value);
   });
 }

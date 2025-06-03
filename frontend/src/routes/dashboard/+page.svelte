@@ -14,7 +14,8 @@
       // Always fetch real data from API
       // Fetch user's updates
       try {
-        updates = await updateApi.getUpdates();
+        const updatesResponse = await updateApi.getUpdates();
+        updates = updatesResponse.items || updatesResponse || [];
       } catch (err) {
         console.error('Failed to load updates:', err);
         updates = [];
@@ -97,16 +98,18 @@
   {:else}
     <div class="space-y-8" in:fade={{duration: 300}}>
       <!-- Enhanced Header Section with gradient background -->
-      <div class="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-primary-900/20 dark:via-[rgb(var(--color-bg-primary))] dark:to-secondary-900/20 rounded-2xl shadow-xl border border-[rgb(var(--color-border))]">
-        <div class="absolute inset-0 bg-gradient-to-br from-primary-100/20 to-secondary-100/20 dark:from-primary-800/10 dark:to-secondary-800/10"></div>
+      <div class="relative overflow-hidden bg-gradient-to-br from-primary-900/5 via-[rgb(var(--color-bg-primary))] to-secondary-900/5 dark:from-primary-900/20 dark:via-[rgb(var(--color-bg-primary))] dark:to-secondary-900/20 dracula:from-purple-900/10 dracula:via-[rgb(var(--color-bg-primary))] dracula:to-cyan-900/10 mbp:from-red-900/5 mbp:via-[rgb(var(--color-bg-primary))] mbp:to-red-800/5 lsu:from-purple-900/5 lsu:via-[rgb(var(--color-bg-primary))] lsu:to-yellow-900/5 rounded-2xl shadow-xl border border-[rgb(var(--color-border))]">
+        <div class="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-secondary-500/5 dark:from-primary-800/10 dark:to-secondary-800/10 dracula:from-purple-500/5 dracula:to-cyan-500/5 mbp:from-red-500/5 mbp:to-red-600/5 lsu:from-purple-500/5 lsu:to-yellow-500/5"></div>
         <div class="relative px-8 py-10">
           <div class="flex justify-between items-start">
             <div class="flex items-start space-x-6">
               <div class="transform hover:scale-105 transition-transform duration-300">
-                <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-20 w-auto drop-shadow-lg"/>
+                <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-700/80 dracula:bg-gray-700/80 mbp:bg-white/90 lsu:bg-white/90 shadow-lg">
+                  <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-16 w-auto"/>
+                </div>
               </div>
               <div>
-                <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-800 to-primary-600 dark:from-primary-400 dark:to-primary-300 bg-clip-text text-transparent">
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-800 to-primary-600 dark:from-primary-400 dark:to-primary-300 dracula:from-purple-300 dracula:to-cyan-200 mbp:from-red-800 mbp:to-red-600 lsu:from-purple-800 lsu:to-purple-600 bg-clip-text text-transparent">
                   {getGreeting()}, {$auth.user?.username || 'User'}
                 </h1>
                 <p class="mt-2 text-lg text-[rgb(var(--color-text-secondary))] font-medium">Welcome to your Dose of Reality Dashboard</p>
@@ -114,10 +117,14 @@
               </div>
             </div>
             <div class="flex items-center space-x-4 transform hover:scale-105 transition-transform duration-300">
-              <img src="/images/mbp.png" alt="Mary Bird Perkins Logo" class="h-10 w-auto drop-shadow-md"/>
+              <div class="p-3 rounded-lg bg-white/80 dark:bg-slate-700/80 dracula:bg-gray-700/80 mbp:bg-white/90 lsu:bg-white/90 shadow-md">
+                <img src="/images/mbp.png" alt="Mary Bird Perkins Logo" class="h-14 w-auto"/>
+              </div>
               <div class="flex items-center">
-                <span class="text-xs text-[rgb(var(--color-text-tertiary))] mr-2">with</span>
-                <img src="/images/lsu.png" alt="LSU Logo" class="h-8 w-auto drop-shadow-md"/>
+                <span class="text-xs text-[rgb(var(--color-text-tertiary))] mr-2 font-medium">with</span>
+                <div class="p-2 rounded-lg bg-white/80 dark:bg-slate-700/80 dracula:bg-gray-700/80 mbp:bg-white/90 lsu:bg-white/90 shadow-md">
+                  <img src="/images/lsu.png" alt="LSU Logo" class="h-8 w-auto"/>
+                </div>
               </div>
             </div>
           </div>
@@ -424,9 +431,13 @@
       <div class="mt-12 pt-8 border-t border-[rgb(var(--color-border))]" in:fade={{duration: 300, delay: 400}}>
         <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
           <div class="flex items-center space-x-6">
-            <img src="/images/mbp.png" alt="Mary Bird Perkins Logo" class="h-8 w-auto opacity-60 hover:opacity-100 transition-opacity"/>
-            <span class="text-xs text-[rgb(var(--color-text-tertiary))]">in partnership with</span>
-            <img src="/images/lsu.png" alt="LSU Logo" class="h-6 w-auto opacity-60 hover:opacity-100 transition-opacity"/>
+            <div class="p-3 rounded-lg bg-white/50 dark:bg-slate-700/50 dracula:bg-gray-700/50 mbp:bg-white/70 lsu:bg-white/70 shadow-sm">
+              <img src="/images/mbp.png" alt="Mary Bird Perkins Logo" class="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity"/>
+            </div>
+            <span class="text-xs text-[rgb(var(--color-text-tertiary))] font-medium">in partnership with</span>
+            <div class="p-2 rounded-lg bg-white/50 dark:bg-slate-700/50 dracula:bg-gray-700/50 mbp:bg-white/70 lsu:bg-white/70 shadow-sm">
+              <img src="/images/lsu.png" alt="LSU Logo" class="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity"/>
+            </div>
           </div>
           <div class="text-xs text-[rgb(var(--color-text-tertiary))] text-center sm:text-right">
             <p>&copy; {new Date().getFullYear()} Mary Bird Perkins Cancer Center</p>

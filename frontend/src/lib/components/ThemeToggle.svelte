@@ -6,7 +6,9 @@
   const themes = [
     { value: 'light', label: 'Light', icon: '☀️' },
     { value: 'dark', label: 'Dark', icon: '🌙' },
-    { value: 'dracula', label: 'Sweet Dracula', icon: '🦇' }
+    { value: 'dracula', label: 'Sweet Dracula', icon: '🦇' },
+    { value: 'mbp', label: 'Mary Bird Perkins', icon: '🩺' },
+    { value: 'lsu', label: 'LSU Tigers', icon: '🐅' }
   ];
   
   function selectTheme(themeValue) {

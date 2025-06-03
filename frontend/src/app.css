@@ -15,28 +15,52 @@
     --color-border-secondary: 209 213 219;
   }
 
-  /* Dark mode */
+  /* Dark mode - Enhanced contrast and usability */
   .dark {
-    --color-bg-primary: 17 24 39;
-    --color-bg-secondary: 31 41 55;
-    --color-bg-tertiary: 55 65 81;
-    --color-text-primary: 243 244 246;
-    --color-text-secondary: 209 213 219;
-    --color-text-tertiary: 156 163 175;
-    --color-border: 55 65 81;
-    --color-border-secondary: 75 85 99;
+    --color-bg-primary: 15 23 42;
+    --color-bg-secondary: 30 41 59;
+    --color-bg-tertiary: 51 65 85;
+    --color-text-primary: 248 250 252;
+    --color-text-secondary: 226 232 240;
+    --color-text-tertiary: 148 163 184;
+    --color-border: 51 65 85;
+    --color-border-secondary: 71 85 105;
   }
 
-  /* Sweet Dracula mode */
+  /* Sweet Dracula mode - Darker, more muted Dracula variant */
   .dracula {
-    --color-bg-primary: 40 42 54;
-    --color-bg-secondary: 68 71 90;
-    --color-bg-tertiary: 98 114 164;
+    --color-bg-primary: 30 32 43;
+    --color-bg-secondary: 40 42 54;
+    --color-bg-tertiary: 50 52 63;
     --color-text-primary: 248 248 242;
     --color-text-secondary: 189 147 249;
     --color-text-tertiary: 139 233 253;
     --color-border: 68 71 90;
     --color-border-secondary: 98 114 164;
+  }
+
+  /* Mary Bird Perkins Cancer Center theme - Darker burgundy and cream */
+  .mbp {
+    --color-bg-primary: 240 235 225;
+    --color-bg-secondary: 230 220 205;
+    --color-bg-tertiary: 220 205 190;
+    --color-text-primary: 55 20 18;
+    --color-text-secondary: 90 35 33;
+    --color-text-tertiary: 120 55 53;
+    --color-border: 180 150 135;
+    --color-border-secondary: 160 130 115;
+  }
+
+  /* LSU Tigers theme - Darker purple and gold */
+  .lsu {
+    --color-bg-primary: 245 240 220;
+    --color-bg-secondary: 235 230 200;
+    --color-bg-tertiary: 225 220 180;
+    --color-text-primary: 55 22 95;
+    --color-text-secondary: 70 28 120;
+    --color-text-tertiary: 85 35 140;
+    --color-border: 190 175 130;
+    --color-border-secondary: 170 155 110;
   }
 
   html {
@@ -82,11 +106,88 @@
   }
   
   .dark .card {
-    @apply shadow-xl shadow-black/10;
+    @apply shadow-xl shadow-black/20 border border-slate-600/50;
   }
   
   .dracula .card {
-    @apply shadow-xl shadow-purple-500/10 border-purple-500/20;
+    @apply shadow-xl shadow-purple-500/20 border-purple-400/30;
+  }
+
+  .mbp .card {
+    @apply shadow-xl shadow-red-500/20 border-red-300/40;
+  }
+
+  .lsu .card {
+    @apply shadow-xl shadow-purple-500/20 border-purple-300/40;
+  }
+
+  /* Enhanced contrast for input fields in dark themes */
+  .dark input, .dark textarea, .dark select {
+    @apply bg-slate-700 border-slate-600 text-slate-100 placeholder-slate-400;
+  }
+  
+  .dark input:focus, .dark textarea:focus, .dark select:focus {
+    @apply border-primary-400 ring-primary-400/50 bg-slate-700;
+  }
+
+  .dracula input, .dracula textarea, .dracula select {
+    @apply bg-gray-700 border-purple-400/60 text-slate-100 placeholder-cyan-200/70;
+  }
+  
+  .dracula input:focus, .dracula textarea:focus, .dracula select:focus {
+    @apply border-cyan-300 ring-cyan-300/50 bg-gray-700;
+  }
+
+  /* MBP theme input styling */
+  .mbp input, .mbp textarea, .mbp select {
+    @apply bg-red-50/50 border-red-300/60 text-red-900 placeholder-red-400/70;
+  }
+  
+  .mbp input:focus, .mbp textarea:focus, .mbp select:focus {
+    @apply border-red-500 ring-red-500/50 bg-red-50/50;
+  }
+
+  /* LSU theme input styling */
+  .lsu input, .lsu textarea, .lsu select {
+    @apply bg-purple-50/50 border-purple-300/60 text-purple-900 placeholder-purple-400/70;
+  }
+  
+  .lsu input:focus, .lsu textarea:focus, .lsu select:focus {
+    @apply border-purple-500 ring-purple-500/50 bg-purple-50/50;
+  }
+
+  /* Better button contrast for dark themes */
+  .dark .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-500 text-white shadow-lg;
+  }
+
+  .dracula .btn-primary {
+    @apply bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-500/25;
+  }
+
+  .mbp .btn-primary {
+    @apply bg-red-700 hover:bg-red-800 text-white shadow-lg shadow-red-500/25;
+  }
+
+  .lsu .btn-primary {
+    @apply bg-purple-700 hover:bg-purple-800 text-white shadow-lg shadow-purple-500/25;
+  }
+
+  /* Enhanced text readability */
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    @apply text-slate-100;
+  }
+
+  .dracula h1, .dracula h2, .dracula h3, .dracula h4, .dracula h5, .dracula h6 {
+    @apply text-slate-100;
+  }
+
+  .mbp h1, .mbp h2, .mbp h3, .mbp h4, .mbp h5, .mbp h6 {
+    @apply text-red-900;
+  }
+
+  .lsu h1, .lsu h2, .lsu h3, .lsu h4, .lsu h5, .lsu h6 {
+    @apply text-purple-900;
   }
   
   .card-header {
