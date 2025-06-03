@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+.venv
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+.svelte-kit/
+
+# Database
+*.db
+*.sqlite
+
+# Uploads
+uploads/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# PID files
+*.pid
+
+# Test coverage
+coverage/
+.coverage
+htmlcov/
+
+# Backend specific
+backend/.env
+backend/alembic/versions/*.pyc
+
+# Frontend specific
+frontend/.env
+frontend/build/
+frontend/.svelte-kit/

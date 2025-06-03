@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "192.168.1.21:8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./uploads:/app/uploads
+    environment:
+      - POSTGRES_SERVER=${POSTGRES_SERVER}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - REDIS_SERVER=${REDIS_SERVER}
+      - REDIS_PORT=${REDIS_PORT}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES}
+      - OLLAMA_API_URL=${OLLAMA_API_URL}
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - dor-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "192.168.1.21:3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://192.168.1.21:8000
+      - NODE_ENV=development
+    command: npm run dev -- --host 0.0.0.0 --port 3000
+    depends_on:
+      - backend
+    networks:
+      - dor-network
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: dor_pgadmin
+    ports:
+      - "192.168.1.21:5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@dor.local
+      PGADMIN_DEFAULT_PASSWORD: dor_admin_password
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - dor-network
+    restart: unless-stopped
+
+volumes:
+  pgadmin_data:
+
+networks:
+  dor-network:
+    driver: bridge

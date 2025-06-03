@@ -1,0 +1,66 @@
+name: DoR
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # Python core
+  - python=3.10
+  # Backend dependencies
+  - pip=23.1.2
+  - pip:
+    # FastAPI and web server
+    - fastapi>=0.100.0
+    - uvicorn[standard]>=0.22.0
+    - pydantic>=2.0.3
+    - pydantic-settings>=2.0.3
+    - python-multipart>=0.0.6
+    - python-jose[cryptography]>=3.3.0
+    - passlib[bcrypt]>=1.7.4
+    
+    # Database
+    - sqlalchemy>=2.0.18
+    - asyncpg>=0.28.0
+    - alembic>=1.11.1
+    
+    # Redis
+    - redis>=4.6.0
+    
+    # HTTP client for Ollama API
+    - httpx>=0.24.1
+    
+    # Testing
+    - pytest>=7.3.1
+    - pytest-asyncio>=0.21.0
+    
+    # Linting and formatting
+    - black>=23.3.0
+    - isort>=5.12.0
+    - flake8>=6.0.0
+    - mypy>=1.3.0
+
+variables:
+  # Database Configuration
+  POSTGRES_SERVER: 172.30.98.213
+  POSTGRES_PORT: 5432
+  POSTGRES_USER: DoRadmin
+  POSTGRES_PASSWORD: 1232
+  POSTGRES_DB: DoR
+
+  # Redis Configuration
+  REDIS_SERVER: 172.30.98.214
+  REDIS_PORT: 6379
+
+  # JWT Settings
+  SECRET_KEY: change_this_to_a_secure_random_string_in_production
+  ALGORITHM: HS256
+  ACCESS_TOKEN_EXPIRE_MINUTES: 30
+
+  # Ollama API Configuration
+  OLLAMA_API_URL: http://localhost:11434/api/generate
+
+  # Backend Settings
+  BACKEND_PORT: 8000
+  BACKEND_HOST: 0.0.0.0
+
+  # Frontend Settings
+  FRONTEND_PORT: 3000
