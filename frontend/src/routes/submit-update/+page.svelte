@@ -792,34 +792,73 @@
       </div>
     {/if}
     
-    <!-- Refinement result display -->
+    <!-- Enhanced Refinement result display -->
     {#if refinementResult}
-      <div class="p-4 bg-blue-50 rounded-md">
-        <div class="flex justify-between mb-2">
-          <h3 class="text-sm font-medium text-blue-700">AI Refinement Suggestions</h3>
+      <div class="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-700/50 shadow-sm">
+        <div class="flex justify-between items-start mb-4">
+          <div class="flex items-center space-x-2">
+            <svg class="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+            <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">AI Refinement Results</h3>
+          </div>
           <button 
             type="button" 
-            class="text-xs text-blue-700 hover:text-blue-500"
+            class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-800/50 hover:bg-blue-200 dark:hover:bg-blue-800/70 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             on:click={applyRefinedText}
           >
+            <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
             Apply Refined Text
           </button>
         </div>
         
-        <div class="text-sm text-gray-800 bg-white p-3 rounded border border-blue-200 mb-3">
-          {refinementResult.refined || refinementResult.refined_text}
+        <!-- Refined text display -->
+        <div class="mb-4">
+          <h4 class="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">Refined Text:</h4>
+          <div class="text-sm text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 p-4 rounded-lg border border-blue-200 dark:border-blue-600/50 shadow-sm leading-relaxed">
+            {refinementResult.refined_text || refinementResult.refined || 'No refined text available'}
+          </div>
         </div>
         
-        {#if refinementResult.suggestions && refinementResult.suggestions.length > 0}
+        <!-- Suggestions display -->
+        {#if refinementResult.suggestions && refinementResult.suggestions.length > 0 && !refinementResult.suggestions.includes('Could not parse suggestions from AI response')}
           <div>
-            <h4 class="text-xs font-medium text-blue-700 mb-1">Additional Suggestions:</h4>
-            <ul class="list-disc list-inside text-xs text-gray-700 space-y-1 pl-2">
-              {#each refinementResult.suggestions as suggestion}
-                <li>{suggestion}</li>
-              {/each}
-            </ul>
+            <h4 class="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2 flex items-center">
+              <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+              </svg>
+              Additional Suggestions:
+            </h4>
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-blue-200 dark:border-blue-600/50 shadow-sm">
+              <ul class="space-y-2">
+                {#each refinementResult.suggestions as suggestion}
+                  <li class="flex items-start text-sm text-gray-700 dark:text-gray-300">
+                    <svg class="h-4 w-4 text-blue-500 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <circle cx="10" cy="10" r="2"/>
+                    </svg>
+                    <span class="leading-relaxed">{suggestion}</span>
+                  </li>
+                {/each}
+              </ul>
+            </div>
           </div>
         {/if}
+        
+        <!-- Close button -->
+        <div class="mt-4 flex justify-end">
+          <button 
+            type="button" 
+            class="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+            on:click={() => refinementResult = null}
+          >
+            <svg class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Dismiss
+          </button>
+        </div>
       </div>
     {/if}
     
