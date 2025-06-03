@@ -440,8 +440,7 @@
             </div>
           </div>
           <div class="text-xs text-[rgb(var(--color-text-tertiary))] text-center sm:text-right">
-            <p>&copy; {new Date().getFullYear()} Mary Bird Perkins Cancer Center</p>
-            <p class="mt-1">Dose of Reality Research Program</p>
+            <p>Dose of Reality Research Program</p>
           </div>
         </div>
       </div>
