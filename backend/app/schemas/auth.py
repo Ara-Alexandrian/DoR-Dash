@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr, RootModel
+from pydantic import BaseModel, RootModel
 
 class Token(BaseModel):
     access_token: str
@@ -13,10 +13,10 @@ class TokenData(BaseModel):
 
 class UserBase(BaseModel):
     username: str
-    email: EmailStr
+    email: str
     full_name: str
     is_active: bool = True
-    preferred_email: Optional[EmailStr] = None
+    preferred_email: Optional[str] = None
     phone: Optional[str] = None
 
 class UserCreate(UserBase):
@@ -25,9 +25,9 @@ class UserCreate(UserBase):
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
-    email: Optional[EmailStr] = None
+    email: Optional[str] = None
     full_name: Optional[str] = None
-    preferred_email: Optional[EmailStr] = None
+    preferred_email: Optional[str] = None
     phone: Optional[str] = None
     role: Optional[str] = None
     is_active: Optional[bool] = None

@@ -2,56 +2,18 @@ from typing import List, Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Path, status
 from pydantic import EmailStr
 
-from app.api.endpoints.mock_auth import DEMO_USERS, User, get_current_user
+from app.api.endpoints.auth import USERS_DB, User, get_current_user, create_user as auth_create_user, update_user as auth_update_user, delete_user as auth_delete_user
 from app.core.permissions import get_admin_user, get_faculty_or_admin_user, is_owner_or_admin
 from app.core.security import get_password_hash
 from app.schemas.auth import UserCreate, UserUpdate, UserResponse
 
 router = APIRouter()
 
-# Ensure DEMO_USERS has some data
-if not DEMO_USERS:
-    DEMO_USERS.extend([
-        {
-            "id": 1,
-            "username": "admin",
-            "email": "admin@example.com",
-            "full_name": "Admin User",
-            "preferred_email": None,
-            "phone": None,
-            "role": "admin",
-            "is_active": True,
-            "password": "password"
-        },
-        {
-            "id": 2,
-            "username": "faculty1",
-            "email": "faculty1@example.com",
-            "full_name": "Faculty Member",
-            "preferred_email": "faculty1@personal.com",
-            "phone": "555-123-4567",
-            "role": "faculty",
-            "is_active": True,
-            "password": "password"
-        },
-        {
-            "id": 3,
-            "username": "student1",
-            "email": "student1@example.com",
-            "full_name": "Student One",
-            "preferred_email": None,
-            "phone": None,
-            "role": "student",
-            "is_active": True,
-            "password": "password"
-        }
-    ])
-
-# Function to generate a new user ID (for mock data)
+# Function to generate a new user ID
 def generate_user_id():
-    if not DEMO_USERS:
+    if not USERS_DB:
         return 1
-    return max(user["id"] for user in DEMO_USERS) + 1
+    return max(user["id"] for user in USERS_DB) + 1
 
 # Get all users (admin or faculty only)
 @router.get("/", response_model=List[UserResponse])
@@ -66,7 +28,7 @@ async def read_users(
     - Faculty can see all users
     - Students can't access this endpoint
     """
-    return DEMO_USERS[skip : skip + limit]
+    return USERS_DB[skip : skip + limit]
 
 # Get user by ID
 @router.get("/{user_id}", response_model=UserResponse)
@@ -87,7 +49,7 @@ async def read_user(
             detail="You don't have permission to access this user's information"
         )
     
-    user = next((user for user in DEMO_USERS if user["id"] == user_id), None)
+    user = next((user for user in USERS_DB if user["id"] == user_id), None)
     
     if user is None:
         raise HTTPException(
@@ -107,13 +69,13 @@ async def create_user(
     Create new user (admin only).
     """
     # Check if username or email already exists
-    if any(u["username"] == user_in.username for u in DEMO_USERS):
+    if any(u["username"] == user_in.username for u in USERS_DB):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username already exists"
         )
     
-    if any(u["email"] == user_in.email for u in DEMO_USERS):
+    if any(u["email"] == user_in.email for u in USERS_DB):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already exists"
@@ -121,13 +83,12 @@ async def create_user(
     
     # Create new user
     new_user = user_in.dict()
-    new_user["id"] = generate_user_id()
-    new_user["password"] = get_password_hash(user_in.password)  # In real app, password would be hashed
+    new_user["password"] = user_in.password  # Use plain text for consistency
     
-    # Add to demo users
-    DEMO_USERS.append(new_user)
+    # Add to users database
+    created_user = auth_create_user(new_user)
     
-    return new_user
+    return created_user
 
 # Update user (admin can update anyone, users can update themselves)
 @router.put("/{user_id}", response_model=UserResponse)
@@ -143,9 +104,9 @@ async def update_user(
     - Password changes are allowed
     """
     # Check if user exists
-    user_idx = next((i for i, u in enumerate(DEMO_USERS) if u["id"] == user_id), None)
+    user = next((u for u in USERS_DB if u["id"] == user_id), None)
     
-    if user_idx is None:
+    if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User with ID {user_id} not found"
@@ -157,9 +118,6 @@ async def update_user(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have permission to update this user"
         )
-    
-    # Get user to update
-    user = DEMO_USERS[user_idx]
     
     # If not admin, restrict what can be changed
     if current_user.role != "admin":
@@ -175,16 +133,12 @@ async def update_user(
     
     # Hash password if provided
     if "password" in update_data and update_data["password"]:
-        update_data["password"] = get_password_hash(update_data["password"])  # In real app, hash the password
+        update_data["password"] = update_data["password"]  # Keep plain text for simplicity
     
-    for field, value in update_data.items():
-        if value is not None:
-            user[field] = value
+    # Update in database using auth function
+    updated_user = auth_update_user(user_id, update_data)
     
-    # Update in "database"
-    DEMO_USERS[user_idx] = user
-    
-    return user
+    return updated_user
 
 # Delete user (admin only)
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -196,9 +150,9 @@ async def delete_user(
     Delete a user (admin only).
     """
     # Check if user exists
-    user_idx = next((i for i, u in enumerate(DEMO_USERS) if u["id"] == user_id), None)
+    user = next((u for u in USERS_DB if u["id"] == user_id), None)
     
-    if user_idx is None:
+    if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User with ID {user_id} not found"
@@ -211,8 +165,8 @@ async def delete_user(
             detail="You cannot delete your own account"
         )
     
-    # Delete from "database"
-    DEMO_USERS.pop(user_idx)
+    # Delete from database using auth function
+    auth_delete_user(user_id)
     
     return None
 
@@ -230,9 +184,9 @@ async def change_password(
     - Users can change their own password if they provide the correct old password
     """
     # Check if user exists
-    user_idx = next((i for i, u in enumerate(DEMO_USERS) if u["id"] == user_id), None)
+    user = next((u for u in USERS_DB if u["id"] == user_id), None)
     
-    if user_idx is None:
+    if user is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User with ID {user_id} not found"
@@ -245,21 +199,15 @@ async def change_password(
             detail="You don't have permission to change this user's password"
         )
     
-    # Get user
-    user = DEMO_USERS[user_idx]
-    
     # Non-admins must provide the old password
     if current_user.role != "admin" and current_user.id == user_id:
-        if not old_password or old_password != user["password"]:  # In real app, verify hash
+        if not old_password or old_password != user["password"]:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Incorrect old password"
             )
     
-    # Update password
-    user["password"] = get_password_hash(new_password)  # In real app, hash the password
-    
-    # Update in "database"
-    DEMO_USERS[user_idx] = user
+    # Update password using auth function
+    auth_update_user(user_id, {"password": new_password})
     
     return {"message": "Password changed successfully"}

@@ -8,8 +8,7 @@ import enum
 
 class MeetingType(str, enum.Enum):
     GENERAL_UPDATE = "general_update"
-    CONFERENCE_PRACTICE = "conference_practice"
-    MOCK_EXAM = "mock_exam"
+    PRESENTATIONS_AND_UPDATES = "presentations_and_updates"
     OTHER = "other"
 
 

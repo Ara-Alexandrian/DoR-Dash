@@ -12,6 +12,8 @@ class StudentUpdate(Base):
     progress_text: Mapped[str] = mapped_column(Text, nullable=False)
     challenges_text: Mapped[str] = mapped_column(Text, nullable=False)
     next_steps_text: Mapped[str] = mapped_column(Text, nullable=False)
+    meeting_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    will_present: Mapped[bool] = mapped_column(default=False, nullable=False)
     submission_date: Mapped[datetime] = mapped_column(
         DateTime, server_default=func.now(), nullable=False
     )

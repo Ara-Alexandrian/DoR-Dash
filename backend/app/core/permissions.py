@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import Depends, HTTPException, status
-from app.api.endpoints.mock_auth import get_current_user
+from app.api.endpoints.auth import get_current_user
 from pydantic import BaseModel
 
 # Mock equivalent model to the User from mock_auth
