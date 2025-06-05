@@ -6,7 +6,7 @@ import { apiFetch } from './index';
 export const facultyUpdateApi = {
   // Get all faculty updates
   getUpdates: async () => {
-    return await apiFetch('/faculty-updates');
+    return await apiFetch('/faculty-updates/');
   },
   
   // Get faculty update by ID
@@ -16,7 +16,7 @@ export const facultyUpdateApi = {
   
   // Create faculty update
   createUpdate: async (updateData) => {
-    return await apiFetch('/faculty-updates', {
+    return await apiFetch('/faculty-updates/', {
       method: 'POST',
       body: JSON.stringify(updateData)
     });

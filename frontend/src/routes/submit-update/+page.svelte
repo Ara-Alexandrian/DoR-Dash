@@ -1,10 +1,15 @@
 <script>
   import { auth } from '$lib/stores/auth';
-  import { updateApi, fileApi } from '$lib/api';
+  import { updateApi, fileApi, apiFetch } from '$lib/api';
   import { facultyUpdateApi } from '$lib/api/faculty-updates';
   import { meetingsApi } from '$lib/api/meetings';
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { get } from 'svelte/store';
+  
+  // API configuration
+  const API_URL = import.meta.env.VITE_API_URL || '';
+  const API_BASE = API_URL ? `${API_URL}/api/v1` : '/api/v1';
   
   // Check if user is faculty
   const isFaculty = $auth?.user?.role === 'faculty' || $auth?.user?.role === 'admin';
@@ -182,6 +187,11 @@
         return;
       }
       
+      if (!selectedMeeting) {
+        error = 'Please select a meeting for your update';
+        return;
+      }
+      
       // Validate file upload requirement for faculty presentations
       if (facultyIsPresenting && (!facultyFiles || facultyFiles.length === 0)) {
         error = 'Please attach your presentation materials before submitting';
@@ -212,20 +222,37 @@
         const update = await facultyUpdateApi.createUpdate(updateData);
         console.log('Faculty update submitted successfully:', update);
         
-        // Mock file uploads in development mode
+        // Upload files if any
         if (facultyFiles.length > 0) {
-          console.log(`Uploading ${facultyFiles.length} files for faculty update...`);
+          console.log(`Uploading ${facultyFiles.length} files for faculty update:`, Array.from(facultyFiles).map(f => f.name));
           
-          if (import.meta.env.DEV || true) {
-            console.log('Development mode: Simulating file uploads');
-            // Simulate file uploads in development
-            await new Promise(resolve => setTimeout(resolve, 500));
-          } else {
-            // Real file uploads
-            const uploadPromises = Array.from(facultyFiles).map(file => 
-              fileApi.uploadFile(file, update.id)
-            );
-            await Promise.all(uploadPromises);
+          try {
+            // Upload files to the created faculty update
+            const formData = new FormData();
+            for (let i = 0; i < facultyFiles.length; i++) {
+              formData.append('files', facultyFiles[i]);
+            }
+            
+            const authStore = get(auth);
+            const response = await fetch(`${API_BASE}/faculty-updates/${update.id}/files`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${authStore.token}`
+              },
+              body: formData
+            });
+            
+            if (!response.ok) {
+              const error = await response.json();
+              throw new Error(error.detail || 'File upload failed');
+            }
+            
+            const uploadResult = await response.json();
+            console.log('Faculty files uploaded successfully:', uploadResult);
+          } catch (fileError) {
+            console.error('Faculty file upload failed:', fileError);
+            // Don't fail the entire submission for file upload errors
+            error = `Faculty update submitted but file upload failed: ${fileError.message}`;
           }
         }
         
@@ -247,37 +274,69 @@
         return;
       }
       
-      // Validate file upload requirement for student presentations
-      if (isPresenting && (!files || files.length === 0)) {
-        error = 'Please attach your presentation materials before submitting';
+      if (!selectedMeeting) {
+        error = 'Please select a meeting for your update';
         return;
       }
+      
+      // Note: File upload is optional, but if files are selected we'll try to upload them
       
       isSubmitting = true;
       error = '';
       
       try {
-        // Create student update object
+        // Get current user ID
+        const currentUser = get(auth).user;
+        
+        // Create student update object matching backend schema
         const updateData = {
-          is_faculty: false,
+          user_id: currentUser.id,
           progress_text: progressText,
-          challenges_text: challengesText,
-          goals_text: goalsText,
-          meeting_notes: meetingNotes,
-          is_presenting: isPresenting,
+          challenges_text: challengesText || '',
+          next_steps_text: goalsText || '',
+          meeting_notes: meetingNotes || '',
+          will_present: isPresenting,
           meeting_id: selectedMeeting
         };
         
-        // Submit update
-        const update = await updateApi.createUpdate(updateData);
+        // Submit update using the correct endpoint
+        const update = await apiFetch('/updates/', {
+          method: 'POST',
+          body: JSON.stringify(updateData)
+        });
         
         // Upload files if any
         if (files.length > 0) {
-          const uploadPromises = Array.from(files).map(file => 
-            fileApi.uploadFile(file, update.id)
-          );
+          console.log(`Uploading ${files.length} files:`, Array.from(files).map(f => f.name));
           
-          await Promise.all(uploadPromises);
+          try {
+            // Upload files to the created update
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+              formData.append('files', files[i]);
+            }
+            
+            const authStore = get(auth);
+            const response = await fetch(`${API_BASE}/updates/${update.id}/files`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${authStore.token}`
+              },
+              body: formData
+            });
+            
+            if (!response.ok) {
+              const error = await response.json();
+              throw new Error(error.detail || 'File upload failed');
+            }
+            
+            const uploadResult = await response.json();
+            console.log('Files uploaded successfully:', uploadResult);
+          } catch (fileError) {
+            console.error('File upload failed:', fileError);
+            // Don't fail the entire submission for file upload errors
+            error = `Update submitted but file upload failed: ${fileError.message}`;
+          }
         }
         
         // Show success and redirect
@@ -321,26 +380,7 @@
         });
       } catch (err) {
         console.warn('Failed to load meetings:', err);
-        
-        // In development mode, add mock meetings
-        if (import.meta.env.DEV) {
-          meetings = [
-            {
-              id: 1,
-              title: "Research Updates",
-              meeting_type: "general_update",
-              start_time: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-              end_time: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000 + 60 * 60 * 1000)
-            },
-            {
-              id: 2,
-              title: "Conference Practice Session",
-              meeting_type: "conference_practice",
-              start_time: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-              end_time: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000 + 60 * 60 * 1000)
-            }
-          ];
-        }
+        meetings = []; // No fallback demo data
       }
     } catch (err) {
       console.error('Error loading meetings:', err);
@@ -572,15 +612,16 @@
       <!-- Meeting selection section for faculty -->
       <div>
         <label for="meeting-faculty" class="block text-sm font-medium text-gray-700 mb-2">
-          Related Meeting (Optional)
+          Related Meeting <span class="text-red-500">*</span>
         </label>
         <select 
           id="meeting-faculty"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
           bind:value={selectedMeeting}
           disabled={isSubmitting}
+          required
         >
-          <option value={null}>-- Select a meeting (optional) --</option>
+          <option value={null}>-- Select a meeting --</option>
           {#each meetings as meeting}
             <option value={meeting.id}>
               {meeting.title} - {formatDateTime(meeting.start_time)}
@@ -624,7 +665,7 @@
           {#if facultyIsPresenting}
             Please attach your presentation materials. Required for presentations.
           {:else}
-            Attach relevant files, presentations, or papers. Max 10MB per file.
+            Attach relevant files, presentations, or papers. Max 50MB per file.
           {/if}
         </p>
       </div>
@@ -766,15 +807,16 @@
       <!-- Meeting selection section for students -->
       <div>
         <label for="meeting" class="block text-sm font-medium text-gray-700 mb-2">
-          Related Meeting (Optional)
+          Related Meeting <span class="text-red-500">*</span>
         </label>
         <select 
           id="meeting"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
           bind:value={selectedMeeting}
           disabled={isSubmitting}
+          required
         >
-          <option value={null}>-- Select a meeting (optional) --</option>
+          <option value={null}>-- Select a meeting --</option>
           {#each meetings as meeting}
             <option value={meeting.id}>
               {meeting.title} - {formatDateTime(meeting.start_time)}
@@ -818,7 +860,7 @@
           {#if isPresenting}
             Please attach your presentation materials. Required for presentations.
           {:else}
-            Attach relevant files, presentations, or papers. Max 10MB per file.
+            Attach relevant files, presentations, or papers. Max 50MB per file.
           {/if}
         </p>
       </div>

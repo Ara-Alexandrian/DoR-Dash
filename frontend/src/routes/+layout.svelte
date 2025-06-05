@@ -50,7 +50,6 @@
     { title: 'Dashboard', path: '/dashboard', icon: 'home' },
     { title: 'Submit Update', path: '/submit-update', icon: 'document-text' },
     { title: 'Support Request', path: '/requests/support', icon: 'support' },
-    { title: 'Mock Exam', path: '/requests/mock-exam', icon: 'academic-cap' },
     { title: 'Calendar', path: '/calendar', icon: 'calendar' },
     { title: 'Agenda', path: '/agenda', icon: 'calendar-days' },
     { title: 'Roster', path: '/roster', icon: 'users' }
@@ -60,6 +59,7 @@
   const adminNav = [
     { title: 'Admin Dashboard', path: '/admin', icon: 'view-grid' },
     { title: 'User Management', path: '/admin/users', icon: 'user-group' },
+    { title: 'Registration Requests', path: '/admin/registration', icon: 'user-plus' },
     { title: 'Presentations', path: '/admin/presentations', icon: 'presentation-chart-bar' }
   ];
   
@@ -82,7 +82,7 @@
   }
   
   // Check if route is authentication related
-  $: isAuthRoute = $page.url.pathname === '/login' || $page.url.pathname === '/';
+  $: isAuthRoute = $page.url.pathname === '/login' || $page.url.pathname === '/register' || $page.url.pathname === '/';
   
   onMount(() => {
     if (browser) {
@@ -192,6 +192,8 @@
                     <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                   {:else if item.icon === 'user-group'}
                     <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 12.094A5.973 5.973 0 004 15v1H1v-1a3 3 0 013.75-2.906z" />
+                  {:else if item.icon === 'user-plus'}
+                    <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
                   {:else if item.icon === 'presentation-chart-bar'}
                     <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clip-rule="evenodd" />
                   {/if}

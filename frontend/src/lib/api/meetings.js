@@ -14,51 +14,14 @@ export const meetingsApi = {
     
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
     
-    try {
-      return await apiFetch(`/meetings${query}`);
-    } catch (err) {
-      console.warn('Failed to fetch meetings from API, using mock data:', err);
-      
-      // Return mock meetings for development
-      if (import.meta.env.DEV || true) { // Force mock data
-        const today = new Date();
-        return [
-          {
-            id: 1,
-            title: "Weekly Research Update",
-            meeting_type: "general_update",
-            start_time: new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-            end_time: new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000).toISOString(),
-            description: "Weekly meeting to discuss research progress and challenges."
-          },
-          {
-            id: 2,
-            title: "Conference Practice Session",
-            meeting_type: "conference_practice",
-            start_time: new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-            end_time: new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000).toISOString(),
-            description: "Practice presentations for upcoming conference."
-          },
-          {
-            id: 3,
-            title: "Mock Exam Session",
-            meeting_type: "mock_exam",
-            start_time: new Date(today.getTime() + 21 * 24 * 60 * 60 * 1000).toISOString(),
-            end_time: new Date(today.getTime() + 21 * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000).toISOString(),
-            description: "Mock examination session to prepare students for their thesis defense."
-          }
-        ];
-      }
-      
-      throw err;
-    }
+    return await apiFetch(`/meetings/${query}`);
   },
   
   // Get meeting by ID
   getMeeting: (id) => apiFetch(`/meetings/${id}`),
   
   // Create meeting (admin only)
-  createMeeting: (meetingData) => apiFetch('/meetings', {
+  createMeeting: (meetingData) => apiFetch('/meetings/', {
     method: 'POST',
     body: JSON.stringify(meetingData)
   }),
@@ -72,5 +35,8 @@ export const meetingsApi = {
   // Delete meeting (admin only)
   deleteMeeting: (id) => apiFetch(`/meetings/${id}`, {
     method: 'DELETE'
-  })
+  }),
+  
+  // Get meeting agenda with all updates
+  getMeetingAgenda: (id) => apiFetch(`/meetings/${id}/agenda`)
 };

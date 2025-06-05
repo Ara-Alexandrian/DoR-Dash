@@ -2,9 +2,11 @@ import { auth } from '$lib/stores/auth';
 import { get } from 'svelte/store';
 
 // API base URL from environment variable
-const API_URL = import.meta.env.VITE_API_URL || 'http://172.30.98.21:8000';
-const API_BASE = `${API_URL}/api/v1`;
-console.log('API URL configured as:', API_URL);
+// If VITE_API_URL is not set or empty, use relative path (works with reverse proxy)
+const API_URL = import.meta.env.VITE_API_URL || '';
+const API_BASE = API_URL ? `${API_URL}/api/v1` : '/api/v1';
+console.log('API URL configured as:', API_URL || 'relative path');
+console.log('API_BASE URL is:', API_BASE);
 
 // Flag to check if we're in development mode with mock data enabled
 const USE_MOCK = import.meta.env.DEV && (import.meta.env.VITE_USE_MOCK === 'true');
@@ -139,7 +141,7 @@ export const authApi = {
 export const updateApi = {
   // Get all updates
   getUpdates: async () => {
-    return await apiFetch('/updates');
+    return await apiFetch('/updates/');
   },
   
   // Get update by ID
@@ -151,12 +153,12 @@ export const updateApi = {
   createUpdate: async (updateData) => {
     // Determine if this is a faculty update
     if (updateData.is_faculty) {
-      return await apiFetch('/faculty-updates', {
+      return await apiFetch('/faculty-updates/', {
         method: 'POST',
         body: JSON.stringify(updateData)
       });
     } else {
-      return await apiFetch('/updates', {
+      return await apiFetch('/updates/', {
         method: 'POST',
         body: JSON.stringify(updateData)
       });
@@ -200,20 +202,7 @@ export const supportApi = {
   })
 };
 
-// Mock Exam Requests API
-export const examApi = {
-  // Get all mock exam requests
-  getRequests: () => apiFetch('/requests/mock-exam'),
-  
-  // Get request by ID
-  getRequest: (id) => apiFetch(`/requests/mock-exam/${id}`),
-  
-  // Create request
-  createRequest: (requestData) => apiFetch('/requests/mock-exam', {
-    method: 'POST',
-    body: JSON.stringify(requestData)
-  })
-};
+// Note: Mock Exam API removed - no longer needed
 
 // Files API
 export const fileApi = {
@@ -254,14 +243,14 @@ export const fileApi = {
 // Roster API
 export const rosterApi = {
   // Get roster (all users with student role)
-  getRoster: () => apiFetch('/roster'),
+  getRoster: () => apiFetch('/roster/'),
 };
 
 // Presentations API
 export const presentationApi = {
   // Get all assigned presentations
   getPresentations: async () => {
-    return await apiFetch('/presentations');
+    return await apiFetch('/presentations/');
   },
   
   // Assign presentations (admin only)

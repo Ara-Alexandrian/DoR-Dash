@@ -3,24 +3,33 @@
   import { auth } from '$lib/stores/auth';
   import { onMount } from 'svelte';
   
-  // Navigation items
+  // Navigation items for all users
   const nav = [
     { title: 'Dashboard', path: '/dashboard', icon: 'home' },
     { title: 'Submit Update', path: '/submit-update', icon: 'pencil' },
-    { title: 'Agenda', path: '/agenda', icon: 'calendar' },
+    { title: 'My Updates', path: '/updates', icon: 'document' },
+    { title: 'Calendar', path: '/calendar', icon: 'calendar' },
+    { title: 'Agenda', path: '/agenda', icon: 'calendar' }
+  ];
+  
+  // Faculty/Admin nav items (only shown to faculty and admins)
+  const facultyNav = [
     { title: 'Roster', path: '/roster', icon: 'users' }
   ];
   
   // Admin nav items (only shown to admins)
   const adminNav = [
-    { title: 'Admin Panel', path: '/admin', icon: 'settings' }
+    { title: 'Admin Panel', path: '/admin', icon: 'settings' },
+    { title: 'Registration Requests', path: '/admin/registration', icon: 'user-plus' }
   ];
   
   let isAdmin = false;
+  let isFacultyOrAdmin = false;
   
   onMount(() => {
-    // Check if user is an admin
+    // Check user roles
     isAdmin = $auth?.user?.role === 'admin';
+    isFacultyOrAdmin = $auth?.user?.role === 'admin' || $auth?.user?.role === 'faculty';
   });
   
   function logout() {
@@ -45,6 +54,23 @@
           <span class="ml-3">{item.title}</span>
         </a>
       {/each}
+      
+      {#if isFacultyOrAdmin}
+        <div class="pt-5 mt-5 border-t border-primary-700">
+          <h3 class="px-3 text-xs font-semibold text-primary-200 uppercase tracking-wider">
+            Faculty
+          </h3>
+          
+          {#each facultyNav as item}
+            <a 
+              href={item.path} 
+              class={`group flex items-center px-2 py-2 text-base font-medium rounded-md transition-colors ${$page.url.pathname === item.path ? 'bg-primary-700 text-white' : 'text-primary-100 hover:bg-primary-700 hover:text-white'}`}
+            >
+              <span class="ml-3">{item.title}</span>
+            </a>
+          {/each}
+        </div>
+      {/if}
       
       {#if isAdmin}
         <div class="pt-5 mt-5 border-t border-primary-700">
@@ -95,6 +121,10 @@
           Dashboard
         {:else if $page.url.pathname === '/submit-update'}
           Submit Update
+        {:else if $page.url.pathname === '/updates'}
+          My Updates
+        {:else if $page.url.pathname === '/calendar'}
+          Calendar
         {:else if $page.url.pathname === '/agenda'}
           Meeting Agenda
         {:else if $page.url.pathname === '/roster'}

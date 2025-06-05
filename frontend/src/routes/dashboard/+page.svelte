@@ -385,8 +385,8 @@
                           <p class="text-xs font-medium text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider">Progress Summary:</p>
                           <p class="mt-1 text-sm text-[rgb(var(--color-text-secondary))] line-clamp-3">{update.progress_text}</p>
                         </div>
-                        <a href={`/submit-update/${update.id}`} class="mt-3 inline-flex items-center text-sm font-medium text-secondary-600 dark:text-secondary-400 hover:text-secondary-700 dark:hover:text-secondary-300 group">
-                          View details
+                        <a href="/updates" class="mt-3 inline-flex items-center text-sm font-medium text-secondary-600 dark:text-secondary-400 hover:text-secondary-700 dark:hover:text-secondary-300 group">
+                          View all updates
                           <svg class="ml-1 h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                           </svg>
@@ -399,7 +399,7 @@
               
               {#if updates.length > 5}
                 <div class="mt-6 text-center">
-                  <a href="/profile/updates" class="inline-flex items-center px-4 py-2 text-sm font-medium text-secondary-700 dark:text-secondary-300 bg-secondary-50 dark:bg-secondary-900/30 rounded-lg hover:bg-secondary-100 dark:hover:bg-secondary-900/50 transition-colors group">
+                  <a href="/updates" class="inline-flex items-center px-4 py-2 text-sm font-medium text-secondary-700 dark:text-secondary-300 bg-secondary-50 dark:bg-secondary-900/30 rounded-lg hover:bg-secondary-100 dark:hover:bg-secondary-900/50 transition-colors group">
                     View all updates
                     <svg class="ml-2 h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />

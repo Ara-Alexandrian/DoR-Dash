@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { auth } from '$lib/stores/auth';
-  import { userApi } from '$lib/api/users';
+  import { rosterApi } from '$lib/api';
   
   // Component state
   let users = [];
@@ -33,7 +33,7 @@
     
     try {
       // Load users from API
-      users = await userApi.getUsers();
+      users = await rosterApi.getRoster();
       
       // Apply initial filtering
       applyFilters();
@@ -99,31 +99,9 @@
     viewMode = viewMode === 'grid' ? 'list' : 'grid';
   }
   
-  // Handle user deletion confirmation
-  function confirmDelete(user) {
-    if (confirm(`Are you sure you want to delete ${user.full_name || user.username}?`)) {
-      deleteUser(user.id);
-    }
-  }
-  
-  // Handle user deletion 
-  async function deleteUser(userId) {
-    if (!isAdmin) return;
-    
-    try {
-      await userApi.deleteUser(userId);
-      
-      // Update local state
-      users = users.filter(user => user.id !== userId);
-      
-      // Reapply filters
-      applyFilters();
-      
-    } catch (err) {
-      console.error('Failed to delete user:', err);
-      error = 'Failed to delete user. Please try again.';
-      setTimeout(() => error = null, 3000);
-    }
+  // Navigate to user management for editing
+  function navigateToUserEdit(userId) {
+    window.location.href = `/admin/users/${userId}`;
   }
   
   // Function to get role display name
@@ -231,8 +209,8 @@
     
     <div class="flex justify-between items-center mb-6">
       {#if isAdmin}
-        <a href="/admin/users/new" class="btn-primary">
-          Add New User
+        <a href="/admin/users" class="btn-primary">
+          Manage Users
         </a>
       {:else}
         <div></div>
@@ -308,15 +286,7 @@
                     Edit
                   </a>
                   
-                  {#if user.id !== $auth.user?.id}
-                    <button
-                      type="button"
-                      class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                      on:click={() => confirmDelete(user)}
-                    >
-                      Delete
-                    </button>
-                  {/if}
+                  <!-- Delete functionality moved to admin users page -->
                 </div>
               </div>
             {/if}
@@ -387,14 +357,7 @@
                     <a href="/admin/users/{user.id}" class="text-secondary-700 hover:text-secondary-900 mr-3">
                       Edit
                     </a>
-                    {#if user.id !== $auth.user?.id}
-                      <button 
-                        class="text-primary-700 hover:text-primary-900"
-                        on:click={() => confirmDelete(user)}
-                      >
-                        Delete
-                      </button>
-                    {/if}
+                    <!-- Delete functionality moved to admin users page -->
                   </td>
                 {/if}
               </tr>

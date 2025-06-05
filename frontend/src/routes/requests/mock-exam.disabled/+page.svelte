@@ -1,5 +1,5 @@
 <script>
-  import { examApi } from '$lib/api';
+  // import { examApi } from '$lib/api';
   import { goto } from '$app/navigation';
   
   // Form data

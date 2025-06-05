@@ -159,6 +159,16 @@
             {/if}
           </button>
         </div>
+        
+        <!-- Student Registration Link -->
+        <div class="mt-4 text-center">
+          <p class="text-sm text-gray-600 dark:text-slate-400 dracula:text-slate-200 mbp:text-red-700 lsu:text-purple-700">
+            New student? 
+            <a href="/register" class="font-medium text-primary-600 dark:text-primary-400 dracula:text-cyan-300 mbp:text-red-600 lsu:text-purple-600 hover:text-primary-500 dark:hover:text-primary-300 dracula:hover:text-cyan-200 mbp:hover:text-red-500 lsu:hover:text-purple-500 transition-colors duration-200">
+              Request account access
+            </a>
+          </p>
+        </div>
       </form>
     </div>
     

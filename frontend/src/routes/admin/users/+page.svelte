@@ -43,38 +43,7 @@
     error = null;
     
     try {
-      // Check if we're using the dev mock token
-      if ($auth.token === 'dev_mock_token_for_admin_user') {
-        // Use mock data for development
-        users = [
-          {
-            id: 1,
-            username: 'admin',
-            email: 'admin@example.com',
-            full_name: 'Admin User',
-            role: 'admin',
-            is_active: true
-          },
-          {
-            id: 2,
-            username: 'faculty1',
-            email: 'faculty1@example.com',
-            full_name: 'Faculty Member',
-            role: 'faculty',
-            is_active: true
-          },
-          {
-            id: 3,
-            username: 'student1',
-            email: 'student1@example.com',
-            full_name: 'Student One',
-            role: 'student',
-            is_active: true
-          }
-        ];
-        isLoading = false;
-        return;
-      }
+      // No demo data - fetch from API only
       
       // Use the proper API endpoint with the userApi
       users = await userApi.getUsers();

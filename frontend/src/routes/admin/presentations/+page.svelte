@@ -63,30 +63,9 @@
       error = err.message;
       isLoading = false;
       
-      // For demo purposes, create mock presentations if API fails
-      if (process.env.NODE_ENV === 'development') {
-        presentations = [
-          {
-            id: 1,
-            user_id: 1,
-            meeting_date: new Date().toISOString(),
-            status: 'scheduled',
-            is_confirmed: true,
-            user: { id: 1, full_name: 'John Doe', email: 'john@example.com' },
-            files: [{ id: 1, filename: 'presentation.pptx' }]
-          },
-          {
-            id: 2,
-            user_id: 2,
-            meeting_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-            status: 'scheduled',
-            is_confirmed: false,
-            user: { id: 2, full_name: 'Jane Smith', email: 'jane@example.com' },
-            files: []
-          }
-        ];
-        isLoading = false;
-      }
+      // No demo data - show empty state instead
+      presentations = [];
+      isLoading = false;
     }
   }
   
@@ -110,14 +89,8 @@
     } catch (err) {
       console.error("Error loading users:", err);
       
-      // For demo purposes, create mock users if API fails
-      if (process.env.NODE_ENV === 'development') {
-        users = [
-          { id: 1, full_name: 'John Doe', role: 'student', email: 'john@example.com' },
-          { id: 2, full_name: 'Jane Smith', role: 'student', email: 'jane@example.com' },
-          { id: 3, full_name: 'Alex Johnson', role: 'student', email: 'alex@example.com' }
-        ];
-      }
+      // No demo data - show empty state instead
+      users = [];
     }
   }
   
@@ -138,28 +111,8 @@
     } catch (err) {
       console.error("Error loading meetings:", err);
       
-      // For demo purposes, create mock meetings if API fails
-      if (process.env.NODE_ENV === 'development') {
-        const today = new Date();
-        const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-        
-        meetings = [
-          { 
-            id: 1, 
-            title: 'Weekly Research Update', 
-            meeting_type: 'general_update',
-            start_time: today.toISOString(),
-            end_time: new Date(today.getTime() + 2 * 60 * 60 * 1000).toISOString()
-          },
-          { 
-            id: 2, 
-            title: 'Conference Practice', 
-            meeting_type: 'conference_practice',
-            start_time: nextWeek.toISOString(),
-            end_time: new Date(nextWeek.getTime() + 3 * 60 * 60 * 1000).toISOString()
-          }
-        ];
-      }
+      // No demo data - show empty state instead
+      meetings = [];
     }
   }
   
@@ -207,33 +160,8 @@
     } catch (err) {
       errorMessage = err.message;
       
-      // For demo purposes, add to mock presentations if in development
-      if (process.env.NODE_ENV === 'development') {
-        const user = users.find(u => u.id === parseInt(newAssignment.user_id));
-        
-        presentations = [
-          ...presentations,
-          {
-            id: presentations.length + 1,
-            user_id: parseInt(newAssignment.user_id),
-            meeting_date: newAssignment.meeting_date,
-            status: newAssignment.status,
-            is_confirmed: newAssignment.is_confirmed,
-            user: user,
-            files: []
-          }
-        ];
-        
-        newAssignment = {
-          user_id: '',
-          meeting_date: '',
-          status: 'scheduled',
-          is_confirmed: false
-        };
-        
-        successMessage = 'Presentation assigned successfully (demo mode)';
-        errorMessage = '';
-      }
+      // Real API call failed - show error message
+      // No fallback demo data
     }
   }
   
@@ -297,30 +225,8 @@
     } catch (err) {
       errorMessage = err.message;
       
-      // For demo purposes, update mock presentations if in development
-      if (process.env.NODE_ENV === 'development') {
-        const index = presentations.findIndex(p => p.id === editingPresentation.id);
-        
-        if (index !== -1) {
-          const user = users.find(u => u.id === parseInt(editingPresentation.user_id));
-          
-          presentations[index] = {
-            ...presentations[index],
-            user_id: parseInt(editingPresentation.user_id),
-            meeting_date: new Date(editingPresentation.meeting_date).toISOString(),
-            status: editingPresentation.status,
-            is_confirmed: editingPresentation.is_confirmed,
-            user: user
-          };
-          
-          presentations = [...presentations]; // Trigger reactivity
-          
-          successMessage = 'Presentation updated successfully (demo mode)';
-          errorMessage = '';
-          showEditModal = false;
-          editingPresentation = null;
-        }
-      }
+      // Real API call failed - show error message
+      // No fallback demo data
     }
   }
   
@@ -347,12 +253,8 @@
     } catch (err) {
       errorMessage = err.message;
       
-      // For demo purposes, remove from mock presentations if in development
-      if (process.env.NODE_ENV === 'development') {
-        presentations = presentations.filter(p => p.id !== presentationId);
-        successMessage = 'Presentation deleted successfully (demo mode)';
-        errorMessage = '';
-      }
+      // Real API call failed - show error message
+      // No fallback demo data
     }
   }
   

@@ -10,14 +10,14 @@ export const userApi = {
     if (params.limit) queryParams.append('limit', params.limit);
     
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    return apiFetch(`/users${query}`);
+    return apiFetch(`/users/${query}`);
   },
   
   // Get user by ID
   getUser: (id) => apiFetch(`/users/${id}`),
   
   // Create user (admin only)
-  createUser: (userData) => apiFetch('/users', {
+  createUser: (userData) => apiFetch('/users/', {
     method: 'POST',
     body: JSON.stringify(userData)
   }),
