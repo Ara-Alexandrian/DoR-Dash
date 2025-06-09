@@ -22,7 +22,11 @@ export default defineConfig({
 		assetsDir: 'assets',
 		rollupOptions: {
 			output: {
-				manualChunks: undefined
+				manualChunks: undefined,
+				// Add timestamp for cache busting
+				entryFileNames: `assets/[name].${Date.now()}.js`,
+				chunkFileNames: `assets/[name].${Date.now()}.js`,
+				assetFileNames: `assets/[name].${Date.now()}.[ext]`
 			}
 		}
 	},

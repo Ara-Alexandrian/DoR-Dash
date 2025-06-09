@@ -58,18 +58,23 @@ export async function apiFetch(endpoint, options = {}) {
     }
     
     // Handle responses with no content (like DELETE operations)
-    if (response.status === 204 || response.headers.get('content-length') === '0') {
-      return null;
+    if (response.status === 204) {
+      return { success: true };
     }
     
-    // Check if response has JSON content
-    const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('application/json')) {
-      return await response.json();
+    // Check if response body is empty
+    const text = await response.text();
+    if (!text || text.trim() === '') {
+      return { success: true };
     }
     
-    // For non-JSON responses, return the text
-    return await response.text();
+    // Try to parse as JSON
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      // If JSON parsing fails, return the text
+      return text;
+    }
   } catch (error) {
     console.error('API Error:', error);
     throw error;
