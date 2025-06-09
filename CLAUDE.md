@@ -145,6 +145,67 @@ npm run test
 - Implement proper error handling, timeouts and retries
 - Use for text refinement in student updates
 
+## MCP Server Tools
+
+Claude Code is configured with Model Context Protocol (MCP) servers that provide enhanced development capabilities:
+
+### Available MCP Servers
+
+1. **PostgreSQL Server** (`postgres`)
+   - Direct database queries and schema inspection
+   - Data integrity checking and analysis
+   - Performance monitoring and optimization
+   - Connection: `postgresql://postgres:postgres@localhost:5432/postgres`
+
+2. **Redis Server** (`redis`)
+   - Cache management and key-value operations
+   - Memory usage analysis and monitoring
+   - Session data inspection and cleanup
+   - Connection: `redis://localhost:6379`
+
+3. **File System Server** (`filesystem`)
+   - Enhanced file operations within project directory
+   - Upload directory management and analysis
+   - File structure verification and cleanup
+   - Scope: `/config/workspace/gitea/DoR-Dash`
+
+4. **Mermaid Server** (`mermaid`)
+   - Create architecture diagrams and flowcharts
+   - Generate documentation visuals
+   - Validate and render Mermaid syntax
+   - Export diagrams in SVG format
+
+5. **Git Server** (`git`)
+   - Advanced version control operations
+   - Repository analysis and health checks
+   - Commit history and branch management
+   - Security scanning for exposed credentials
+
+### Using MCP Tools
+
+These servers provide additional capabilities beyond standard Claude Code tools:
+- **Database Operations**: Query live PostgreSQL data directly
+- **Cache Analysis**: Inspect Redis keys and performance metrics
+- **File Management**: Advanced operations on project files and uploads
+- **Documentation**: Generate visual diagrams for architecture documentation
+- **Repository Management**: Enhanced git operations and security analysis
+
+### Managing MCP Servers
+
+```bash
+# List configured servers
+claude mcp list
+
+# View server details
+claude mcp get <server-name>
+
+# Add new server
+claude mcp add <name> <command> [args...]
+
+# Remove server
+claude mcp remove <server-name>
+```
+
 ## Security Practices
 
 - Implement JWT-based authentication
