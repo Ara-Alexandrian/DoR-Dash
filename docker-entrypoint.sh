@@ -137,7 +137,7 @@ start_services() {
     # Start backend
     log "Starting backend server..."
     cd "$BACKEND_DIR"
-    uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1 > /app/logs/backend.log 2>&1 &
+    uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1 --forwarded-allow-ips "*" > /app/logs/backend.log 2>&1 &
     BACKEND_PID=$!
     echo $BACKEND_PID > /tmp/backend.pid
     
