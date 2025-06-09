@@ -278,9 +278,21 @@
 
 <style>
   .btn-danger {
-    @apply inline-flex items-center px-4 py-2 border border-transparent 
-           text-sm font-medium rounded-md text-white bg-red-600 
-           hover:bg-red-700 focus:outline-none focus:ring-2 
-           focus:ring-offset-2 focus:ring-red-500;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    color: white;
+    background-color: #dc2626;
+  }
+  .btn-danger:hover {
+    background-color: #b91c1c;
+  }
+  .btn-danger:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.5);
   }
 </style>
