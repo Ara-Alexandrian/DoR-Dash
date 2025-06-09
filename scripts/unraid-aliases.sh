@@ -15,13 +15,13 @@ cat >> "$BASHRC" << 'EOF'
 # ===== DoR-Dash Aliases =====
 alias dorcd='cd /mnt/user/appdata/DoR-Dash'
 alias dorpull='cd /mnt/user/appdata/DoR-Dash && git pull origin master'
-alias dorbuild='cd /mnt/user/appdata/DoR-Dash && ./deploy.sh rebuild'
-alias dorstart='cd /mnt/user/appdata/DoR-Dash && ./deploy.sh restart'
-alias dorstop='cd /mnt/user/appdata/DoR-Dash && ./deploy.sh stop'
-alias dorstatus='cd /mnt/user/appdata/DoR-Dash && ./deploy.sh status'
-alias dorlogs='cd /mnt/user/appdata/DoR-Dash && ./deploy.sh logs'
-alias dorupdate='cd /mnt/user/appdata/DoR-Dash && git pull origin master && ./deploy.sh restart'
-alias dorfullrebuild='cd /mnt/user/appdata/DoR-Dash && git pull origin master && ./deploy.sh rebuild'
+alias dorbuild='cd /mnt/user/appdata/DoR-Dash && ./scripts/deploy.sh rebuild'
+alias dorstart='cd /mnt/user/appdata/DoR-Dash && ./scripts/deploy.sh restart'
+alias dorstop='cd /mnt/user/appdata/DoR-Dash && ./scripts/deploy.sh stop'
+alias dorstatus='cd /mnt/user/appdata/DoR-Dash && ./scripts/deploy.sh status'
+alias dorlogs='cd /mnt/user/appdata/DoR-Dash && ./scripts/deploy.sh logs'
+alias dorupdate='cd /mnt/user/appdata/DoR-Dash && git pull origin master && ./scripts/deploy.sh restart'
+alias dorfullrebuild='cd /mnt/user/appdata/DoR-Dash && git pull origin master && ./scripts/deploy.sh rebuild'
 alias dorhelp='echo "DoR-Dash Commands:
   dorcd        - Navigate to DoR-Dash directory
   dorpull      - Pull latest code from repository

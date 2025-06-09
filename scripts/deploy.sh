@@ -60,7 +60,7 @@ stop_existing() {
 # Function to build image
 build_image() {
     log "Building Docker image..."
-    docker build -t "$IMAGE_NAME:latest" . || {
+    docker build -t "$IMAGE_NAME:latest" -f docker/Dockerfile . || {
         error "Failed to build Docker image"
         exit 1
     }

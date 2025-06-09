@@ -36,6 +36,7 @@ This directory contains all documentation for the DoR-Dash (Dose of Reality Dash
 2. **JSON Response Parsing** - Fixed user deletion errors
 3. **Port Standardization** - Updated to port 1717
 4. **Meeting Calendar Persistence** - Moved to PostgreSQL storage
+5. **Directory Reorganization** - Clean project structure with logical organization
 
 ## Architecture Overview
 

@@ -45,7 +45,7 @@ COPY --from=frontend-builder /app/frontend/build /app/frontend/build
 RUN mkdir -p /app/uploads /app/logs
 
 # Create startup script with auto-update functionality
-COPY docker-entrypoint.sh /app/
+COPY docker/docker-entrypoint.sh /app/
 RUN chmod +x /app/docker-entrypoint.sh
 
 # Environment variables

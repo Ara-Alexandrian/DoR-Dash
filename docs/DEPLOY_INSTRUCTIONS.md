@@ -84,10 +84,10 @@ git clone https://github.com/Ara-Alexandrian/DoR-Dash.git
 cd DoR-Dash
 
 # Make the deploy script executable
-chmod +x deploy.sh
+chmod +x scripts/deploy.sh
 
 # Deploy the application
-./deploy.sh deploy
+./scripts/deploy.sh deploy
 ```
 
 ## Step 3: Verify Deployment
@@ -118,7 +118,7 @@ The container will check for updates **only when restarted** (for stability). To
 docker restart dor-dash
 
 # Method 2: Rebuild with latest code
-./deploy.sh rebuild
+./scripts/deploy.sh rebuild
 
 # View update logs
 docker logs dor-dash | grep -E "(UPDATE|SUCCESS|ERROR)"
@@ -128,19 +128,19 @@ docker logs dor-dash | grep -E "(UPDATE|SUCCESS|ERROR)"
 
 ```bash
 # Check status
-./deploy.sh status
+./scripts/deploy.sh status
 
 # View logs
-./deploy.sh logs
+./scripts/deploy.sh logs
 
 # Restart container
-./deploy.sh restart
+./scripts/deploy.sh restart
 
 # Stop container
-./deploy.sh stop
+./scripts/deploy.sh stop
 
 # Rebuild and redeploy
-./deploy.sh rebuild
+./scripts/deploy.sh rebuild
 ```
 
 ## Troubleshooting

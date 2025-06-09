@@ -180,6 +180,61 @@ if (!responseText || responseText.trim() === '') {
 
 ---
 
+## Directory Reorganization
+
+### Project Structure Improvements
+
+**Date:** June 9, 2025  
+**Change:** Reorganized root directory for better maintainability
+
+### New Directory Structure
+```
+/
+├── config/                 # Configuration files
+│   ├── nginx.conf
+│   ├── nginx-proxy-manager-config.txt
+│   └── environment.yml
+├── docker/                 # Docker-related files  
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   ├── docker-compose.dev.yml
+│   ├── docker-compose.prod.yml
+│   └── docker-entrypoint.sh
+├── docs/                   # All documentation
+│   ├── README.md
+│   ├── DEPLOY_INSTRUCTIONS.md
+│   ├── technical-notes.md
+│   └── [other docs]
+├── scripts/                # Shell scripts
+│   ├── deploy.sh
+│   ├── unraid-aliases.sh
+│   ├── start.sh (symlink)
+│   └── stop.sh (symlink)
+├── temp/                   # Temporary files
+│   └── token.txt
+├── backend/                # Backend application
+├── frontend/               # Frontend application
+├── logs/                   # Application logs
+├── uploads/                # File uploads
+└── [other directories]
+```
+
+### Files Moved
+- **Docker files:** `Dockerfile`, `docker-compose*.yml`, `docker-entrypoint.sh` → `/docker/`
+- **Scripts:** `deploy.sh`, `unraid-aliases.sh` → `/scripts/`
+- **Configuration:** `nginx.conf`, `environment.yml` → `/config/`
+- **Documentation:** All `.md` files → `/docs/`
+- **Temporary:** `token.txt` → `/temp/`
+
+### References Updated
+- `scripts/deploy.sh` - Updated docker build to use `-f docker/Dockerfile`
+- `docker/Dockerfile` - Updated COPY command for docker-entrypoint.sh
+- `scripts/unraid-aliases.sh` - Updated all deploy.sh references
+- `docs/DEPLOY_INSTRUCTIONS.md` - Updated script paths
+- Symbolic links maintained for `start.sh` and `stop.sh` in root
+
+---
+
 ## Database Architecture
 
 ### Current Schema
