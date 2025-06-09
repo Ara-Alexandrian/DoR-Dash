@@ -6,7 +6,7 @@ WORKDIR /app/frontend
 
 # Copy frontend package files
 COPY frontend/package*.json ./
-RUN npm ci
+RUN npm install
 
 # Install serve for production frontend serving
 RUN npm install -g serve
