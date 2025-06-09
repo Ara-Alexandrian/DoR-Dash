@@ -44,15 +44,32 @@ export async function apiFetch(endpoint, options = {}) {
       throw new Error('Session expired. Please login again.');
     }
     
-    // Parse JSON response
-    const data = await response.json();
-    
-    // Handle API errors
+    // Handle API errors first (before trying to parse JSON)
     if (!response.ok) {
-      throw new Error(data.detail || 'Something went wrong');
+      let errorMessage = 'Something went wrong';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.detail || errorMessage;
+      } catch (e) {
+        // If JSON parsing fails, use status text
+        errorMessage = response.statusText || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
     
-    return data;
+    // Handle responses with no content (like DELETE operations)
+    if (response.status === 204 || response.headers.get('content-length') === '0') {
+      return null;
+    }
+    
+    // Check if response has JSON content
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return await response.json();
+    }
+    
+    // For non-JSON responses, return the text
+    return await response.text();
   } catch (error) {
     console.error('API Error:', error);
     throw error;
