@@ -153,3 +153,95 @@ npm run test
 - Validate all user inputs
 - Secure file upload handling
 - Protect API endpoints
+
+## Reverse Proxy Configuration
+
+The application is designed to work behind a reverse proxy with SSL termination. See `REVERSE_PROXY_SETUP.md` for detailed configuration instructions.
+
+**Key Configuration Points:**
+- Frontend must use relative API paths (`VITE_API_URL=""`)
+- Nginx proxy manager forwards `/api/*` requests to backend port 8000
+- Frontend served from port 7117
+- SSL/HTTPS enforced for security
+
+## Current User Accounts
+
+**Admin User:**
+- Username: `cerebro`
+- Password: `123`
+- Role: `admin`
+
+**Test User:**
+- Username: `aalexandrian`
+- Password: `12345678`
+- Role: `student`
+
+## Recent Updates
+
+### Meeting Calendar Database Fix (LATEST URGENT)
+- **CRITICAL DATABASE FIX**: Moved meeting calendar from in-memory storage to PostgreSQL persistence
+- **Data Recovery**: Your calendar meetings are now permanently saved to database and won't be lost on restart
+- **Calendar Safety**: All future meeting data will persist through server restarts and deployments
+- **Database CRUD**: All meeting operations (create, read, update, delete) now use PostgreSQL
+- **Agenda Persistence**: Meeting agendas will now be maintained permanently
+
+### File Upload/Download System Fix 
+- **CRITICAL FIX**: Replaced mock file storage with real file persistence to `/config/workspace/gitea/DoR-Dash/uploads/`
+- **Binary File Support**: Fixed corrupted downloads for PPT/PPTX and other binary files 
+- **Proper Media Types**: Added correct MIME types for PowerPoint, PDF, Word, Excel files
+- **Unique File Names**: Prevents conflicts with timestamp-based naming `update_{id}_file_{id}_{timestamp}.ext`
+- **Error Handling**: Clear messages for missing files vs. old uploads before file storage
+
+### Student Self-Registration System 
+- **Student Registration Portal** (`/register`): Students can self-register without admin assistance
+- **Admin Approval Workflow** (`/admin/registration`): Admins can review, approve, or reject registration requests
+- **Authentication Integration**: Approved registrations automatically create user accounts with "student" role
+- **Navigation Enhancement**: Added registration link to login page and admin panel
+- **Security**: Registration page bypasses authentication, follows same styling as login page
+
+### Meeting Management System
+- Enhanced calendar functionality with drag-and-drop meeting management
+- Meeting creation popup with predefined meeting types
+- Agenda system that compiles student and faculty updates by meeting
+- File upload/download support for updates (50MB limit)
+- Expandable/collapsible agenda sections for better readability
+
+### Architecture Changes
+- Removed mock exam functionality
+- Increased file upload limits from 10MB to 50MB
+- Fixed reverse proxy compatibility with relative API paths
+- Improved meeting-based workflow over presentation-based system
+- Eliminated all mock/demo authentication behavior
+
+### File Upload Features
+- Multiple file support for student updates
+- File download with mock content generation
+- Integration with meeting agenda display
+- Proper permission controls for file access
+
+## 🚨 LIVE DATA WARNING 🚨
+
+**CRITICAL: This application now contains live user data and is actively being used.**
+
+### Live Data Locations:
+1. **User Accounts** (`backend/app/api/endpoints/auth.py` - `USERS_DB`) ⚠️ *IN-MEMORY*
+2. **Student Updates** (`backend/app/api/endpoints/updates.py` - `STUDENT_UPDATES`) ⚠️ *IN-MEMORY*
+3. **Faculty Updates** (`backend/app/api/endpoints/faculty_updates.py` - `FACULTY_UPDATES`) ⚠️ *IN-MEMORY*
+4. **📅 MEETING CALENDAR** (`PostgreSQL` - **PERSISTENT DATABASE**) ✅ *SAFE*
+5. **Registration Requests** (`backend/app/api/endpoints/registration.py` - `REGISTRATION_REQUESTS`) ⚠️ *IN-MEMORY*
+6. **🗂️ UPLOADED FILES** (`/config/workspace/gitea/DoR-Dash/uploads/` - **PERSISTENT ON DISK**) ✅ *SAFE*
+
+### Development Safety Rules:
+- **NEVER** reset or clear in-memory data stores during development
+- **NEVER** change initialization logic that would overwrite existing users
+- **NEVER** delete or modify files in `/uploads/` directory
+- **ALWAYS** preserve existing data when modifying data structures
+- **TEST CAREFULLY** before pushing changes that modify user data handling
+- **BACKUP AWARENESS**: Metadata is in-memory and will be lost on server restart, but uploaded files are persistent on disk
+
+### Safe Modification Practices:
+- Add new users by appending to existing `USERS_DB`
+- Extend data models by adding optional fields with defaults
+- Test data modifications on a copy before applying to live data
+- When debugging, read data rather than modifying it
+- Use conditional logic to avoid overwriting existing entries

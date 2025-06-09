@@ -2,9 +2,11 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
-from app.api.endpoints.auth import User, get_current_user
+from app.api.endpoints.auth import User, get_current_user, get_all_users
 from app.core.permissions import get_admin_user
+from app.db.session import get_sync_db
 
 router = APIRouter()
 
@@ -39,15 +41,16 @@ def generate_presentation_id():
 
 @router.get("/", response_model=List[PresentationResponse])
 async def get_presentations(
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_sync_db)
 ):
     """
     Get all presentations.
     - Students can only see their own presentations
     - Faculty and admins can see all presentations
     """
-    # Import USERS_DB here to get user info
-    from app.api.endpoints.auth import USERS_DB
+    # Get all users from database
+    all_users = get_all_users(db)
     
     # Filter presentations based on user role
     if current_user.role == "student":
@@ -59,7 +62,7 @@ async def get_presentations(
     result = []
     for presentation in filtered_presentations:
         # Find user info
-        user = next((u for u in USERS_DB if u["id"] == presentation["user_id"]), None)
+        user = next((u for u in all_users if u["id"] == presentation["user_id"]), None)
         
         presentation_dict = presentation.copy()
         if user:
@@ -76,16 +79,18 @@ async def get_presentations(
 @router.post("/assign", response_model=List[PresentationResponse])
 async def assign_presentations(
     assignment_data: PresentationCreate,
-    current_user: User = Depends(get_admin_user)
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_sync_db)
 ):
     """
     Automatically assign presentations for a given meeting date.
     Admin only endpoint.
     """
-    from app.api.endpoints.auth import USERS_DB
+    # Get all users from database
+    all_users = get_all_users(db)
     
     # Get all students
-    students = [u for u in USERS_DB if u["role"] == "student"]
+    students = [u for u in all_users if u["role"] == "student"]
     
     if not students:
         raise HTTPException(
@@ -124,13 +129,15 @@ async def assign_presentations(
 async def update_presentation(
     presentation_id: int,
     update_data: PresentationUpdate,
-    current_user: User = Depends(get_admin_user)
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_sync_db)
 ):
     """
     Update a presentation assignment.
     Admin only endpoint.
     """
-    from app.api.endpoints.auth import USERS_DB
+    # Get all users from database
+    all_users = get_all_users(db)
     
     # Find presentation
     presentation_idx = next(
@@ -154,7 +161,7 @@ async def update_presentation(
     
     # Update user info if user_id changed
     if "user_id" in update_dict:
-        user = next((u for u in USERS_DB if u["id"] == presentation["user_id"]), None)
+        user = next((u for u in all_users if u["id"] == presentation["user_id"]), None)
         if user:
             presentation["user_name"] = user.get("full_name", user["username"])
             presentation["user_email"] = user["email"]

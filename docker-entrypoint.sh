@@ -216,18 +216,29 @@ export SECRET_KEY="${SECRET_KEY:-insecure_default_key_for_development_only}"
 export OLLAMA_API_URL="${OLLAMA_API_URL:-http://172.30.98.14:11434/api/generate}"
 
 # Check for initial updates
-if [ "$AUTO_UPDATE" = "true" ]; then
-    log "Auto-update enabled, checking for updates..."
-    check_for_updates || true
+if [ "$AUTO_UPDATE" = "true" ] || [ "$AUTO_UPDATE" = "restart_only" ]; then
+    log "Checking for updates on startup..."
+    if check_for_updates; then
+        log "Updates found, applying..."
+        if perform_update; then
+            log "Update completed successfully"
+        else
+            warn "Update failed, continuing with current version"
+        fi
+    else
+        log "No updates available"
+    fi
 fi
 
 # Start services
 start_services
 
-# Start update monitoring in background if enabled
-if [ "$AUTO_UPDATE" = "true" ]; then
-    log "Starting auto-update monitor..."
+# Start update monitoring in background if enabled (only for continuous mode)
+if [ "$AUTO_UPDATE" = "true" ] && [ "$UPDATE_CHECK_INTERVAL" != "0" ]; then
+    log "Starting continuous auto-update monitor (interval: ${UPDATE_CHECK_INTERVAL}s)..."
     monitor_updates &
+elif [ "$AUTO_UPDATE" = "restart_only" ]; then
+    log "Auto-update mode: restart_only (no continuous monitoring)"
 fi
 
 # Keep container running and wait for signals

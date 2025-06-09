@@ -79,12 +79,9 @@
 # Navigate to appdata directory
 cd /mnt/user/appdata/
 
-# Clone the repository
-git clone https://git.kronisto.net/test-host/DoR-Dash.git
+# Clone the repository from Gitea mirror
+git clone https://git.kronisto.net/aalexandrian/DoR-Dash.git
 cd DoR-Dash
-
-# Switch to the revision branch
-git checkout revision
 
 # Make the deploy script executable
 chmod +x deploy.sh
@@ -104,15 +101,18 @@ chmod +x deploy.sh
 - Username: `cerebro`
 - Password: `123`
 
-## Step 4: Monitor Auto-Updates
+## Step 4: Controlled Updates
 
-The container will automatically check for updates every 5 minutes and deploy them. Monitor with:
+The container will check for updates **only when restarted** (for stability). To update:
 
 ```bash
-# View container logs
-docker logs -f dor-dash
+# Method 1: Restart container to check for updates
+docker restart dor-dash
 
-# Check update activity
+# Method 2: Rebuild with latest code
+./deploy.sh rebuild
+
+# View update logs
 docker logs dor-dash | grep -E "(UPDATE|SUCCESS|ERROR)"
 ```
 

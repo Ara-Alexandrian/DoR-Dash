@@ -10,8 +10,8 @@ from app.core.session import get_session_manager, SessionManager
 from app.db.models.user import User
 from app.schemas.auth import TokenPayload
 
-# For use in mock mode
-class User:
+# Mock User class for testing (not used in production)
+class MockUser:
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)

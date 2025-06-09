@@ -84,10 +84,10 @@ run_container() {
         -e REDIS_PORT="6379" \
         -e SECRET_KEY="insecure_default_key_for_development_only" \
         -e OLLAMA_API_URL="http://172.30.98.14:11434/api/generate" \
-        -e AUTO_UPDATE="true" \
-        -e REPO_URL="https://github.com/Ara-Alexandrian/DoR-Dash.git" \
+        -e AUTO_UPDATE="restart_only" \
+        -e REPO_URL="https://git.kronisto.net/aalexandrian/DoR-Dash.git" \
         -e BRANCH="master" \
-        -e UPDATE_CHECK_INTERVAL="300" \
+        -e UPDATE_CHECK_INTERVAL="0" \
         -e VITE_API_URL="" \
         -e VITE_USE_MOCK="false" \
         -v dor-dash-uploads:/app/uploads \

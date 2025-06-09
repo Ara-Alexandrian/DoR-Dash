@@ -52,7 +52,7 @@ BACKEND_HOST=172.30.98.21
 BACKEND_PORT=8000
 FRONTEND_HOST=172.30.98.21
 FRONTEND_PORT=7117
-VITE_API_URL=http://172.30.98.21:8000
+VITE_API_URL=""
 EOF
 
 # Copy .env to backend directory as well
@@ -100,12 +100,16 @@ cd ..
 echo -e "${BLUE}Starting frontend...${NC}"
 cd frontend
 
-# Copy .env to frontend directory to ensure VITE_API_URL is available
-cp ../.env .env
+# Create frontend .env for reverse proxy compatibility (relative paths)
+cat > .env << EOF
+# Frontend-specific environment for reverse proxy compatibility
+VITE_API_URL=""
+VITE_USE_MOCK=false
+EOF
 
 # Create or update .env.development to override development defaults
 cat > .env.development << EOF
-VITE_API_URL=http://172.30.98.21:8000
+VITE_API_URL=""
 VITE_USE_MOCK=false
 EOF
 

@@ -1,24 +1,13 @@
 from typing import Annotated
 from fastapi import Depends, HTTPException, status
-from app.api.endpoints.auth import get_current_user
-from pydantic import BaseModel
-
-# Mock equivalent model to the User from mock_auth
-class User(BaseModel):
-    id: int
-    username: str
-    email: str
-    full_name: str
-    preferred_email: str = None
-    phone: str = None
-    role: str
-    is_active: bool
+from app.api.endpoints.auth import get_current_user, User
 
 # Role hierarchy and permissions
 ROLE_HIERARCHY = {
-    "student": 1,  # Basic access
-    "faculty": 2,  # Intermediate access
-    "admin": 3     # Full access
+    "student": 1,    # Basic access
+    "faculty": 2,    # Intermediate access
+    "secretary": 2,  # Same level as faculty
+    "admin": 3       # Full access
 }
 
 def check_user_role(required_role: str, user_role: str) -> bool:
