@@ -101,6 +101,14 @@ chmod +x deploy.sh
 - Username: `cerebro`
 - Password: `123`
 
+**Test Key Features:**
+- ✅ User login/logout
+- ✅ User management (create, edit, delete users)
+- ✅ Role changes (admin ↔ faculty ↔ student)
+- ✅ Meeting calendar functionality
+- ✅ File uploads (up to 50MB)
+- ✅ Student/faculty update submissions
+
 ## Step 4: Controlled Updates
 
 The container will check for updates **only when restarted** (for stability). To update:

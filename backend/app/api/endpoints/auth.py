@@ -45,8 +45,8 @@ def create_user(db: Session, user_data: dict):
     # Hash the password
     hashed_password = get_password_hash(user_data["password"])
     
-    # Ensure role is lowercase
-    role_value = user_data.get("role", "student").lower()
+    # Ensure role is uppercase to match database enum
+    role_value = user_data.get("role", "student").upper()
     
     db_user = UserModel(
         username=user_data["username"],
@@ -54,7 +54,7 @@ def create_user(db: Session, user_data: dict):
         full_name=user_data["full_name"],
         preferred_email=user_data.get("preferred_email"),
         phone=user_data.get("phone"),
-        role=role_value,  # Pass as string, let SQLAlchemy handle enum conversion
+        role=role_value,  # Pass as string - database uses uppercase enum values
         is_active=user_data.get("is_active", True),
         hashed_password=hashed_password
     )
@@ -71,7 +71,7 @@ def create_user(db: Session, user_data: dict):
         "full_name": db_user.full_name,
         "preferred_email": db_user.preferred_email,
         "phone": db_user.phone,
-        "role": db_user.role.value,
+        "role": db_user.role.lower() if isinstance(db_user.role, str) else db_user.role,
         "is_active": db_user.is_active,
         "password": user_data["password"]  # For compatibility with existing code
     }
@@ -91,17 +91,22 @@ def update_user(db: Session, user_id: int, update_data: dict):
                 if field == "password":
                     db_user.hashed_password = get_password_hash(value)
                 elif field == "role":
-                    # Convert role to lowercase to match database enum values
-                    role_value = value.lower() if isinstance(value, str) else value
-                    print(f"DEBUG: Setting role to {role_value}")
+                    # The database enum uses uppercase values, but our Python enum uses lowercase
+                    # Convert to uppercase to match database enum
+                    role_value = value.upper() if isinstance(value, str) else value
+                    print(f"DEBUG: Setting role to {role_value} (converted from {value})")
                     
                     # Validate role before setting
-                    valid_roles = [role.value for role in UserRole]
+                    valid_roles = ["STUDENT", "FACULTY", "SECRETARY", "ADMIN"]  # Database enum values
                     if role_value not in valid_roles:
                         print(f"ERROR: Invalid role '{role_value}'. Valid roles: {valid_roles}")
                         raise ValueError(f"Invalid role '{role_value}'. Valid roles: {valid_roles}")
                     
+                    # Set role directly as string - database expects uppercase
+                    print(f"DEBUG: Setting role directly as uppercase string: '{role_value}'")
                     db_user.role = role_value
+                    print(f"DEBUG: Successfully set role to: {db_user.role}")
+                    print(f"DEBUG: Type of role after setting: {type(db_user.role)}")
                 elif hasattr(db_user, field):
                     setattr(db_user, field, value)
                 else:
@@ -117,7 +122,7 @@ def update_user(db: Session, user_id: int, update_data: dict):
             "full_name": db_user.full_name,
             "preferred_email": db_user.preferred_email,
             "phone": db_user.phone,
-            "role": db_user.role.value,
+            "role": db_user.role.lower() if isinstance(db_user.role, str) else db_user.role,
             "is_active": db_user.is_active
         }
         
@@ -126,6 +131,8 @@ def update_user(db: Session, user_id: int, update_data: dict):
         
     except Exception as e:
         print(f"ERROR in update_user: {e}")
+        print(f"ERROR: Full exception details: {type(e).__name__}: {str(e)}")
+        print(f"ERROR: Update data was: {update_data}")
         db.rollback()
         raise e
 
@@ -267,7 +274,7 @@ async def get_current_user(
         full_name=user.full_name,
         preferred_email=user.preferred_email,
         phone=user.phone,
-        role=user.role.value,
+        role=user.role.lower() if isinstance(user.role, str) else user.role,
         is_active=user.is_active
     )
 
@@ -297,7 +304,7 @@ def get_all_users(db: Session):
             "full_name": user.full_name,
             "preferred_email": user.preferred_email,
             "phone": user.phone,
-            "role": user.role.value,
+            "role": user.role.lower() if isinstance(user.role, str) else user.role,
             "is_active": user.is_active,
             "password": "***"  # Don't expose passwords
         }

@@ -156,12 +156,12 @@ npm run test
 
 ## Reverse Proxy Configuration
 
-The application is designed to work behind a reverse proxy with SSL termination. See `REVERSE_PROXY_SETUP.md` for detailed configuration instructions.
+The application is designed to work behind a reverse proxy with SSL termination. See `docs/REVERSE_PROXY_SETUP.md` for detailed configuration instructions.
 
 **Key Configuration Points:**
 - Frontend must use relative API paths (`VITE_API_URL=""`)
 - Nginx proxy manager forwards `/api/*` requests to backend port 8000
-- Frontend served from port 7117
+- Frontend served from port 1717
 - SSL/HTTPS enforced for security
 
 ## Current User Accounts
@@ -178,7 +178,27 @@ The application is designed to work behind a reverse proxy with SSL termination.
 
 ## Recent Updates
 
-### Meeting Calendar Database Fix (LATEST URGENT)
+### PostgreSQL Enum Case Mismatch Fix (LATEST CRITICAL)
+- **CRITICAL BUG FIX**: Fixed user role update failures caused by PostgreSQL enum case mismatch
+- **Root Cause**: Database had inconsistent mix of uppercase (`ADMIN`, `STUDENT`) and lowercase (`faculty`, `secretary`) enum values
+- **Solution**: Added missing uppercase enum values (`FACULTY`, `SECRETARY`) to database for full compatibility
+- **Files Modified**: `backend/app/api/endpoints/auth.py`, `backend/app/db/models/user.py`
+- **Result**: User role changes (admin ↔ faculty ↔ student) now work correctly
+- **Technical Details**: See `docs/technical-notes.md` for complete investigation and solution
+
+### JSON Response Parsing Fix
+- **BUG FIX**: Fixed user deletion failing with "Failed to execute 'json' on 'Response': Unexpected end of JSON input"
+- **Root Cause**: Frontend trying to parse JSON from HTTP 204 No Content responses (empty body)
+- **Solution**: Updated `frontend/src/lib/api/index.js` to handle empty responses and 204 status codes
+- **Cache Busting**: Added timestamp-based asset naming in Vite config to prevent cached JavaScript issues
+
+### Port Configuration Standardization  
+- **CONFIGURATION CHANGE**: Updated frontend port from 7117 to 1717 per user preference
+- **Files Updated**: `docker-entrypoint.sh`, `Dockerfile`, `deploy.sh`, all documentation
+- **Network**: Uses br0 static IP (172.30.98.177) with Nginx reverse proxy
+- **URLs**: Frontend at port 1717, backend at port 8000, SSL via dd.kronisto.net
+
+### Meeting Calendar Database Fix
 - **CRITICAL DATABASE FIX**: Moved meeting calendar from in-memory storage to PostgreSQL persistence
 - **Data Recovery**: Your calendar meetings are now permanently saved to database and won't be lost on restart
 - **Calendar Safety**: All future meeting data will persist through server restarts and deployments
