@@ -1,0 +1,54 @@
+# Advanced Configuration for Nginx Proxy Manager
+# Copy this into the "Custom Nginx Configuration" section of your proxy host
+
+# Increase client body size for file uploads
+client_max_body_size 50M;
+
+# Backend API proxy
+location /api/ {
+    proxy_pass http://172.30.98.177:1718/api/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Port $server_port;
+    
+    # Handle preflight CORS requests
+    if ($request_method = 'OPTIONS') {
+        add_header 'Access-Control-Allow-Origin' '$http_origin' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS, PUT, DELETE' always;
+        add_header 'Access-Control-Allow-Headers' 'Origin, X-Requested-With, Content-Type, Accept, Authorization' always;
+        add_header 'Access-Control-Allow-Credentials' 'true' always;
+        add_header 'Access-Control-Max-Age' 86400 always;
+        add_header 'Content-Length' 0;
+        add_header 'Content-Type' 'text/plain';
+        return 204;
+    }
+    
+    # Timeout settings
+    proxy_connect_timeout 60s;
+    proxy_send_timeout 60s;
+    proxy_read_timeout 60s;
+    
+    # Buffer settings for better performance
+    proxy_buffering on;
+    proxy_buffer_size 4k;
+    proxy_buffers 8 4k;
+}
+
+# Health check endpoint (optional - for monitoring)
+location /health {
+    proxy_pass http://172.30.98.177:1718/health;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    access_log off;
+}
+
+# Security headers
+add_header X-Frame-Options "SAMEORIGIN" always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header Referrer-Policy "no-referrer-when-downgrade" always;

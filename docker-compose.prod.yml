@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  dor-dash:
+    build: .
+    container_name: dor-dash
+    restart: unless-stopped
+    ports:
+      - "1717:7117"  # Frontend on Unraid port 1717
+      - "1718:8000"  # Backend API on port 1718 (for nginx reverse proxy)
+    environment:
+      # Database Configuration
+      POSTGRES_SERVER: "172.30.98.213"
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: "DoRadmin"
+      POSTGRES_PASSWORD: "1232"
+      POSTGRES_DB: "DoR"
+      
+      # Redis Configuration
+      REDIS_SERVER: "172.30.98.214"
+      REDIS_PORT: "6379"
+      
+      # Security
+      SECRET_KEY: "insecure_default_key_for_development_only"
+      ALGORITHM: "HS256"
+      ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+      
+      # Ollama API
+      OLLAMA_API_URL: "http://172.30.98.14:11434/api/generate"
+      
+      # Auto-update settings
+      AUTO_UPDATE: "true"
+      REPO_URL: "https://git.kronisto.net/test-host/DoR-Dash.git"
+      BRANCH: "master"
+      UPDATE_CHECK_INTERVAL: "300"  # Check every 5 minutes
+      
+      # Application settings
+      VITE_API_URL: ""  # Use relative paths for reverse proxy
+      VITE_USE_MOCK: "false"
+    
+    volumes:
+      - dor-dash-uploads:/app/uploads
+      - dor-dash-logs:/app/logs
+    
+    networks:
+      - dor-dash-network
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  dor-dash-uploads:
+    driver: local
+  dor-dash-logs:
+    driver: local
+
+networks:
+  dor-dash-network:
+    driver: bridge
