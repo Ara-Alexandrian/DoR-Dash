@@ -22,7 +22,7 @@ app = FastAPI(
 # Add trusted host middleware for security
 app.add_middleware(
     TrustedHostMiddleware, 
-    allowed_hosts=["dd.kronisto.net", "172.30.98.21", "localhost", "127.0.0.1", "*.kronisto.net"]
+    allowed_hosts=["dd.kronisto.net", "172.30.98.21", "172.30.98.177", "localhost", "127.0.0.1", "*.kronisto.net"]
 )
 
 # Set up CORS for reverse proxy compatibility
