@@ -104,6 +104,72 @@
     }
   }
   
+  // Edit faculty update function
+  async function editFacultyUpdate(announcement) {
+    // Redirect to faculty update edit page (will need to be created)
+    window.location.href = `/submit-update?type=faculty&edit=${announcement.id}&meeting=${meetingId}`;
+  }
+  
+  // Delete faculty update function
+  async function deleteFacultyUpdate(updateId) {
+    if (!confirm('Are you sure you want to delete this faculty announcement?')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${API_BASE}/faculty-updates/${updateId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (response.ok) {
+        // Reload agenda to reflect changes
+        await loadMeetingDetails();
+        alert('Faculty announcement deleted successfully');
+      } else {
+        throw new Error('Failed to delete announcement');
+      }
+    } catch (err) {
+      console.error('Error deleting faculty announcement:', err);
+      alert('Failed to delete announcement. Please try again.');
+    }
+  }
+  
+  // Edit student update function
+  async function editStudentUpdate(update) {
+    // Redirect to student update edit page
+    window.location.href = `/submit-update?edit=${update.id}&meeting=${meetingId}`;
+  }
+  
+  // Delete student update function
+  async function deleteStudentUpdate(updateId) {
+    if (!confirm('Are you sure you want to delete this student update?')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${API_BASE}/updates/${updateId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (response.ok) {
+        // Reload agenda to reflect changes
+        await loadMeetingDetails();
+        alert('Student update deleted successfully');
+      } else {
+        throw new Error('Failed to delete update');
+      }
+    } catch (err) {
+      console.error('Error deleting student update:', err);
+      alert('Failed to delete update. Please try again.');
+    }
+  }
+  
   // Load data on mount
   onMount(loadMeetingDetails);
 </script>
@@ -203,67 +269,112 @@
               No faculty announcements for this meeting.
             </div>
           {:else}
-          <ul class="divide-y divide-gray-200">
+          <div class="divide-y divide-gray-200">
             {#each agenda.faculty_updates as announcement}
-              <li class="border-b border-gray-200">
+              <div class="border-b border-gray-200">
                 <button 
                   class="w-full p-4 text-left hover:bg-gray-50 transition-colors"
                   on:click={() => toggleFaculty(announcement.id)}
                 >
                   <div class="flex items-center justify-between">
-                    <div>
-                      <h4 class="text-lg font-medium text-gray-900">
-                        {#if announcement.announcement_type === 'urgent'}
-                          <span class="inline-flex items-center mr-2 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                            URGENT
-                          </span>
-                        {:else if announcement.announcement_type === 'deadline'}
-                          <span class="inline-flex items-center mr-2 px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                            DEADLINE
-                          </span>
-                        {/if}
-                        {announcement.announcements_text?.split('\n')[0] || 'Faculty Announcement'}
-                      </h4>
-                      <p class="text-sm text-gray-500 mt-1">
-                        Posted by: {announcement.user_name || 'Faculty Member'} • {new Date(announcement.submitted_at).toLocaleDateString()}
-                      </p>
+                    <div class="flex items-center space-x-4">
+                      <div class="h-10 w-10 rounded-full bg-secondary-200 flex items-center justify-center">
+                        <span class="text-secondary-700 font-medium">
+                          {(announcement.user_name || 'Faculty').charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div>
+                        <h4 class="text-lg font-bold text-gray-900">{announcement.user_name || 'Faculty Member'}</h4>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                          <span>Submitted on {new Date(announcement.submitted_at).toLocaleDateString()}</span>
+                          {#if announcement.announcement_type === 'urgent'}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                              URGENT
+                            </span>
+                          {:else if announcement.announcement_type === 'deadline'}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                              DEADLINE
+                            </span>
+                          {:else}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary-100 text-secondary-800">
+                              Announcement
+                            </span>
+                          {/if}
+                        </div>
+                      </div>
                     </div>
-                    <svg 
-                      class="w-5 h-5 transform transition-transform {expandedFaculty.has(announcement.id) ? 'rotate-180' : ''}" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
+                    <div class="flex items-center space-x-2">
+                      <!-- Edit/Delete buttons for faculty announcement -->
+                      {#if $auth.user && (Number(announcement.user_id) === Number($auth.user.id) || $auth.user.role === 'admin')}
+                        <button 
+                          on:click|stopPropagation={() => editFacultyUpdate(announcement)}
+                          class="p-1 text-gray-400 hover:text-primary-600 transition-colors"
+                          title="Edit announcement"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.379-8.379-2.828-2.828z" />
+                          </svg>
+                        </button>
+                        <button 
+                          on:click|stopPropagation={() => deleteFacultyUpdate(announcement.id)}
+                          class="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                          title="Delete announcement"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                          </svg>
+                        </button>
+                      {/if}
+                      <svg 
+                        class="w-5 h-5 transform transition-transform {expandedFaculty.has(announcement.id) ? 'rotate-180' : ''}" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                      </svg>
+                    </div>
                   </div>
                 </button>
                 
                 {#if expandedFaculty.has(announcement.id)}
-                  <div class="px-4 pb-4">
-                    <p class="text-sm text-gray-600 whitespace-pre-line">{announcement.announcements_text}</p>
+                  <div class="px-4 pb-6">
+                    
+                    <!-- Faculty Announcements -->
+                    {#if announcement.announcements_text}
+                      <div class="mt-4">
+                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Announcements</h5>
+                        <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                          {announcement.announcements_text}
+                        </div>
+                      </div>
+                    {/if}
                 
-                <!-- Show projects information if available -->
-                {#if announcement.projects_text}
-                  <div class="mt-4 border-t pt-2">
-                    <h5 class="text-sm font-medium text-gray-700">Current Projects</h5>
-                    <p class="mt-1 text-sm text-gray-600 whitespace-pre-line">{announcement.projects_text}</p>
-                  </div>
-                {/if}
-                
-                <!-- Show project status if available -->
-                {#if announcement.project_status_text}
-                  <div class="mt-3">
-                    <h5 class="text-sm font-medium text-gray-700">Project Status Updates</h5>
-                    <p class="mt-1 text-sm text-gray-600 whitespace-pre-line">{announcement.project_status_text}</p>
-                  </div>
-                {/if}
+                    <!-- Show projects information if available -->
+                    {#if announcement.projects_text}
+                      <div class="mt-4">
+                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Current Projects</h5>
+                        <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                          {announcement.projects_text}
+                        </div>
+                      </div>
+                    {/if}
+                    
+                    <!-- Show project status if available -->
+                    {#if announcement.project_status_text}
+                      <div class="mt-4">
+                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Project Status Updates</h5>
+                        <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                          {announcement.project_status_text}
+                        </div>
+                      </div>
+                    {/if}
                 
                     <!-- Show faculty questions if available -->
                     {#if announcement.faculty_questions}
-                      <div class="mt-3">
-                        <h5 class="text-sm font-medium text-gray-700">Questions for Students</h5>
-                        <div class="mt-1 text-sm text-gray-600 bg-gray-50 p-3 rounded border border-gray-200 whitespace-pre-line">
+                      <div class="mt-4">
+                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Questions for Students</h5>
+                        <div class="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded border border-gray-200 whitespace-pre-line">
                           {announcement.faculty_questions}
                         </div>
                       </div>
@@ -325,9 +436,9 @@
                     {/if}
                   </div>
                 {/if}
-              </li>
+              </div>
             {/each}
-          </ul>
+          </div>
           {/if}
         </div>
       {/if}
@@ -394,14 +505,39 @@
                         </div>
                       </div>
                     </div>
-                    <svg 
-                      class="w-5 h-5 transform transition-transform {expandedStudents.has(update.id) ? 'rotate-180' : ''}" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      viewBox="0 0 24 24"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
+                    <div class="flex items-center space-x-2">
+                      <!-- Edit/Delete buttons for student update -->
+                      <!-- Debug: update.user_id: {update.user_id}, auth.user.id: {$auth.user?.id}, auth.user.role: {$auth.user?.role} -->
+                      <p class="text-xs text-red-500 debug">DEBUG: update.user_id={update.user_id}, auth.user.id={$auth.user?.id}, auth.user.role={$auth.user?.role}</p>
+                      {#if $auth.user && (Number(update.user_id) === Number($auth.user.id) || $auth.user.role === 'admin')}
+                        <button 
+                          on:click|stopPropagation={() => editStudentUpdate(update)}
+                          class="p-1 text-gray-400 hover:text-primary-600 transition-colors"
+                          title="Edit update"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.379-8.379-2.828-2.828z" />
+                          </svg>
+                        </button>
+                        <button 
+                          on:click|stopPropagation={() => deleteStudentUpdate(update.id)}
+                          class="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                          title="Delete update"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                          </svg>
+                        </button>
+                      {/if}
+                      <svg 
+                        class="w-5 h-5 transform transition-transform {expandedStudents.has(update.id) ? 'rotate-180' : ''}" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                      </svg>
+                    </div>
                   </div>
                 </button>
                 

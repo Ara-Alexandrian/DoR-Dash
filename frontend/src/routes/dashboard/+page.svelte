@@ -133,7 +133,11 @@
 
       <!-- Statistics Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" in:fly={{y: 20, duration: 400, delay: 100}}>
-        <div class="card group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-primary-200 dark:border-primary-700">
+        <button 
+          class="card group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-primary-200 dark:border-primary-700 w-full text-left cursor-pointer hover:bg-gradient-to-br hover:from-primary-100 hover:to-primary-200"
+          on:click={() => { console.log('Clicking total updates tile'); window.location.href = '/updates'; }}
+          title="View all your submitted updates"
+        >
           <div class="p-6">
             <div class="flex items-center justify-between">
               <div>
@@ -147,9 +151,13 @@
               </div>
             </div>
           </div>
-        </div>
+        </button>
 
-        <div class="card group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900/20 dark:to-secondary-800/20 border-secondary-200 dark:border-secondary-700">
+        <button 
+          class="card group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900/20 dark:to-secondary-800/20 border-secondary-200 dark:border-secondary-700 w-full text-left cursor-pointer hover:bg-gradient-to-br hover:from-secondary-100 hover:to-secondary-200"
+          on:click={() => { console.log('Clicking recent updates tile'); window.location.href = '/submit-update'; }}
+          title="Submit a new update"
+        >
           <div class="p-6">
             <div class="flex items-center justify-between">
               <div>
@@ -164,9 +172,13 @@
               </div>
             </div>
           </div>
-        </div>
+        </button>
 
-        <div class="card group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-gold-50 to-gold-100 dark:from-gold-900/20 dark:to-gold-800/20 border-gold-200 dark:border-gold-700">
+        <button 
+          class="card group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-gold-50 to-gold-100 dark:from-gold-900/20 dark:to-gold-800/20 border-gold-200 dark:border-gold-700 w-full text-left cursor-pointer hover:bg-gradient-to-br hover:from-gold-100 hover:to-gold-200"
+          on:click={() => { console.log('Clicking upcoming presentations tile'); window.location.href = '/calendar'; }}
+          title="View upcoming meetings and presentations"
+        >
           <div class="p-6">
             <div class="flex items-center justify-between">
               <div>
@@ -181,9 +193,13 @@
               </div>
             </div>
           </div>
-        </div>
+        </button>
 
-        <div class="card group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-700">
+        <button 
+          class="card group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-700 w-full text-left cursor-pointer hover:bg-gradient-to-br hover:from-green-100 hover:to-green-200"
+          on:click={() => { console.log('Clicking completed presentations tile'); window.location.href = '/agenda'; }}
+          title="View completed presentations and meeting agendas"
+        >
           <div class="p-6">
             <div class="flex items-center justify-between">
               <div>
@@ -198,7 +214,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </button>
       </div>
 
       <!-- Quick Actions Section - Enhanced -->

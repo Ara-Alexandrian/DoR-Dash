@@ -3,6 +3,7 @@ from typing import List, Optional, Annotated
 from fastapi import APIRouter, HTTPException, Depends, Path, Query, status, UploadFile, File, Form
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
+from sqlalchemy.orm import Session, joinedload
 import os
 import tempfile
 
@@ -13,10 +14,16 @@ from app.schemas.student_update import (
     StudentUpdateUpdate,
     StudentUpdateList
 )
+from app.db.models.student_update import StudentUpdate as DBStudentUpdate
+from app.db.models.user import User as DBUser
+from app.db.models.meeting import Meeting as DBMeeting
+from app.db.models.file_upload import FileUpload as DBFileUpload
+from app.db.session import get_sync_db
 
 router = APIRouter()
 
-# In-memory storage for student updates (mimicking a database)
+# DATABASE STORAGE - NO MORE IN-MEMORY LOSS!
+# Note: Keep STUDENT_UPDATES_DB for backward compatibility during transition
 STUDENT_UPDATES_DB = []
 update_id_counter = 1  # Simple ID counter
 
@@ -24,13 +31,12 @@ update_id_counter = 1  # Simple ID counter
 @router.post("/", response_model=StudentUpdate, status_code=status.HTTP_201_CREATED)
 async def create_student_update(
     current_user: Annotated[User, Depends(get_current_user)],
-    update_in: StudentUpdateCreate
+    update_in: StudentUpdateCreate,
+    db: Session = Depends(get_sync_db)
 ):
     """
-    Create a new student update
+    Create a new student update - NOW PERSISTENT IN DATABASE!
     """
-    global update_id_counter
-    
     # Check if user is submitting for themselves or admin submitting for a student
     if current_user.role != "admin" and update_in.user_id != current_user.id:
         raise HTTPException(
@@ -38,44 +44,74 @@ async def create_student_update(
             detail="You can only submit updates for yourself"
         )
     
-    # Create new update with current timestamp
-    now = datetime.now()
-    new_update = {
-        "id": update_id_counter,
-        "user_id": update_in.user_id,
-        "user_name": current_user.full_name or current_user.username,
-        "progress_text": update_in.progress_text,
-        "challenges_text": update_in.challenges_text,
-        "next_steps_text": update_in.next_steps_text,
-        "meeting_notes": getattr(update_in, 'meeting_notes', None),
-        "will_present": getattr(update_in, 'will_present', False),
-        "meeting_id": update_in.meeting_id,
-        "files": [],  # Initialize empty files array
-        "submission_date": now,
-        "created_at": now,
-        "updated_at": now
-    }
+    # Validate user exists
+    user = db.query(DBUser).filter(DBUser.id == update_in.user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
     
-    # Add to "database"
-    STUDENT_UPDATES_DB.append(new_update)
-    update_id_counter += 1
+    # Validate meeting exists if provided
+    if update_in.meeting_id:
+        meeting = db.query(DBMeeting).filter(DBMeeting.id == update_in.meeting_id).first()
+        if not meeting:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Meeting not found"
+            )
     
-    print(f"DEBUG: Created student update with ID {new_update['id']}, meeting_id: {new_update['meeting_id']}")
-    print(f"DEBUG: Total updates in DB: {len(STUDENT_UPDATES_DB)}")
+    # Create new database record
+    db_update = DBStudentUpdate(
+        user_id=update_in.user_id,
+        meeting_id=update_in.meeting_id,
+        progress_text=update_in.progress_text,
+        challenges_text=update_in.challenges_text,
+        next_steps_text=update_in.next_steps_text,
+        meeting_notes=getattr(update_in, 'meeting_notes', None),
+        will_present=getattr(update_in, 'will_present', False)
+    )
     
-    return new_update
+    # Save to database
+    db.add(db_update)
+    db.commit()
+    db.refresh(db_update)
+    
+    print(f"DEBUG: Created student update with ID {db_update.id}, meeting_id: {db_update.meeting_id}")
+    print(f"DEBUG: Update saved to PostgreSQL database")
+    
+    # Convert to response format
+    return StudentUpdate(
+        id=db_update.id,
+        user_id=db_update.user_id,
+        user_name=user.full_name or user.username,
+        progress_text=db_update.progress_text,
+        challenges_text=db_update.challenges_text,
+        next_steps_text=db_update.next_steps_text,
+        meeting_notes=db_update.meeting_notes,
+        will_present=db_update.will_present,
+        meeting_id=db_update.meeting_id,
+        files=[],  # Will be loaded separately
+        submission_date=db_update.submission_date,
+        created_at=db_update.created_at,
+        updated_at=db_update.updated_at
+    )
 
 
 @router.get("/{update_id}", response_model=StudentUpdate)
 async def read_student_update(
     current_user: Annotated[User, Depends(get_current_user)],
-    update_id: int = Path(..., description="The ID of the student update to retrieve")
+    update_id: int = Path(..., description="The ID of the student update to retrieve"),
+    db: Session = Depends(get_sync_db)
 ):
     """
-    Get a specific student update by ID
+    Get a specific student update by ID - FROM DATABASE
     """
-    # Find the update in our "database"
-    update = next((u for u in STUDENT_UPDATES_DB if u["id"] == update_id), None)
+    # Find the update in database
+    update = db.query(DBStudentUpdate).options(
+        joinedload(DBStudentUpdate.user),
+        joinedload(DBStudentUpdate.file_uploads)
+    ).filter(DBStudentUpdate.id == update_id).first()
     
     if not update:
         raise HTTPException(
@@ -84,13 +120,39 @@ async def read_student_update(
         )
     
     # Check permissions - only admins can see all updates, students can only see their own
-    if current_user.role != "admin" and update["user_id"] != current_user.id:
+    if current_user.role != "admin" and update.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only access your own updates"
         )
     
-    return update
+    # Convert files to expected format
+    files = []
+    for file_upload in update.file_uploads:
+        files.append({
+            "id": file_upload.id,
+            "name": file_upload.filename,
+            "size": file_upload.file_size or 0,
+            "file_path": file_upload.file_path,
+            "type": file_upload.file_type or "other",
+            "upload_date": file_upload.upload_date.isoformat() if file_upload.upload_date else None
+        })
+    
+    return StudentUpdate(
+        id=update.id,
+        user_id=update.user_id,
+        user_name=update.user.full_name or update.user.username,
+        progress_text=update.progress_text,
+        challenges_text=update.challenges_text,
+        next_steps_text=update.next_steps_text,
+        meeting_notes=update.meeting_notes,
+        will_present=update.will_present,
+        meeting_id=update.meeting_id,
+        files=files,
+        submission_date=update.submission_date,
+        created_at=update.created_at,
+        updated_at=update.updated_at
+    )
 
 
 @router.get("/", response_model=StudentUpdateList)
@@ -99,35 +161,70 @@ async def list_student_updates(
     skip: int = Query(0, description="Number of updates to skip"),
     limit: int = Query(100, description="Max number of updates to return"),
     user_id: Optional[int] = Query(None, description="Filter by user ID"),
-    meeting_id: Optional[int] = Query(None, description="Filter by meeting ID")
+    meeting_id: Optional[int] = Query(None, description="Filter by meeting ID"),
+    db: Session = Depends(get_sync_db)
 ):
     """
-    List student updates with pagination and optional filtering by user_id
+    List student updates with pagination and optional filtering - FROM DATABASE
     """
+    # Start with base query
+    query = db.query(DBStudentUpdate).options(
+        joinedload(DBStudentUpdate.user),
+        joinedload(DBStudentUpdate.file_uploads)
+    )
+    
     # Filter updates based on permissions and query parameters
     if current_user.role not in ["admin", "faculty"]:
         # Students can only see their own updates
-        filtered_updates = [u for u in STUDENT_UPDATES_DB if u["user_id"] == current_user.id]
-    else:
-        # Admins and faculty can see all updates
-        filtered_updates = STUDENT_UPDATES_DB[:]
+        query = query.filter(DBStudentUpdate.user_id == current_user.id)
     
     # Apply additional filters
     if user_id:
-        filtered_updates = [u for u in filtered_updates if u["user_id"] == user_id]
+        query = query.filter(DBStudentUpdate.user_id == user_id)
     
     if meeting_id:
-        filtered_updates = [u for u in filtered_updates if u.get("meeting_id") == meeting_id]
+        query = query.filter(DBStudentUpdate.meeting_id == meeting_id)
     
-    # Sort by submission date (newest first)
-    filtered_updates.sort(key=lambda x: x["submission_date"], reverse=True)
+    # Get total count before pagination
+    total = query.count()
     
-    # Apply pagination
-    paginated_updates = filtered_updates[skip:skip + limit]
+    # Sort by submission date (newest first) and apply pagination
+    updates = query.order_by(DBStudentUpdate.submission_date.desc()).offset(skip).limit(limit).all()
+    
+    # Convert to response format
+    result_items = []
+    for update in updates:
+        # Convert files to expected format
+        files = []
+        for file_upload in update.file_uploads:
+            files.append({
+                "id": file_upload.id,
+                "name": file_upload.filename,
+                "size": file_upload.file_size or 0,
+                "file_path": file_upload.file_path,
+                "type": file_upload.file_type or "other",
+                "upload_date": file_upload.upload_date.isoformat() if file_upload.upload_date else None
+            })
+        
+        result_items.append(StudentUpdate(
+            id=update.id,
+            user_id=update.user_id,
+            user_name=update.user.full_name or update.user.username,
+            progress_text=update.progress_text,
+            challenges_text=update.challenges_text,
+            next_steps_text=update.next_steps_text,
+            meeting_notes=update.meeting_notes,
+            will_present=update.will_present,
+            meeting_id=update.meeting_id,
+            files=files,
+            submission_date=update.submission_date,
+            created_at=update.created_at,
+            updated_at=update.updated_at
+        ))
     
     return {
-        "items": paginated_updates,
-        "total": len(filtered_updates)
+        "items": result_items,
+        "total": total
     }
 
 
@@ -135,24 +232,26 @@ async def list_student_updates(
 async def update_student_update(
     current_user: Annotated[User, Depends(get_current_user)],
     update_in: StudentUpdateUpdate,
-    update_id: int = Path(..., description="The ID of the student update to update")
+    update_id: int = Path(..., description="The ID of the student update to update"),
+    db: Session = Depends(get_sync_db)
 ):
     """
-    Update an existing student update
+    Update an existing student update - PERSISTENT IN DATABASE
     """
-    # Find the update in our "database"
-    update_idx = next((i for i, u in enumerate(STUDENT_UPDATES_DB) if u["id"] == update_id), None)
+    # Find the update in database
+    update = db.query(DBStudentUpdate).options(
+        joinedload(DBStudentUpdate.user),
+        joinedload(DBStudentUpdate.file_uploads)
+    ).filter(DBStudentUpdate.id == update_id).first()
     
-    if update_idx is None:
+    if not update:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Student update with ID {update_id} not found"
         )
     
-    update = STUDENT_UPDATES_DB[update_idx]
-    
     # Check permissions - only admins can update all updates, students can only update their own
-    if current_user.role != "admin" and update["user_id"] != current_user.id:
+    if current_user.role != "admin" and update.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only update your own updates"
@@ -160,25 +259,49 @@ async def update_student_update(
     
     # Update only fields that were provided
     if update_in.progress_text is not None:
-        update["progress_text"] = update_in.progress_text
+        update.progress_text = update_in.progress_text
     if update_in.challenges_text is not None:
-        update["challenges_text"] = update_in.challenges_text
+        update.challenges_text = update_in.challenges_text
     if update_in.next_steps_text is not None:
-        update["next_steps_text"] = update_in.next_steps_text
+        update.next_steps_text = update_in.next_steps_text
     if hasattr(update_in, 'meeting_notes') and update_in.meeting_notes is not None:
-        update["meeting_notes"] = update_in.meeting_notes
+        update.meeting_notes = update_in.meeting_notes
     if hasattr(update_in, 'will_present') and update_in.will_present is not None:
-        update["will_present"] = update_in.will_present
+        update.will_present = update_in.will_present
     if update_in.meeting_id is not None:
-        update["meeting_id"] = update_in.meeting_id
+        update.meeting_id = update_in.meeting_id
     
-    # Update the timestamp
-    update["updated_at"] = datetime.now()
+    # Save to database
+    db.commit()
+    db.refresh(update)
     
-    # Update in our "database"
-    STUDENT_UPDATES_DB[update_idx] = update
+    # Convert files to expected format
+    files = []
+    for file_upload in update.file_uploads:
+        files.append({
+            "id": file_upload.id,
+            "name": file_upload.filename,
+            "size": file_upload.file_size or 0,
+            "file_path": file_upload.file_path,
+            "type": file_upload.file_type or "other",
+            "upload_date": file_upload.upload_date.isoformat() if file_upload.upload_date else None
+        })
     
-    return update
+    return StudentUpdate(
+        id=update.id,
+        user_id=update.user_id,
+        user_name=update.user.full_name or update.user.username,
+        progress_text=update.progress_text,
+        challenges_text=update.challenges_text,
+        next_steps_text=update.next_steps_text,
+        meeting_notes=update.meeting_notes,
+        will_present=update.will_present,
+        meeting_id=update.meeting_id,
+        files=files,
+        submission_date=update.submission_date,
+        created_at=update.created_at,
+        updated_at=update.updated_at
+    )
 
 
 @router.post("/{update_id}/files")
@@ -335,30 +458,32 @@ async def download_file(
 @router.delete("/{update_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_student_update(
     current_user: Annotated[User, Depends(get_current_user)],
-    update_id: int = Path(..., description="The ID of the student update to delete")
+    update_id: int = Path(..., description="The ID of the student update to delete"),
+    db: Session = Depends(get_sync_db)
 ):
     """
-    Delete a student update
+    Delete a student update - PERSISTENT IN DATABASE
     """
-    # Find the update in our "database"
-    update_idx = next((i for i, u in enumerate(STUDENT_UPDATES_DB) if u["id"] == update_id), None)
+    # Find the update in database
+    update = db.query(DBStudentUpdate).filter(DBStudentUpdate.id == update_id).first()
     
-    if update_idx is None:
+    if not update:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Student update with ID {update_id} not found"
         )
     
-    update = STUDENT_UPDATES_DB[update_idx]
-    
     # Check permissions - only admins can delete all updates, students can only delete their own
-    if current_user.role != "admin" and update["user_id"] != current_user.id:
+    if current_user.role != "admin" and update.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only delete your own updates"
         )
     
-    # Delete from our "database"
-    STUDENT_UPDATES_DB.pop(update_idx)
+    # Delete from database (cascades to file_uploads automatically)
+    db.delete(update)
+    db.commit()
+    
+    print(f"DEBUG: Deleted student update with ID {update_id} from PostgreSQL database")
     
     return None

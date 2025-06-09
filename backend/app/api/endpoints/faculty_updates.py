@@ -3,6 +3,7 @@ from typing import List, Optional, Annotated
 from fastapi import APIRouter, HTTPException, Depends, Path, Query, status, UploadFile, File, Form
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
+from sqlalchemy.orm import Session, joinedload
 import os
 import tempfile
 
@@ -14,10 +15,16 @@ from app.schemas.faculty_update import (
     FacultyUpdateList,
     AnnouncementType
 )
+from app.db.models.faculty_update import FacultyUpdate as DBFacultyUpdate
+from app.db.models.user import User as DBUser
+from app.db.models.meeting import Meeting as DBMeeting
+from app.db.models.file_upload import FileUpload as DBFileUpload
+from app.db.session import get_sync_db
 
 router = APIRouter()
 
-# In-memory storage for faculty updates (mimicking a database)
+# DATABASE STORAGE - NO MORE IN-MEMORY LOSS!
+# Note: Keep FACULTY_UPDATES_DB for backward compatibility during transition
 FACULTY_UPDATES_DB = []
 update_id_counter = 1  # Simple ID counter
 
@@ -25,13 +32,12 @@ update_id_counter = 1  # Simple ID counter
 @router.post("/", response_model=FacultyUpdate, status_code=status.HTTP_201_CREATED)
 async def create_faculty_update(
     current_user: Annotated[User, Depends(get_current_user)],
-    update_in: FacultyUpdateCreate
+    update_in: FacultyUpdateCreate,
+    db: Session = Depends(get_sync_db)
 ):
     """
-    Create a new faculty update
+    Create a new faculty update - NOW PERSISTENT IN DATABASE!
     """
-    global update_id_counter
-    
     # Check if user is a faculty member or admin
     if current_user.role not in ["faculty", "admin"]:
         raise HTTPException(
@@ -58,31 +64,61 @@ async def create_faculty_update(
             detail="At least one update field must have content"
         )
     
-    # Create new update with current timestamp
-    now = datetime.now()
-    new_update = {
-        "id": update_id_counter,
-        "user_id": update_in.user_id,
-        "user_name": current_user.full_name or current_user.username,
-        "meeting_id": update_in.meeting_id,
-        "announcements_text": update_in.announcements_text,
-        "announcement_type": update_in.announcement_type,
-        "projects_text": update_in.projects_text,
-        "project_status_text": update_in.project_status_text,
-        "faculty_questions": update_in.faculty_questions,
-        "is_presenting": update_in.is_presenting,
-        "files": [],  # Initialize empty files array
-        "submission_date": now,
-        "submitted_at": now,  # Add submitted_at for frontend compatibility
-        "created_at": now,
-        "updated_at": now
-    }
+    # Validate user exists
+    user = db.query(DBUser).filter(DBUser.id == update_in.user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
     
-    # Add to "database"
-    FACULTY_UPDATES_DB.append(new_update)
-    update_id_counter += 1
+    # Validate meeting exists if provided
+    if update_in.meeting_id:
+        meeting = db.query(DBMeeting).filter(DBMeeting.id == update_in.meeting_id).first()
+        if not meeting:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Meeting not found"
+            )
     
-    return new_update
+    # Create new database record
+    db_update = DBFacultyUpdate(
+        user_id=update_in.user_id,
+        meeting_id=update_in.meeting_id,
+        announcements_text=update_in.announcements_text,
+        announcement_type=update_in.announcement_type,
+        projects_text=update_in.projects_text,
+        project_status_text=update_in.project_status_text,
+        faculty_questions=update_in.faculty_questions,
+        is_presenting=update_in.is_presenting
+    )
+    
+    # Save to database
+    db.add(db_update)
+    db.commit()
+    db.refresh(db_update)
+    
+    print(f"DEBUG: Created faculty update with ID {db_update.id}, meeting_id: {db_update.meeting_id}")
+    print(f"DEBUG: Update saved to PostgreSQL database")
+    
+    # Convert to response format
+    return FacultyUpdate(
+        id=db_update.id,
+        user_id=db_update.user_id,
+        user_name=user.full_name or user.username,
+        meeting_id=db_update.meeting_id,
+        announcements_text=db_update.announcements_text,
+        announcement_type=db_update.announcement_type,
+        projects_text=db_update.projects_text,
+        project_status_text=db_update.project_status_text,
+        faculty_questions=db_update.faculty_questions,
+        is_presenting=db_update.is_presenting,
+        files=[],  # Will be loaded separately
+        submission_date=db_update.submission_date,
+        submitted_at=db_update.submission_date,  # For frontend compatibility
+        created_at=db_update.created_at,
+        updated_at=db_update.updated_at
+    )
 
 
 @router.get("/{update_id}", response_model=FacultyUpdate)
@@ -119,33 +155,71 @@ async def list_faculty_updates(
     skip: int = Query(0, description="Number of updates to skip"),
     limit: int = Query(100, description="Max number of updates to return"),
     user_id: Optional[int] = Query(None, description="Filter by user ID"),
-    meeting_id: Optional[int] = Query(None, description="Filter by meeting ID")
+    meeting_id: Optional[int] = Query(None, description="Filter by meeting ID"),
+    db: Session = Depends(get_sync_db)
 ):
     """
-    List faculty updates with pagination and optional filtering
+    List faculty updates with pagination and optional filtering - FROM DATABASE
     """
-    # Apply filters
-    filtered_updates = FACULTY_UPDATES_DB
+    # Start with base query
+    query = db.query(DBFacultyUpdate).options(
+        joinedload(DBFacultyUpdate.user),
+        joinedload(DBFacultyUpdate.file_uploads)
+    )
     
+    # Apply filters
     if user_id:
-        filtered_updates = [u for u in filtered_updates if u["user_id"] == user_id]
+        query = query.filter(DBFacultyUpdate.user_id == user_id)
         
     if meeting_id:
-        filtered_updates = [u for u in filtered_updates if u["meeting_id"] == meeting_id]
+        query = query.filter(DBFacultyUpdate.meeting_id == meeting_id)
     
     # Faculty members can see all faculty updates
     # Students can see all faculty updates
     # No additional permissions filtering needed
     
-    # Sort by submission date (newest first)
-    filtered_updates.sort(key=lambda x: x["submission_date"], reverse=True)
+    # Get total count before pagination
+    total = query.count()
     
-    # Apply pagination
-    paginated_updates = filtered_updates[skip:skip + limit]
+    # Sort by submission date (newest first) and apply pagination
+    updates = query.order_by(DBFacultyUpdate.submission_date.desc()).offset(skip).limit(limit).all()
+    
+    # Convert to response format
+    result_items = []
+    for update in updates:
+        # Convert files to expected format
+        files = []
+        for file_upload in update.file_uploads:
+            files.append({
+                "id": file_upload.id,
+                "name": file_upload.filename,
+                "size": file_upload.file_size or 0,
+                "file_path": file_upload.file_path,
+                "type": file_upload.file_type or "other",
+                "upload_date": file_upload.upload_date.isoformat() if file_upload.upload_date else None
+            })
+        
+        result_items.append(FacultyUpdate(
+            id=update.id,
+            user_id=update.user_id,
+            user_name=update.user.full_name or update.user.username,
+            meeting_id=update.meeting_id,
+            announcements_text=update.announcements_text,
+            announcement_type=update.announcement_type,
+            projects_text=update.projects_text,
+            project_status_text=update.project_status_text,
+            faculty_questions=update.faculty_questions,
+            is_presenting=update.is_presenting,
+            files=files,
+            submission_date=update.submission_date,
+            submitted_at=update.submission_date,  # For frontend compatibility
+            created_at=update.created_at,
+            updated_at=update.updated_at
+        ))
     
     return {
-        "items": paginated_updates,
-        "total": len(filtered_updates)
+        "items": result_items,
+        "total": total
     }
 
 
@@ -355,30 +429,32 @@ async def download_faculty_file(
 @router.delete("/{update_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_faculty_update(
     current_user: Annotated[User, Depends(get_current_user)],
-    update_id: int = Path(..., description="The ID of the faculty update to delete")
+    update_id: int = Path(..., description="The ID of the faculty update to delete"),
+    db: Session = Depends(get_sync_db)
 ):
     """
-    Delete a faculty update
+    Delete a faculty update - PERSISTENT IN DATABASE
     """
-    # Find the update in our "database"
-    update_idx = next((i for i, u in enumerate(FACULTY_UPDATES_DB) if u["id"] == update_id), None)
+    # Find the update in database
+    update = db.query(DBFacultyUpdate).filter(DBFacultyUpdate.id == update_id).first()
     
-    if update_idx is None:
+    if not update:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Faculty update with ID {update_id} not found"
         )
     
-    update = FACULTY_UPDATES_DB[update_idx]
-    
     # Check permissions - only the faculty owner or admins can delete
-    if current_user.role != "admin" and update["user_id"] != current_user.id:
+    if current_user.role != "admin" and update.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only delete your own updates"
         )
     
-    # Delete from our "database"
-    FACULTY_UPDATES_DB.pop(update_idx)
+    # Delete from database (cascades to file_uploads automatically)
+    db.delete(update)
+    db.commit()
+    
+    print(f"DEBUG: Deleted faculty update with ID {update_id} from PostgreSQL database")
     
     return None

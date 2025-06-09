@@ -2,15 +2,18 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.api.endpoints.auth import User, get_current_user, get_all_users
 from app.core.permissions import get_admin_user
 from app.db.session import get_sync_db
+from app.db.models.presentation import AssignedPresentation as DBPresentation
+from app.db.models.user import User as DBUser
 
 router = APIRouter()
 
-# Mock data storage for presentations
+# DATABASE STORAGE - NO MORE IN-MEMORY LOSS!
+# Note: Keep PRESENTATIONS for backward compatibility during transition
 PRESENTATIONS = []
 
 class PresentationBase(BaseModel):
@@ -45,34 +48,33 @@ async def get_presentations(
     db: Session = Depends(get_sync_db)
 ):
     """
-    Get all presentations.
+    Get all presentations from DATABASE (no more data loss!).
     - Students can only see their own presentations
     - Faculty and admins can see all presentations
     """
-    # Get all users from database
-    all_users = get_all_users(db)
+    # Query presentations from database
+    query = db.query(DBPresentation).options(joinedload(DBPresentation.user))
     
     # Filter presentations based on user role
     if current_user.role == "student":
-        filtered_presentations = [p for p in PRESENTATIONS if p["user_id"] == current_user.id]
-    else:
-        filtered_presentations = PRESENTATIONS
+        # Students can only see their own presentations
+        query = query.filter(DBPresentation.user_id == current_user.id)
     
-    # Add user information to each presentation
+    # Get all presentations
+    presentations = query.order_by(DBPresentation.meeting_date.desc()).all()
+    
+    # Convert to response format
     result = []
-    for presentation in filtered_presentations:
-        # Find user info
-        user = next((u for u in all_users if u["id"] == presentation["user_id"]), None)
-        
-        presentation_dict = presentation.copy()
-        if user:
-            presentation_dict["user_name"] = user.get("full_name", user["username"])
-            presentation_dict["user_email"] = user["email"]
-        
-        result.append(presentation_dict)
-    
-    # Sort by meeting date
-    result.sort(key=lambda x: x["meeting_date"])
+    for presentation in presentations:
+        result.append({
+            "id": presentation.id,
+            "user_id": presentation.user_id,
+            "user_name": presentation.user.full_name or presentation.user.username,
+            "user_email": presentation.user.email,
+            "meeting_date": presentation.meeting_date,
+            "status": presentation.status,
+            "is_confirmed": presentation.is_confirmed
+        })
     
     return result
 

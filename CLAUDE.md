@@ -239,7 +239,18 @@ The application is designed to work behind a reverse proxy with SSL termination.
 
 ## Recent Updates
 
-### PostgreSQL Enum Case Mismatch Fix (LATEST CRITICAL)
+### CRITICAL DATA PERSISTENCE FIX (LATEST CRITICAL)
+- **CRITICAL BUG FIX**: Migrated student and faculty updates from in-memory storage to PostgreSQL database
+- **Root Cause**: Agenda items were lost on container restart because they were stored in-memory only
+- **Solution**: Updated all CRUD operations for student/faculty updates to use PostgreSQL database
+- **Files Modified**: 
+  - `backend/app/api/endpoints/updates.py` - Student updates now use database
+  - `backend/app/api/endpoints/faculty_updates.py` - Faculty updates now use database
+- **Result**: All agenda items (student updates, faculty announcements) now persist through restarts
+- **Impact**: No more data loss on deployment or container restart!
+- **Technical Details**: Converted in-memory `STUDENT_UPDATES_DB` and `FACULTY_UPDATES_DB` to use SQLAlchemy ORM with PostgreSQL
+
+### PostgreSQL Enum Case Mismatch Fix
 - **CRITICAL BUG FIX**: Fixed user role update failures caused by PostgreSQL enum case mismatch
 - **Root Cause**: Database had inconsistent mix of uppercase (`ADMIN`, `STUDENT`) and lowercase (`faculty`, `secretary`) enum values
 - **Solution**: Added missing uppercase enum values (`FACULTY`, `SECRETARY`) to database for full compatibility
@@ -306,19 +317,19 @@ The application is designed to work behind a reverse proxy with SSL termination.
 
 ### Live Data Locations:
 1. **User Accounts** (`backend/app/api/endpoints/auth.py` - `USERS_DB`) ⚠️ *IN-MEMORY*
-2. **Student Updates** (`backend/app/api/endpoints/updates.py` - `STUDENT_UPDATES`) ⚠️ *IN-MEMORY*
-3. **Faculty Updates** (`backend/app/api/endpoints/faculty_updates.py` - `FACULTY_UPDATES`) ⚠️ *IN-MEMORY*
+2. **📚 STUDENT UPDATES** (`PostgreSQL` - **PERSISTENT DATABASE**) ✅ *SAFE*
+3. **👨‍🏫 FACULTY UPDATES** (`PostgreSQL` - **PERSISTENT DATABASE**) ✅ *SAFE*
 4. **📅 MEETING CALENDAR** (`PostgreSQL` - **PERSISTENT DATABASE**) ✅ *SAFE*
 5. **Registration Requests** (`backend/app/api/endpoints/registration.py` - `REGISTRATION_REQUESTS`) ⚠️ *IN-MEMORY*
 6. **🗂️ UPLOADED FILES** (`/config/workspace/gitea/DoR-Dash/uploads/` - **PERSISTENT ON DISK**) ✅ *SAFE*
 
 ### Development Safety Rules:
-- **NEVER** reset or clear in-memory data stores during development
+- **NEVER** reset or clear in-memory data stores during development (User Accounts, Registration Requests)
 - **NEVER** change initialization logic that would overwrite existing users
 - **NEVER** delete or modify files in `/uploads/` directory
 - **ALWAYS** preserve existing data when modifying data structures
 - **TEST CAREFULLY** before pushing changes that modify user data handling
-- **BACKUP AWARENESS**: Metadata is in-memory and will be lost on server restart, but uploaded files are persistent on disk
+- **DATABASE SAFETY**: Student/Faculty updates and meetings are now persistent in PostgreSQL and safe from restarts!
 
 ### Safe Modification Practices:
 - Add new users by appending to existing `USERS_DB`
