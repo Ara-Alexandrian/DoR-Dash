@@ -150,7 +150,7 @@ start_services() {
         npm install -g serve >/dev/null 2>&1 || {
             # Fallback to Python HTTP server
             cd "$FRONTEND_BUILD_DIR" 
-            python3 -m http.server 7117 --bind 0.0.0.0 > /app/logs/frontend.log 2>&1 &
+            python3 -m http.server 1717 --bind 0.0.0.0 > /app/logs/frontend.log 2>&1 &
             FRONTEND_PID=$!
             echo $FRONTEND_PID > /tmp/frontend.pid
             return
@@ -158,7 +158,7 @@ start_services() {
     fi
     
     # Use serve for better SPA support
-    serve -s build -l 7117 --host 0.0.0.0 > /app/logs/frontend.log 2>&1 &
+    serve -s build -l 1717 --host 0.0.0.0 > /app/logs/frontend.log 2>&1 &
     FRONTEND_PID=$!
     echo $FRONTEND_PID > /tmp/frontend.pid
     
@@ -242,5 +242,5 @@ elif [ "$AUTO_UPDATE" = "restart_only" ]; then
 fi
 
 # Keep container running and wait for signals
-log "DoR-Dash is running. Backend: http://0.0.0.0:8000, Frontend: http://0.0.0.0:7117"
+log "DoR-Dash is running. Backend: http://0.0.0.0:8000, Frontend: http://0.0.0.0:1717"
 wait

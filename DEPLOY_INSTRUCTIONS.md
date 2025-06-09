@@ -8,7 +8,7 @@
    - Domain Names: `dd.kronisto.net` ✅ (keep existing)
    - Scheme: `http` ✅ (keep existing)
    - Forward Hostname/IP: **Change to** `172.30.98.177`
-   - Forward Port: **Change to** `7117`
+   - Forward Port: **Change to** `1717`
    - Cache Assets: ✅ Enabled (keep existing)
    - Block Common Exploits: ✅ Enabled (keep existing)
    - Websockets Support: ✅ Enabled (keep existing)
@@ -93,7 +93,7 @@ chmod +x deploy.sh
 ## Step 3: Verify Deployment
 
 **Check these URLs:**
-- Direct Frontend: `http://172.30.98.177:7117`
+- Direct Frontend: `http://172.30.98.177:1717`
 - Direct Backend: `http://172.30.98.177:8000/health`
 - Through Nginx: `https://dd.kronisto.net`
 
@@ -149,14 +149,14 @@ ping 172.30.98.14   # Ollama
 ```
 
 **If the website doesn't load:**
-1. Test direct access first: `http://172.30.98.177:7117`
+1. Test direct access first: `http://172.30.98.177:1717`
 2. Check nginx proxy manager logs
 3. Verify the advanced configuration was saved correctly
 
 **For auto-update issues:**
 ```bash
 # Disable auto-updates temporarily
-docker run -d --name dor-dash-manual -p 1717:7117 -p 1718:8000 \
+docker run -d --name dor-dash-manual -p 1717:1717 -p 1718:8000 \
   -e AUTO_UPDATE=false [other environment variables...] dor-dash:latest
 ```
 

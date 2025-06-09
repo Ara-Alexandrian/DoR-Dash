@@ -111,13 +111,13 @@ show_status() {
     
     echo ""
     log "Access URLs:"
-    echo -e "${GREEN}Frontend:${NC} http://$CONTAINER_IP:7117"
+    echo -e "${GREEN}Frontend:${NC} http://$CONTAINER_IP:1717"
     echo -e "${GREEN}Backend API:${NC} http://$CONTAINER_IP:8000"
     echo -e "${GREEN}Health Check:${NC} http://$CONTAINER_IP:8000/health"
     
     echo ""
     log "Nginx Reverse Proxy Configuration:"
-    echo -e "${YELLOW}Frontend:${NC} http://$CONTAINER_IP:7117"
+    echo -e "${YELLOW}Frontend:${NC} http://$CONTAINER_IP:1717"
     echo -e "${YELLOW}Backend API:${NC} http://$CONTAINER_IP:8000/api/"
     echo ""
     echo -e "${BLUE}Use the nginx.conf file provided for reverse proxy setup${NC}"
