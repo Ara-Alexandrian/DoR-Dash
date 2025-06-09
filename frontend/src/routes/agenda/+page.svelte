@@ -198,7 +198,10 @@
                     
                     <div class="mt-2">
                       {#if isAdmin}
-                        <button class="text-sm text-secondary-600 hover:text-secondary-900">
+                        <button 
+                          class="text-sm text-secondary-600 hover:text-secondary-900"
+                          on:click={() => window.location.href = `/calendar?edit=${meeting.id}`}
+                        >
                           Edit Meeting
                         </button>
                       {/if}
