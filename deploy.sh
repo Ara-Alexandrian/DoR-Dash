@@ -9,7 +9,7 @@ set -e
 IMAGE_NAME="dor-dash"
 CONTAINER_NAME="dor-dash"
 UNRAID_HOST="172.30.98.10"
-CONTAINER_IP="172.30.98.177"
+CONTAINER_IP="172.30.98.10"
 FRONTEND_PORT="1717"
 BACKEND_PORT="1718"
 
@@ -71,15 +71,10 @@ build_image() {
 run_container() {
     log "Starting DoR-Dash container..."
     
-    # Try to use br0 network with static IP, fallback to port mapping
-    if docker network inspect br0 >/dev/null 2>&1; then
-        log "Using br0 network with static IP $CONTAINER_IP"
-        NETWORK_ARGS="--network br0 --ip $CONTAINER_IP"
-    else
-        warn "br0 network not found, using port mapping"
-        NETWORK_ARGS="-p $FRONTEND_PORT:7117 -p $BACKEND_PORT:8000"
-        CONTAINER_IP="$UNRAID_HOST"
-    fi
+    # Use port mapping for better host accessibility
+    log "Using port mapping for host accessibility"
+    NETWORK_ARGS="-p $FRONTEND_PORT:7117 -p $BACKEND_PORT:8000"
+    CONTAINER_IP="$UNRAID_HOST"
     
     docker run -d \
         --name "$CONTAINER_NAME" \
