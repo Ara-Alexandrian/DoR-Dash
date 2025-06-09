@@ -85,7 +85,7 @@ run_container() {
         -e SECRET_KEY="insecure_default_key_for_development_only" \
         -e OLLAMA_API_URL="http://172.30.98.14:11434/api/generate" \
         -e AUTO_UPDATE="true" \
-        -e REPO_URL="https://git.kronisto.net/test-host/DoR-Dash.git" \
+        -e REPO_URL="https://github.com/Ara-Alexandrian/DoR-Dash.git" \
         -e BRANCH="master" \
         -e UPDATE_CHECK_INTERVAL="300" \
         -e VITE_API_URL="" \
