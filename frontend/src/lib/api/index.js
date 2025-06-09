@@ -44,37 +44,51 @@ export async function apiFetch(endpoint, options = {}) {
       throw new Error('Session expired. Please login again.');
     }
     
-    // Handle API errors first (before trying to parse JSON)
-    if (!response.ok) {
-      let errorMessage = 'Something went wrong';
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.detail || errorMessage;
-      } catch (e) {
-        // If JSON parsing fails, use status text
-        errorMessage = response.statusText || errorMessage;
-      }
-      throw new Error(errorMessage);
-    }
+    // Clone response to read body multiple times if needed
+    const responseClone = response.clone();
     
-    // Handle responses with no content (like DELETE operations)
+    // Handle responses with no content first (like DELETE operations)
     if (response.status === 204) {
       return { success: true };
     }
     
-    // Check if response body is empty
-    const text = await response.text();
-    if (!text || text.trim() === '') {
-      return { success: true };
+    // Get response text first
+    let responseText = '';
+    try {
+      responseText = await response.text();
+    } catch (e) {
+      console.warn('Failed to read response text:', e);
+      responseText = '';
+    }
+    
+    // Handle empty responses
+    if (!responseText || responseText.trim() === '') {
+      if (response.ok) {
+        return { success: true };
+      } else {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
     }
     
     // Try to parse as JSON
+    let data;
     try {
-      return JSON.parse(text);
+      data = JSON.parse(responseText);
     } catch (e) {
-      // If JSON parsing fails, return the text
-      return text;
+      // If JSON parsing fails and response is not ok, treat as error
+      if (!response.ok) {
+        throw new Error(responseText || `Request failed with status ${response.status}`);
+      }
+      // If JSON parsing fails but response is ok, return the text
+      return responseText;
     }
+    
+    // Handle API errors after successful JSON parsing
+    if (!response.ok) {
+      throw new Error(data.detail || data.message || 'Something went wrong');
+    }
+    
+    return data;
   } catch (error) {
     console.error('API Error:', error);
     throw error;
@@ -104,18 +118,23 @@ export const authApi = {
       
       if (!response.ok) {
         // Try to get error details
+        let errorMessage = `Login failed (${response.status})`;
         try {
-          const error = await response.json();
-          console.error('Login error:', error);
-          throw new Error(error.detail || `Login failed (${response.status})`);
+          const errorText = await response.text();
+          if (errorText.trim()) {
+            const error = JSON.parse(errorText);
+            errorMessage = error.detail || errorMessage;
+          }
         } catch (e) {
           // If error parsing fails, use status text
           console.error('Response error:', response.statusText);
-          throw new Error(`Login failed: ${response.statusText} (${response.status})`);
+          errorMessage = `Login failed: ${response.statusText} (${response.status})`;
         }
+        throw new Error(errorMessage);
       }
       
-      const data = await response.json();
+      const responseText = await response.text();
+      const data = responseText.trim() ? JSON.parse(responseText) : { success: true };
       console.log('Login successful');
       return data;
     } catch (e) {
@@ -255,11 +274,22 @@ export const fileApi = {
     });
     
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'File upload failed');
+      let errorMessage = 'File upload failed';
+      try {
+        const errorText = await response.text();
+        if (errorText.trim()) {
+          const error = JSON.parse(errorText);
+          errorMessage = error.detail || errorMessage;
+        }
+      } catch (e) {
+        // If error parsing fails, use status text
+        errorMessage = response.statusText || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
     
-    return response.json();
+    const responseText = await response.text();
+    return responseText.trim() ? JSON.parse(responseText) : { success: true };
   },
   
   // Get file by ID
