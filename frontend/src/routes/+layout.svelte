@@ -82,7 +82,7 @@
   }
   
   // Check if route is authentication related
-  $: isAuthRoute = $page.url.pathname === '/login' || $page.url.pathname === '/register' || $page.url.pathname === '/';
+  $: isAuthRoute = $page?.url?.pathname === '/login' || $page?.url?.pathname === '/register' || $page?.url?.pathname === '/';
   
   onMount(() => {
     if (browser) {

@@ -17,10 +17,10 @@ async_session = sessionmaker(
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Mock version for demo
+# Real database session (no longer mock)
 def get_db():
-    """Dependency for getting db session (mock version)"""
-    yield None
+    """Dependency for getting async db session"""
+    return async_session()
 
 # Synchronous session for auth
 def get_sync_db() -> Session:

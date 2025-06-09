@@ -18,6 +18,30 @@
   </div>
   
   <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- Registration Requests -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <div class="flex items-center">
+          <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div class="ml-5">
+            <h3 class="text-lg font-medium text-gray-900">Registration Requests</h3>
+            <p class="mt-1 text-sm text-gray-500">
+              Review and approve user registration requests
+            </p>
+          </div>
+        </div>
+        <div class="mt-6">
+          <a href="/admin/registration" class="btn-green w-full justify-center">
+            Review Requests
+          </a>
+        </div>
+      </div>
+    </div>
+    
     <!-- User Management -->
     <div class="bg-white overflow-hidden shadow rounded-lg">
       <div class="px-4 py-5 sm:p-6">

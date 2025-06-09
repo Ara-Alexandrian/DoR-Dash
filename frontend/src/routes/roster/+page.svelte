@@ -12,20 +12,20 @@
   let viewMode = 'grid'; // 'grid' or 'list'
   
   // Filter role
-  let filterRole = 'all'; // 'all', 'admin', 'faculty', 'student'
+  let filterRole = 'all'; // 'all', 'admin', 'faculty', 'secretary', 'student'
   
   // User role state
   let isAdmin = false;
-  let isFaculty = false;
+  let canViewRoster = false;
   
   // Load users when component mounts
   onMount(async () => {
     // Set user role flags
     isAdmin = $auth.user?.role === 'admin';
-    isFaculty = $auth.user?.role === 'faculty' || isAdmin;
+    canViewRoster = ['admin', 'faculty', 'secretary'].includes($auth.user?.role);
     
-    // Only faculty and admins can view the roster
-    if (!isFaculty && !isAdmin) {
+    // Only faculty, secretary, and admins can view the roster
+    if (!canViewRoster) {
       error = "You don't have permission to view the roster.";
       loading = false;
       return;
@@ -70,10 +70,10 @@
     
     // Sort results by role then name
     results.sort((a, b) => {
-      // First by role (admin, faculty, student)
-      const roleOrder = { 'admin': 1, 'faculty': 2, 'student': 3 };
-      const roleA = roleOrder[a.role] || 4;
-      const roleB = roleOrder[b.role] || 4;
+      // First by role (admin, faculty, secretary, student)
+      const roleOrder = { 'admin': 1, 'faculty': 2, 'secretary': 3, 'student': 4 };
+      const roleA = roleOrder[a.role] || 5;
+      const roleB = roleOrder[b.role] || 5;
       
       if (roleA !== roleB) return roleA - roleB;
       
@@ -109,6 +109,7 @@
     const roleMap = {
       'admin': 'Administrator',
       'faculty': 'Faculty',
+      'secretary': 'Secretary',
       'student': 'Student'
     };
     return roleMap[role] || role;
@@ -119,6 +120,7 @@
     const classMap = {
       'admin': 'bg-primary-100 text-primary-800',
       'faculty': 'bg-secondary-100 text-secondary-800',
+      'secretary': 'bg-purple-100 text-purple-800',
       'student': 'bg-gold-100 text-gold-800'
     };
     return classMap[role] || 'bg-gray-100 text-gray-800';
@@ -183,6 +185,7 @@
             <option value="all">All Roles</option>
             <option value="admin">Administrators</option>
             <option value="faculty">Faculty</option>
+            <option value="secretary">Secretary/Staff</option>
             <option value="student">Students</option>
           </select>
         </div>

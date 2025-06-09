@@ -13,7 +13,9 @@ app = FastAPI(
     version="0.1.0",
     docs_url="/docs",  # Make Swagger UI accessible at /docs
     redoc_url="/redoc",  # Make ReDoc accessible at /redoc
-    openapi_url="/openapi.json"  # OpenAPI schema
+    openapi_url="/openapi.json",  # OpenAPI schema
+    # Set max upload size to 50MB
+    max_request_size=50 * 1024 * 1024  # 50MB in bytes
 )
 
 # Set up CORS

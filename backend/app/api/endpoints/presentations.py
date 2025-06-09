@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
-from app.api.endpoints.mock_auth import User, get_current_user
+from app.api.endpoints.auth import User, get_current_user
 from app.core.permissions import get_admin_user
 
 router = APIRouter()
@@ -46,8 +46,8 @@ async def get_presentations(
     - Students can only see their own presentations
     - Faculty and admins can see all presentations
     """
-    # Import DEMO_USERS here to get user info
-    from app.api.endpoints.mock_auth import DEMO_USERS
+    # Import USERS_DB here to get user info
+    from app.api.endpoints.auth import USERS_DB
     
     # Filter presentations based on user role
     if current_user.role == "student":
@@ -59,7 +59,7 @@ async def get_presentations(
     result = []
     for presentation in filtered_presentations:
         # Find user info
-        user = next((u for u in DEMO_USERS if u["id"] == presentation["user_id"]), None)
+        user = next((u for u in USERS_DB if u["id"] == presentation["user_id"]), None)
         
         presentation_dict = presentation.copy()
         if user:
@@ -82,10 +82,10 @@ async def assign_presentations(
     Automatically assign presentations for a given meeting date.
     Admin only endpoint.
     """
-    from app.api.endpoints.mock_auth import DEMO_USERS
+    from app.api.endpoints.auth import USERS_DB
     
     # Get all students
-    students = [u for u in DEMO_USERS if u["role"] == "student"]
+    students = [u for u in USERS_DB if u["role"] == "student"]
     
     if not students:
         raise HTTPException(
@@ -130,7 +130,7 @@ async def update_presentation(
     Update a presentation assignment.
     Admin only endpoint.
     """
-    from app.api.endpoints.mock_auth import DEMO_USERS
+    from app.api.endpoints.auth import USERS_DB
     
     # Find presentation
     presentation_idx = next(
@@ -154,7 +154,7 @@ async def update_presentation(
     
     # Update user info if user_id changed
     if "user_id" in update_dict:
-        user = next((u for u in DEMO_USERS if u["id"] == presentation["user_id"]), None)
+        user = next((u for u in USERS_DB if u["id"] == presentation["user_id"]), None)
         if user:
             presentation["user_name"] = user.get("full_name", user["username"])
             presentation["user_email"] = user["email"]

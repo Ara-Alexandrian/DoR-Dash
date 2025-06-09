@@ -284,6 +284,7 @@
         >
           <option value="student">Student</option>
           <option value="faculty">Faculty</option>
+          <option value="secretary">Secretary</option>
           <option value="admin">Admin</option>
         </select>
       </div>
@@ -382,6 +383,7 @@
                   <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                     {user.role === 'admin' ? 'bg-primary-100 text-primary-800' : 
                      user.role === 'faculty' ? 'bg-secondary-100 text-secondary-800' : 
+                     user.role === 'secretary' ? 'bg-purple-100 text-purple-800' :
                      'bg-gold-100 text-gold-800'}">
                     {user.role}
                   </span>
@@ -500,6 +502,7 @@
               >
                 <option value="student">Student</option>
                 <option value="faculty">Faculty</option>
+                <option value="secretary">Secretary</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
