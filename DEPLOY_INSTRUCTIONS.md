@@ -8,7 +8,7 @@
    - Domain Names: `dd.kronisto.net` ✅ (keep existing)
    - Scheme: `http` ✅ (keep existing)
    - Forward Hostname/IP: **Change to** `172.30.98.177`
-   - Forward Port: **Change to** `1717`
+   - Forward Port: **Change to** `7117`
    - Cache Assets: ✅ Enabled (keep existing)
    - Block Common Exploits: ✅ Enabled (keep existing)
    - Websockets Support: ✅ Enabled (keep existing)
@@ -26,7 +26,7 @@
 
    # Backend API proxy
    location /api/ {
-       proxy_pass http://172.30.98.177:1718/api/;
+       proxy_pass http://172.30.98.177:8000/api/;
        proxy_set_header Host $host;
        proxy_set_header X-Real-IP $remote_addr;
        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -54,7 +54,7 @@
 
    # Health check endpoint
    location /health {
-       proxy_pass http://172.30.98.177:1718/health;
+       proxy_pass http://172.30.98.177:8000/health;
        proxy_set_header Host $host;
        proxy_set_header X-Real-IP $remote_addr;
        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -79,8 +79,8 @@
 # Navigate to appdata directory
 cd /mnt/user/appdata/
 
-# Clone the repository from Gitea mirror
-git clone https://git.kronisto.net/aalexandrian/DoR-Dash.git
+# Clone the repository from GitHub
+git clone https://github.com/Ara-Alexandrian/DoR-Dash.git
 cd DoR-Dash
 
 # Make the deploy script executable
@@ -93,8 +93,8 @@ chmod +x deploy.sh
 ## Step 3: Verify Deployment
 
 **Check these URLs:**
-- Direct Frontend: `http://172.30.98.177:1717`
-- Direct Backend: `http://172.30.98.177:1718/health`
+- Direct Frontend: `http://172.30.98.177:7117`
+- Direct Backend: `http://172.30.98.177:8000/health`
 - Through Nginx: `https://dd.kronisto.net`
 
 **Login with:**
@@ -149,7 +149,7 @@ ping 172.30.98.14   # Ollama
 ```
 
 **If the website doesn't load:**
-1. Test direct access first: `http://172.30.98.177:1717`
+1. Test direct access first: `http://172.30.98.177:7117`
 2. Check nginx proxy manager logs
 3. Verify the advanced configuration was saved correctly
 

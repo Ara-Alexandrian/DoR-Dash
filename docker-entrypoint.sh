@@ -2,7 +2,7 @@
 set -e
 
 # Configuration
-REPO_URL="${REPO_URL:-https://git.kronisto.net/test-host/DoR-Dash.git}"
+REPO_URL="${REPO_URL:-https://github.com/Ara-Alexandrian/DoR-Dash.git}"
 BRANCH="${BRANCH:-master}"
 UPDATE_CHECK_INTERVAL="${UPDATE_CHECK_INTERVAL:-300}" # Check every 5 minutes
 APP_DIR="/app"

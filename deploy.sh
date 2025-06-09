@@ -8,7 +8,8 @@ set -e
 # Configuration
 IMAGE_NAME="dor-dash"
 CONTAINER_NAME="dor-dash"
-UNRAID_HOST="172.30.98.177"
+UNRAID_HOST="172.30.98.10"
+CONTAINER_IP="172.30.98.177"
 FRONTEND_PORT="1717"
 BACKEND_PORT="1718"
 
@@ -73,8 +74,8 @@ run_container() {
     docker run -d \
         --name "$CONTAINER_NAME" \
         --restart unless-stopped \
-        -p "$FRONTEND_PORT:7117" \
-        -p "$BACKEND_PORT:8000" \
+        --network br0 \
+        --ip "$CONTAINER_IP" \
         -e POSTGRES_SERVER="172.30.98.213" \
         -e POSTGRES_PORT="5432" \
         -e POSTGRES_USER="DoRadmin" \
@@ -85,7 +86,7 @@ run_container() {
         -e SECRET_KEY="insecure_default_key_for_development_only" \
         -e OLLAMA_API_URL="http://172.30.98.14:11434/api/generate" \
         -e AUTO_UPDATE="restart_only" \
-        -e REPO_URL="https://git.kronisto.net/aalexandrian/DoR-Dash.git" \
+        -e REPO_URL="https://github.com/Ara-Alexandrian/DoR-Dash.git" \
         -e BRANCH="master" \
         -e UPDATE_CHECK_INTERVAL="0" \
         -e VITE_API_URL="" \
@@ -107,14 +108,14 @@ show_status() {
     
     echo ""
     log "Access URLs:"
-    echo -e "${GREEN}Frontend:${NC} http://$UNRAID_HOST:$FRONTEND_PORT"
-    echo -e "${GREEN}Backend API:${NC} http://$UNRAID_HOST:$BACKEND_PORT"
-    echo -e "${GREEN}Health Check:${NC} http://$UNRAID_HOST:$BACKEND_PORT/health"
+    echo -e "${GREEN}Frontend:${NC} http://$CONTAINER_IP:7117"
+    echo -e "${GREEN}Backend API:${NC} http://$CONTAINER_IP:8000"
+    echo -e "${GREEN}Health Check:${NC} http://$CONTAINER_IP:8000/health"
     
     echo ""
     log "Nginx Reverse Proxy Configuration:"
-    echo -e "${YELLOW}Frontend:${NC} http://$UNRAID_HOST:$FRONTEND_PORT"
-    echo -e "${YELLOW}Backend API:${NC} http://$UNRAID_HOST:$BACKEND_PORT/api/"
+    echo -e "${YELLOW}Frontend:${NC} http://$CONTAINER_IP:7117"
+    echo -e "${YELLOW}Backend API:${NC} http://$CONTAINER_IP:8000/api/"
     echo ""
     echo -e "${BLUE}Use the nginx.conf file provided for reverse proxy setup${NC}"
 }

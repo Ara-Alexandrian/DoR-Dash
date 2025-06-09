@@ -30,7 +30,7 @@ services:
       
       # Auto-update settings
       AUTO_UPDATE: "restart_only"  # Only update on container restart
-      REPO_URL: "https://git.kronisto.net/aalexandrian/DoR-Dash.git"  # Gitea mirror
+      REPO_URL: "https://github.com/Ara-Alexandrian/DoR-Dash.git"  # GitHub repository
       BRANCH: "master"
       UPDATE_CHECK_INTERVAL: "0"  # Disabled periodic checking
       
