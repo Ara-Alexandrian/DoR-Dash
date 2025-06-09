@@ -458,9 +458,19 @@
     
     <!-- Student Updates Section -->
     <div class="bg-white shadow overflow-hidden rounded-lg mb-8">
+      <!-- DEBUG: Show section state -->
+      <div class="bg-red-100 p-2 text-xs border-b">
+        <p>DEBUG: studentExpanded = {studentExpanded}</p>
+        <p>agenda.student_updates.length = {agenda?.student_updates?.length || 0}</p>
+        <p>Click the header below to expand/collapse</p>
+      </div>
       <button 
         class="w-full px-4 py-5 sm:px-6 bg-gold-700 text-white text-left hover:bg-gold-800 transition-colors"
-        on:click={toggleStudentSection}
+        on:click={() => {
+          console.log('Student section clicked, was:', studentExpanded);
+          toggleStudentSection();
+          console.log('Student section now:', !studentExpanded);
+        }}
       >
         <div class="flex items-center justify-between">
           <div>

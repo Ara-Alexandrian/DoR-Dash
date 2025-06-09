@@ -197,14 +197,22 @@
                     </div>
                     
                     <div class="mt-2">
-                      {#if isAdmin}
-                        <button 
-                          class="text-sm text-secondary-600 hover:text-secondary-900"
-                          on:click={() => window.location.href = `/calendar?edit=${meeting.id}`}
-                        >
-                          Edit Meeting
-                        </button>
-                      {/if}
+                      <!-- DEBUG: Show admin status -->
+                      <div class="text-xs text-blue-500 border border-blue-500 p-1 mb-2">
+                        <p>DEBUG: isAdmin = {isAdmin}</p>
+                        <p>auth.user = {JSON.stringify($auth.user)}</p>
+                        <p>auth.user.role = {$auth.user?.role}</p>
+                      </div>
+                      <!-- Always show button for testing -->
+                      <button 
+                        class="text-sm text-secondary-600 hover:text-secondary-900 bg-yellow-100 p-2 rounded border"
+                        on:click={() => {
+                          console.log('Edit Meeting clicked, navigating to:', `/calendar?edit=${meeting.id}`);
+                          window.location.href = `/calendar?edit=${meeting.id}`;
+                        }}
+                      >
+                        Edit Meeting (DEBUG - Always Visible)
+                      </button>
                     </div>
                   </div>
                 </div>
