@@ -71,11 +71,20 @@ build_image() {
 run_container() {
     log "Starting DoR-Dash container..."
     
+    # Try to use br0 network with static IP, fallback to port mapping
+    if docker network inspect br0 >/dev/null 2>&1; then
+        log "Using br0 network with static IP $CONTAINER_IP"
+        NETWORK_ARGS="--network br0 --ip $CONTAINER_IP"
+    else
+        warn "br0 network not found, using port mapping"
+        NETWORK_ARGS="-p $FRONTEND_PORT:7117 -p $BACKEND_PORT:8000"
+        CONTAINER_IP="$UNRAID_HOST"
+    fi
+    
     docker run -d \
         --name "$CONTAINER_NAME" \
         --restart unless-stopped \
-        --network br0 \
-        --ip "$CONTAINER_IP" \
+        $NETWORK_ARGS \
         -e POSTGRES_SERVER="172.30.98.213" \
         -e POSTGRES_PORT="5432" \
         -e POSTGRES_USER="DoRadmin" \
