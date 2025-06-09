@@ -2,11 +2,15 @@ import { auth } from '$lib/stores/auth';
 import { get } from 'svelte/store';
 
 // API base URL from environment variable
-// If VITE_API_URL is not set or empty, use relative path (works with reverse proxy)
+// In production, always use relative paths for reverse proxy compatibility
 const API_URL = import.meta.env.VITE_API_URL || '';
 const API_BASE = API_URL ? `${API_URL}/api/v1` : '/api/v1';
-console.log('API URL configured as:', API_URL || 'relative path');
-console.log('API_BASE URL is:', API_BASE);
+
+// Log configuration for debugging
+if (import.meta.env.DEV) {
+  console.log('API URL configured as:', API_URL || 'relative path');
+  console.log('API_BASE URL is:', API_BASE);
+}
 
 // Flag to check if we're in development mode with mock data enabled
 const USE_MOCK = import.meta.env.DEV && (import.meta.env.VITE_USE_MOCK === 'true');

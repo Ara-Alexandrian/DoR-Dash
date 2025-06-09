@@ -154,8 +154,8 @@
 
 <div class="container mx-auto px-4 py-8">
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Student Registration Requests</h1>
-    <p class="mt-2 text-gray-600 dark:text-gray-300">Review and approve student self-registration requests</p>
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Registration Requests</h1>
+    <p class="mt-2 text-gray-600 dark:text-gray-300">Review and approve registration requests from users</p>
   </div>
 
   <!-- Filter tabs -->
@@ -235,6 +235,19 @@
                     </p>
                     <p class="text-gray-600 dark:text-gray-300">
                       <strong>Email:</strong> {request.email}
+                    </p>
+                    <p class="text-gray-600 dark:text-gray-300">
+                      <strong>Requested Role:</strong> 
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                        {request.role === 'student' ? 'bg-blue-100 text-blue-800' : 
+                         request.role === 'faculty' ? 'bg-green-100 text-green-800' : 
+                         request.role === 'secretary' ? 'bg-purple-100 text-purple-800' :
+                         'bg-gray-100 text-gray-800'}">
+                        {request.role === 'student' ? 'Student' : 
+                         request.role === 'faculty' ? 'Faculty' : 
+                         request.role === 'secretary' ? 'Secretary' : 
+                         request.role}
+                      </span>
                     </p>
                   </div>
                   <div>

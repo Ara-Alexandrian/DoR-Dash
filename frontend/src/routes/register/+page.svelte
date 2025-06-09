@@ -11,6 +11,7 @@
   let username = '';
   let password = '';
   let confirmPassword = '';
+  let role = 'student'; // Default to student
   let phone = '';
   let preferredEmail = '';
   
@@ -44,6 +45,7 @@
           email: email,
           username: username,
           password: password,
+          role: role,
           phone: phone || null,
           preferred_email: preferredEmail || null
         })
@@ -63,6 +65,7 @@
       username = '';
       password = '';
       confirmPassword = '';
+      role = 'student';
       phone = '';
       preferredEmail = '';
       
@@ -80,7 +83,7 @@
 </script>
 
 <svelte:head>
-  <title>Student Registration - DoR-Dash</title>
+  <title>Registration - DoR-Dash</title>
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -89,7 +92,7 @@
       <h1 class="text-3xl font-bold text-primary-600">DoR-Dash</h1>
     </div>
     <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-      Student Registration
+      Registration
     </h2>
     <p class="mt-2 text-center text-sm text-gray-600">
       Request access to the research dashboard.
@@ -192,6 +195,27 @@
             />
           </div>
           <p class="mt-1 text-xs text-gray-500">This will be used to log in to the system.</p>
+        </div>
+
+        <!-- Role Selection -->
+        <div>
+          <label for="role" class="block text-sm font-medium text-gray-700">
+            I am a *
+          </label>
+          <div class="mt-1">
+            <select
+              id="role"
+              name="role"
+              bind:value={role}
+              disabled={isSubmitting}
+              class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm disabled:opacity-50"
+            >
+              <option value="student">Student</option>
+              <option value="faculty">Faculty Member</option>
+              <option value="secretary">Secretary/Staff</option>
+            </select>
+          </div>
+          <p class="mt-1 text-xs text-gray-500">Select your role at the institution.</p>
         </div>
 
         <!-- Password -->

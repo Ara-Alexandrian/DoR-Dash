@@ -10,15 +10,25 @@ export default defineConfig({
 		allowedHosts: [
 			'localhost',
 			'172.30.98.21',
+			'172.30.98.177',
 			'dd.kronisto.net',
 			'.kronisto.net' // Allow all subdomains
 		],
-		proxy: {
-			'/api': {
-				target: 'http://172.30.98.21:8000',
-				changeOrigin: true,
-				secure: false
+		// Proxy removed for reverse proxy compatibility
+		// The reverse proxy will handle /api routing
+	},
+	build: {
+		// Ensure relative paths in production build
+		assetsDir: 'assets',
+		rollupOptions: {
+			output: {
+				manualChunks: undefined
 			}
 		}
+	},
+	preview: {
+		host: '0.0.0.0',
+		port: 7117,
+		strictPort: true
 	}
 });
