@@ -210,6 +210,14 @@ export const updateApi = {
     }
   },
   
+  // Update existing update
+  updateUpdate: async (id, updateData) => {
+    return await apiFetch(`/updates/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updateData)
+    });
+  },
+  
   // Refine text using Ollama
   refineText: async (text) => {
     return await apiFetch('/text/refine-text', {

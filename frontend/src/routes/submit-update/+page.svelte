@@ -6,6 +6,7 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { get } from 'svelte/store';
+  import { page } from '$app/stores';
   
   // API configuration
   const API_URL = import.meta.env.VITE_API_URL || '';
@@ -37,6 +38,10 @@
   let error = '';
   let success = '';
   let meetings = [];
+  
+  // Edit mode state
+  let isEditMode = false;
+  let editingUpdateId = null;
   
   // Text refinement state
   let isRefining = false;
@@ -300,10 +305,19 @@
         };
         
         // Submit update using the correct endpoint
-        const update = await apiFetch('/updates/', {
-          method: 'POST',
-          body: JSON.stringify(updateData)
-        });
+        let update;
+        if (isEditMode && editingUpdateId) {
+          // Update existing update
+          update = await updateApi.updateUpdate(editingUpdateId, updateData);
+          console.log('Student update updated successfully:', update);
+        } else {
+          // Create new update
+          update = await apiFetch('/updates/', {
+            method: 'POST',
+            body: JSON.stringify(updateData)
+          });
+          console.log('Student update created successfully:', update);
+        }
         
         // Upload files if any
         if (files.length > 0) {
@@ -340,10 +354,17 @@
         }
         
         // Show success and redirect
-        success = 'Your update has been submitted successfully!';
-        setTimeout(() => {
-          goto('/dashboard');
-        }, 2000);
+        if (isEditMode) {
+          success = 'Your update has been updated successfully!';
+          setTimeout(() => {
+            goto('/updates');
+          }, 2000);
+        } else {
+          success = 'Your update has been submitted successfully!';
+          setTimeout(() => {
+            goto('/dashboard');
+          }, 2000);
+        }
         
       } catch (err) {
         error = err.message || 'Failed to submit update. Please try again.';
@@ -368,6 +389,31 @@
   // Load upcoming meetings
   onMount(async () => {
     try {
+      // Check if we're in edit mode
+      const editId = $page.url.searchParams.get('edit');
+      if (editId) {
+        isEditMode = true;
+        editingUpdateId = editId;
+        
+        try {
+          // Load the existing update data
+          const update = await updateApi.getUpdate(editId);
+          
+          // Pre-populate the form with existing data
+          progressText = update.progress_text || '';
+          challengesText = update.challenges_text || '';
+          goalsText = update.next_steps_text || '';
+          meetingNotes = update.meeting_notes || '';
+          isPresenting = update.will_present || false;
+          selectedMeeting = update.meeting_id;
+          
+          console.log('Loaded update for editing:', update);
+        } catch (err) {
+          console.error('Failed to load update for editing:', err);
+          error = 'Failed to load update data. Please try again.';
+        }
+      }
+      
       // Get upcoming meetings
       const today = new Date();
       const threeMonthsFromNow = new Date();
@@ -383,7 +429,7 @@
         meetings = []; // No fallback demo data
       }
     } catch (err) {
-      console.error('Error loading meetings:', err);
+      console.error('Error loading page:', err);
     }
   });
   
@@ -404,7 +450,9 @@
 <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
   <div class="mb-8">
     <h1 class="text-3xl font-bold text-gray-900">
-      {#if isFaculty}
+      {#if isEditMode}
+        Edit Update
+      {:else if isFaculty}
         Submit Faculty Update
       {:else}
         Submit Student Update
@@ -881,7 +929,7 @@
           </svg>
           Submitting...
         {:else}
-          Submit Update
+          {isEditMode ? 'Update Submission' : 'Submit Update'}
         {/if}
       </button>
     </div>
