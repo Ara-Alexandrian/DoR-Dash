@@ -1,0 +1,47 @@
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://postgres:postgres@172.30.98.177:5432/postgres"
+      ],
+      "env": {}
+    },
+    "redis": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-redis",
+        "redis://172.30.98.177:6379"
+      ],
+      "env": {}
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/config/workspace/gitea/DoR-Dash"
+      ],
+      "env": {}
+    },
+    "svelte": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-svelte"
+      ],
+      "env": {}
+    },
+    "ssh": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-ssh"
+      ],
+      "env": {}
+    }
+  }
+}
