@@ -170,7 +170,7 @@ def initialize_admin(db: Session):
         print("Admin user 'cerebro' created")
 
 @router.post("/login", response_model=Token)
-async def login_for_access_token(
+def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_sync_db)
 ):
@@ -224,7 +224,7 @@ async def login_for_access_token(
     
     return {"access_token": access_token, "token_type": "bearer"}
 
-async def get_current_user(
+def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)], 
     db: Session = Depends(get_sync_db)
 ) -> User:
