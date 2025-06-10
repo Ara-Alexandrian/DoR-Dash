@@ -6,8 +6,9 @@ services:
     container_name: dor-dash
     restart: unless-stopped
     ports:
-      - "1717:7117"  # Frontend on Unraid port 1717
-      - "1718:8000"  # Backend API on port 1718 (for nginx reverse proxy)
+      - "172.30.98.177:1717:1717"  # Frontend on Unraid port 1717
+      - "172.30.98.177:1718:8000"  # Backend API on port 1718 (for nginx reverse proxy)
+      - "172.30.98.177:22:22"      # SSH access
     environment:
       # Database Configuration
       POSTGRES_SERVER: "172.30.98.213"

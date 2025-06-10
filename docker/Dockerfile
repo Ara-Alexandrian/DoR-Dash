@@ -22,11 +22,27 @@ RUN npm run build
 # Backend stage
 FROM python:3.11-slim AS backend-base
 
-# Install system dependencies
+# Install system dependencies including SSH
 RUN apt-get update && apt-get install -y \
     git \
     curl \
+    openssh-server \
+    sudo \
     && rm -rf /var/lib/apt/lists/*
+
+# Configure SSH
+RUN mkdir /var/run/sshd
+RUN echo 'root:dor-ssh-password-2024' | chpasswd
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
+# Create a non-root user for SSH access
+RUN useradd -m -s /bin/bash dor-user && \
+    echo 'dor-user:dor-user-password-2024' | chpasswd && \
+    usermod -aG sudo dor-user
+
+# Generate host keys
+RUN ssh-keygen -A
 
 # Set working directory
 WORKDIR /app
@@ -57,7 +73,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # Expose ports
-EXPOSE 8000 1717
+EXPOSE 8000 1717 22
 
 # Use entrypoint script
 ENTRYPOINT ["/app/docker-entrypoint.sh"]

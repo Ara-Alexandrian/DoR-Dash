@@ -129,6 +129,10 @@ perform_update() {
 start_services() {
     log "Starting DoR-Dash services..."
     
+    # Start SSH service
+    log "Starting SSH service..."
+    service ssh start || warn "SSH service failed to start"
+    
     # Apply database migrations
     cd "$BACKEND_DIR"
     log "Applying database migrations..."
