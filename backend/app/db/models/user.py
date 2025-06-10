@@ -44,3 +44,4 @@ class User(Base):
     faculty_updates = relationship("FacultyUpdate", back_populates="user", cascade="all, delete-orphan")
     created_meetings = relationship("Meeting", back_populates="creator", foreign_keys="Meeting.created_by", cascade="all, delete-orphan")
     file_uploads = relationship("FileUpload", back_populates="user", cascade="all, delete-orphan")
+    presentations = relationship("AssignedPresentation", back_populates="user", cascade="all, delete-orphan")
