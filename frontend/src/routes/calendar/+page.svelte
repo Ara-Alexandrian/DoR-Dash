@@ -1,5 +1,6 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
+  import { page } from '$app/stores';
   import { auth } from '$lib/stores/auth';
   import { meetingsApi } from '$lib/api';
   
@@ -58,6 +59,17 @@
     isAdmin = $auth.user?.role === 'admin';
     isFaculty = $auth.user?.role === 'faculty';
     await loadMeetings();
+    
+    // Check for edit parameter in URL
+    const editMeetingId = $page.url.searchParams.get('edit');
+    if (editMeetingId && isAdmin) {
+      // Find the meeting to edit
+      const meetingToEdit = meetings.find(m => m.id == editMeetingId);
+      if (meetingToEdit) {
+        selectedMeeting = meetingToEdit;
+        editMeeting();
+      }
+    }
     
     // Add click outside listener
     document.addEventListener('click', handleClickOutside);
