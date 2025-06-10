@@ -86,7 +86,8 @@
       "Bash(npx @modelcontextprotocol/server-github:*)",
       "Bash(PYTHONPATH=/config/workspace/gitea/DoR-Dash/backend python backend/app/debug_login.py)",
       "Bash(PYTHONPATH=/config/workspace/gitea/DoR-Dash/backend python app/debug_login.py)",
-      "Bash(dpkg:*)"
+      "Bash(dpkg:*)",
+      "Bash(ssh:*)"
     ],
     "deny": []
   },

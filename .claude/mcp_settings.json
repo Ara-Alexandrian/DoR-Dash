@@ -41,7 +41,12 @@
         "-y",
         "@modelcontextprotocol/server-ssh"
       ],
-      "env": {}
+      "env": {
+        "SSH_HOST": "172.30.98.177",
+        "SSH_PORT": "22",
+        "SSH_USERNAME": "root",
+        "SSH_PASSWORD": "dor-ssh-password-2024"
+      }
     }
   }
 }

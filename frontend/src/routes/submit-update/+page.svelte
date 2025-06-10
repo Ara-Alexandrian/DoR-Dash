@@ -224,8 +224,29 @@
         console.log('Submitting faculty update:', updateData);
         
         // Submit faculty update
-        const update = await facultyUpdateApi.createUpdate(updateData);
-        console.log('Faculty update submitted successfully:', update);
+        let update;
+        if (isEditMode && editingUpdateId) {
+          // Update existing faculty update
+          const response = await fetch(`${API_BASE}/faculty-updates/${editingUpdateId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(updateData)
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to update faculty announcement');
+          }
+          
+          update = await response.json();
+          console.log('Faculty update updated successfully:', update);
+        } else {
+          // Create new faculty update
+          update = await facultyUpdateApi.createUpdate(updateData);
+          console.log('Faculty update created successfully:', update);
+        }
         
         // Upload files if any
         if (facultyFiles.length > 0) {
@@ -391,23 +412,51 @@
     try {
       // Check if we're in edit mode
       const editId = $page.url.searchParams.get('edit');
+      const updateType = $page.url.searchParams.get('type');
+      
       if (editId) {
         isEditMode = true;
         editingUpdateId = editId;
         
         try {
-          // Load the existing update data
-          const update = await updateApi.getUpdate(editId);
-          
-          // Pre-populate the form with existing data
-          progressText = update.progress_text || '';
-          challengesText = update.challenges_text || '';
-          goalsText = update.next_steps_text || '';
-          meetingNotes = update.meeting_notes || '';
-          isPresenting = update.will_present || false;
-          selectedMeeting = update.meeting_id;
-          
-          console.log('Loaded update for editing:', update);
+          if (updateType === 'faculty') {
+            // Load faculty update data
+            const response = await fetch(`${API_BASE}/faculty-updates/${editId}`, {
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+              }
+            });
+            
+            if (!response.ok) {
+              throw new Error('Failed to load faculty update');
+            }
+            
+            const update = await response.json();
+            
+            // Pre-populate faculty form
+            announcementsText = update.announcements_text || '';
+            projectsText = update.projects_text || '';
+            projectStatusText = update.project_status_text || '';
+            facultyQuestions = update.faculty_questions || '';
+            announcementType = update.announcement_type || 'general';
+            facultyIsPresenting = update.is_presenting || false;
+            selectedMeeting = update.meeting_id;
+            
+            console.log('Loaded faculty update for editing:', update);
+          } else {
+            // Load student update data
+            const update = await updateApi.getUpdate(editId);
+            
+            // Pre-populate student form
+            progressText = update.progress_text || '';
+            challengesText = update.challenges_text || '';
+            goalsText = update.next_steps_text || '';
+            meetingNotes = update.meeting_notes || '';
+            isPresenting = update.will_present || false;
+            selectedMeeting = update.meeting_id;
+            
+            console.log('Loaded student update for editing:', update);
+          }
         } catch (err) {
           console.error('Failed to load update for editing:', err);
           error = 'Failed to load update data. Please try again.';
