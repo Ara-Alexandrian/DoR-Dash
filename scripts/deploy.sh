@@ -78,6 +78,7 @@ run_container() {
     docker run -d \
         --name "$CONTAINER_NAME" \
         --restart unless-stopped \
+        -p 22:22 \
         $NETWORK_ARGS \
         -e POSTGRES_SERVER="172.30.98.213" \
         -e POSTGRES_PORT="5432" \
@@ -114,6 +115,7 @@ show_status() {
     echo -e "${GREEN}Frontend:${NC} http://$CONTAINER_IP:1717"
     echo -e "${GREEN}Backend API:${NC} http://$CONTAINER_IP:8000"
     echo -e "${GREEN}Health Check:${NC} http://$CONTAINER_IP:8000/health"
+    echo -e "${GREEN}SSH Access:${NC} ssh root@$CONTAINER_IP (password: dor-ssh-password-2024)"
     
     echo ""
     log "Nginx Reverse Proxy Configuration:"
