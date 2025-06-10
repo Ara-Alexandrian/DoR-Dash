@@ -305,19 +305,8 @@
                     </div>
                     <div class="flex items-center space-x-2">
                       <!-- Edit/Delete buttons for faculty announcement -->
-                      <div class="text-xs text-blue-500 debug border border-blue-500 p-2 my-2">
-                        <p>DEBUG FACULTY UPDATE:</p>
-                        <p>announcement.user_id = {announcement.user_id} (type: {typeof announcement.user_id})</p>
-                        <p>auth.user.id = {$auth.user?.id} (type: {typeof $auth.user?.id})</p>
-                        <p>auth.user.role = {$auth.user?.role}</p>
-                        <p>auth.user exists = {!!$auth.user}</p>
-                        <p>Numbers equal = {Number(announcement.user_id) === Number($auth.user?.id)}</p>
-                        <p>Is admin = {$auth.user?.role === 'admin'}</p>
-                        <p>Should show buttons = {$auth.user && (Number(announcement.user_id) === Number($auth.user.id) || $auth.user.role === 'admin')}</p>
-                      </div>
-                      <!-- TEMPORARILY SHOW BUTTONS FOR ALL - FOR TESTING -->
-                      {#if true}
-                      <!-- Original condition: {#if $auth.user && (Number(announcement.user_id) === Number($auth.user.id) || $auth.user.role === 'admin')} -->
+                      <!-- Show edit/delete buttons for authorized faculty users -->
+                      {#if $auth.user && (Number(announcement.user_id) === Number($auth.user.id) || $auth.user.role === 'admin' || $auth.user.role === 'faculty')}
                         <button 
                           on:click|stopPropagation={() => editFacultyUpdate(announcement)}
                           class="p-1 text-gray-400 hover:text-primary-600 transition-colors"
@@ -458,12 +447,6 @@
     
     <!-- Student Updates Section -->
     <div class="bg-white shadow overflow-hidden rounded-lg mb-8">
-      <!-- DEBUG: Show section state -->
-      <div class="bg-red-100 p-2 text-xs border-b">
-        <p>DEBUG: studentExpanded = {studentExpanded}</p>
-        <p>agenda.student_updates.length = {agenda?.student_updates?.length || 0}</p>
-        <p>Click the header below to expand/collapse</p>
-      </div>
       <button 
         class="w-full px-4 py-5 sm:px-6 bg-gold-700 text-white text-left hover:bg-gold-800 transition-colors"
         on:click={() => {
@@ -529,20 +512,7 @@
                     </div>
                     <div class="flex items-center space-x-2">
                       <!-- Edit/Delete buttons for student update -->
-                      <!-- Debug: update.user_id: {update.user_id}, auth.user.id: {$auth.user?.id}, auth.user.role: {$auth.user?.role} -->
-                      <div class="text-xs text-red-500 debug border border-red-500 p-2 my-2">
-                        <p>DEBUG STUDENT UPDATE:</p>
-                        <p>update.user_id = {update.user_id} (type: {typeof update.user_id})</p>
-                        <p>auth.user.id = {$auth.user?.id} (type: {typeof $auth.user?.id})</p>
-                        <p>auth.user.role = {$auth.user?.role}</p>
-                        <p>auth.user exists = {!!$auth.user}</p>
-                        <p>Numbers equal = {Number(update.user_id) === Number($auth.user?.id)}</p>
-                        <p>Is admin = {$auth.user?.role === 'admin'}</p>
-                        <p>Should show buttons = {$auth.user && (Number(update.user_id) === Number($auth.user.id) || $auth.user.role === 'admin')}</p>
-                      </div>
-                      <!-- TEMPORARILY SHOW BUTTONS FOR ALL - FOR TESTING -->
-                      {#if true}
-                      <!-- Original condition: {#if $auth.user && (Number(update.user_id) === Number($auth.user.id) || $auth.user.role === 'admin')} -->
+                      {#if $auth.user && (Number(update.user_id) === Number($auth.user.id) || $auth.user.role === 'admin')}
                         <button 
                           on:click|stopPropagation={() => editStudentUpdate(update)}
                           class="p-1 text-gray-400 hover:text-primary-600 transition-colors"
