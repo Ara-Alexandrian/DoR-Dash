@@ -145,19 +145,44 @@ start_services() {
     log "Starting frontend server..."
     cd /app/frontend
     
-    # Install serve if not present
+    # Install serve if not present (with retries)
     if ! command -v serve &> /dev/null; then
-        npm install -g serve >/dev/null 2>&1 || {
-            # Fallback to Python HTTP server
-            cd "$FRONTEND_BUILD_DIR" 
-            python3 -m http.server 1717 --bind 0.0.0.0 > /app/logs/frontend.log 2>&1 &
-            FRONTEND_PID=$!
-            echo $FRONTEND_PID > /tmp/frontend.pid
-            return
-        }
+        log "Installing serve package for SPA routing support..."
+        for i in {1..3}; do
+            if npm install -g serve >/dev/null 2>&1; then
+                log "Successfully installed serve package"
+                break
+            else
+                warn "Attempt $i to install serve failed, retrying..."
+                sleep 2
+            fi
+        done
+        
+        # Final check after retries
+        if ! command -v serve &> /dev/null; then
+            error "Failed to install serve package after 3 attempts"
+            error "Falling back to SvelteKit node adapter"
+            # Use SvelteKit's built-in node server instead of Python fallback
+            cd /app/frontend
+            if [ -f "build/index.js" ]; then
+                HOST=0.0.0.0 PORT=1717 node build > /app/logs/frontend.log 2>&1 &
+                FRONTEND_PID=$!
+                echo $FRONTEND_PID > /tmp/frontend.pid
+                log "Started SvelteKit node server on port 1717"
+                return
+            else
+                error "SvelteKit build not found, using Python fallback (SPA routing will not work)"
+                cd "$FRONTEND_BUILD_DIR" 
+                python3 -m http.server 1717 --bind 0.0.0.0 > /app/logs/frontend.log 2>&1 &
+                FRONTEND_PID=$!
+                echo $FRONTEND_PID > /tmp/frontend.pid
+                return
+            fi
+        fi
     fi
     
     # Use serve for better SPA support
+    cd /app/frontend
     serve -s build -l 1717 --host 0.0.0.0 > /app/logs/frontend.log 2>&1 &
     FRONTEND_PID=$!
     echo $FRONTEND_PID > /tmp/frontend.pid
