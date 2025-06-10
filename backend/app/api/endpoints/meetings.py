@@ -6,7 +6,10 @@ from sqlalchemy.orm import Session
 
 from app.api.endpoints.auth import User, get_current_user
 from app.db.models.meeting import Meeting, MeetingType
+from app.db.models.student_update import StudentUpdate as DBStudentUpdate
+from app.db.models.faculty_update import FacultyUpdate as DBFacultyUpdate
 from app.db.session import get_sync_db
+from sqlalchemy.orm import joinedload
 from app.api.endpoints.updates import STUDENT_UPDATES_DB
 from app.api.endpoints.faculty_updates import FACULTY_UPDATES_DB
 
@@ -230,17 +233,64 @@ async def get_meeting_agenda(
             detail=f"Meeting with ID {meeting_id} not found"
         )
     
-    # Get student updates for this meeting (still using in-memory for now)
-    student_updates = [u for u in STUDENT_UPDATES_DB if u.get("meeting_id") == meeting_id]
+    # Get student updates for this meeting from DATABASE
+    student_updates_query = db.query(DBStudentUpdate).options(
+        joinedload(DBStudentUpdate.user),
+        joinedload(DBStudentUpdate.file_uploads)
+    ).filter(DBStudentUpdate.meeting_id == meeting_id)
+
+    student_updates = []
+    for update in student_updates_query.all():
+        # Convert to same format as frontend expects
+        files = []
+        for file_upload in update.file_uploads:
+            files.append({
+                "id": file_upload.id,
+                "name": file_upload.filename,
+                "size": file_upload.file_size or 0,
+                "file_path": file_upload.file_path,
+                "type": file_upload.file_type or "other",
+                "upload_date": file_upload.upload_date.isoformat() if file_upload.upload_date else None
+            })
+        
+        student_updates.append({
+            "id": update.id,
+            "user_id": update.user_id,
+            "user_name": update.user.full_name or update.user.username,
+            "progress_text": update.progress_text,
+            "challenges_text": update.challenges_text,
+            "next_steps_text": update.next_steps_text,
+            "meeting_notes": update.meeting_notes,
+            "will_present": update.will_present,
+            "meeting_id": update.meeting_id,
+            "files": files,
+            "submission_date": update.submission_date.isoformat(),
+            "created_at": update.created_at.isoformat(),
+            "updated_at": update.updated_at.isoformat()
+        })
     
-    # Get faculty updates for this meeting (still using in-memory for now)
-    faculty_updates = [u for u in FACULTY_UPDATES_DB if u.get("meeting_id") == meeting_id]
+    # Get faculty updates for this meeting from DATABASE
+    faculty_updates_query = db.query(DBFacultyUpdate).options(
+        joinedload(DBFacultyUpdate.user)
+    ).filter(DBFacultyUpdate.meeting_id == meeting_id)
+
+    faculty_updates = []
+    for update in faculty_updates_query.all():
+        faculty_updates.append({
+            "id": update.id,
+            "user_id": update.user_id,
+            "user_name": update.user.full_name or update.user.username,
+            "title": update.title,
+            "content": update.content,
+            "meeting_id": update.meeting_id,
+            "submission_date": update.submission_date.isoformat(),
+            "created_at": update.created_at.isoformat(),
+            "updated_at": update.updated_at.isoformat()
+        })
     
-    print(f"DEBUG: Getting agenda for meeting {meeting_id}")
-    print(f"DEBUG: Found {len(student_updates)} student updates")
-    print(f"DEBUG: Found {len(faculty_updates)} faculty updates")
-    print(f"DEBUG: Total updates in STUDENT_UPDATES_DB: {len(STUDENT_UPDATES_DB)}")
-    print(f"DEBUG: Total updates in FACULTY_UPDATES_DB: {len(FACULTY_UPDATES_DB)}")
+    print(f"DEBUG: Getting agenda for meeting {meeting_id} from DATABASE")
+    print(f"DEBUG: Found {len(student_updates)} student updates in PostgreSQL")
+    print(f"DEBUG: Found {len(faculty_updates)} faculty updates in PostgreSQL")
     
     # Compile agenda
     agenda = {
