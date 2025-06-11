@@ -1,21 +1,22 @@
 import { apiFetch } from './index';
+import type { FacultyUpdate } from '../types';
 
 /**
  * Faculty updates API client
  */
 export const facultyUpdateApi = {
   // Get all faculty updates
-  getUpdates: async () => {
+  getUpdates: async (): Promise<FacultyUpdate[]> => {
     return await apiFetch('/faculty-updates/');
   },
   
   // Get faculty update by ID
-  getUpdate: async (id) => {
+  getUpdate: async (id: number | string): Promise<FacultyUpdate> => {
     return await apiFetch(`/faculty-updates/${id}`);
   },
   
   // Create faculty update
-  createUpdate: async (updateData) => {
+  createUpdate: async (updateData: Partial<FacultyUpdate>): Promise<FacultyUpdate> => {
     return await apiFetch('/faculty-updates/', {
       method: 'POST',
       body: JSON.stringify(updateData)
@@ -23,7 +24,7 @@ export const facultyUpdateApi = {
   },
   
   // Update faculty update
-  updateFacultyUpdate: async (id, updateData) => {
+  updateFacultyUpdate: async (id: number | string, updateData: Partial<FacultyUpdate>): Promise<FacultyUpdate> => {
     return await apiFetch(`/faculty-updates/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updateData)
@@ -31,7 +32,7 @@ export const facultyUpdateApi = {
   },
   
   // Get faculty updates for a specific meeting
-  getUpdatesByMeeting: async (meetingId) => {
+  getUpdatesByMeeting: async (meetingId: number | string): Promise<FacultyUpdate[]> => {
     return await apiFetch(`/faculty-updates?meeting_id=${meetingId}`);
   }
 };

@@ -15,15 +15,19 @@ if (import.meta.env.DEV) {
 // Flag to check if we're in development mode with mock data enabled
 const USE_MOCK = import.meta.env.DEV && (import.meta.env.VITE_USE_MOCK === 'true');
 
+interface FetchOptions extends RequestInit {
+  headers?: Record<string, string>;
+}
+
 /**
  * Wrapper for fetch with auth token and error handling
  */
-export async function apiFetch(endpoint, options = {}) {
+export async function apiFetch(endpoint: string, options: FetchOptions = {}): Promise<any> {
   const url = `${API_BASE}${endpoint}`;
   const authStore = get(auth);
   
   // Set up headers with auth token if available
-  const headers = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...options.headers
   };
@@ -98,7 +102,7 @@ export async function apiFetch(endpoint, options = {}) {
 // Authentication API
 export const authApi = {
   // Login user
-  login: async (username, password) => {
+  login: async (username: string, password: string) => {
     const formData = new URLSearchParams();
     formData.append('username', username);
     formData.append('password', password);
@@ -174,7 +178,7 @@ export const authApi = {
   },
   
   // Register user (admin only)
-  register: (userData) => apiFetch('/auth/register', {
+  register: (userData: any) => apiFetch('/auth/register', {
     method: 'POST',
     body: JSON.stringify(userData)
   })
@@ -190,12 +194,12 @@ export const updateApi = {
   },
   
   // Get update by ID
-  getUpdate: async (id) => {
+  getUpdate: async (id: number | string) => {
     return await apiFetch(`/updates/${id}`);
   },
   
   // Create update
-  createUpdate: async (updateData) => {
+  createUpdate: async (updateData: any) => {
     // Determine if this is a faculty update
     if (updateData.is_faculty) {
       return await apiFetch('/faculty-updates/', {
@@ -211,7 +215,7 @@ export const updateApi = {
   },
   
   // Update existing update
-  updateUpdate: async (id, updateData) => {
+  updateUpdate: async (id: number | string, updateData: any) => {
     return await apiFetch(`/updates/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updateData)
@@ -219,7 +223,7 @@ export const updateApi = {
   },
   
   // Refine text using Ollama
-  refineText: async (text) => {
+  refineText: async (text: string) => {
     return await apiFetch('/text/refine-text', {
       method: 'POST',
       body: JSON.stringify({ text })
@@ -246,10 +250,10 @@ export const supportApi = {
   getRequests: () => apiFetch('/requests/support'),
   
   // Get request by ID
-  getRequest: (id) => apiFetch(`/requests/support/${id}`),
+  getRequest: (id: number | string) => apiFetch(`/requests/support/${id}`),
   
   // Create request
-  createRequest: (requestData) => apiFetch('/requests/support', {
+  createRequest: (requestData: any) => apiFetch('/requests/support', {
     method: 'POST',
     body: JSON.stringify(requestData)
   })
@@ -260,16 +264,16 @@ export const supportApi = {
 // Files API
 export const fileApi = {
   // Upload file
-  uploadFile: async (file, updateId) => {
+  uploadFile: async (file: File, updateId?: number | string) => {
     const formData = new FormData();
     formData.append('file', file);
     
     if (updateId) {
-      formData.append('update_id', updateId);
+      formData.append('update_id', updateId.toString());
     }
     
     const authStore = get(auth);
-    const headers = {};
+    const headers: Record<string, string> = {};
     
     if (authStore.token) {
       headers['Authorization'] = `Bearer ${authStore.token}`;
@@ -301,7 +305,7 @@ export const fileApi = {
   },
   
   // Get file by ID
-  getFile: (id) => apiFetch(`/files/${id}`)
+  getFile: (id: number | string) => apiFetch(`/files/${id}`)
 };
 
 // Roster API
@@ -318,7 +322,7 @@ export const presentationApi = {
   },
   
   // Assign presentations (admin only)
-  assignPresentations: async (date) => {
+  assignPresentations: async (date: string) => {
     return await apiFetch('/presentations/assign', {
       method: 'POST',
       body: JSON.stringify({ meeting_date: date })
@@ -326,7 +330,7 @@ export const presentationApi = {
   },
   
   // Update presentation assignment (admin only)
-  updatePresentation: async (id, presentationData) => {
+  updatePresentation: async (id: number | string, presentationData: any) => {
     return await apiFetch(`/presentations/${id}`, {
       method: 'PUT',
       body: JSON.stringify(presentationData)

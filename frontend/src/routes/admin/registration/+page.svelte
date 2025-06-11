@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { auth } from '$lib/stores/auth.js';
+  import { auth } from '$lib/stores/auth';
   
   // API configuration
   const API_URL = import.meta.env.VITE_API_URL || '';

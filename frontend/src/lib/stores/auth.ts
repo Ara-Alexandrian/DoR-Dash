@@ -3,8 +3,9 @@ import { writable } from 'svelte/store';
 import { goto } from '$app/navigation';
 
 // Initial state from localStorage if available
-const storedAuth = browser && localStorage.getItem('auth') 
-  ? JSON.parse(localStorage.getItem('auth')) 
+const storedAuthItem = browser ? localStorage.getItem('auth') : null;
+const storedAuth = storedAuthItem 
+  ? JSON.parse(storedAuthItem) 
   : { isAuthenticated: false, token: null, user: null };
 
 // Create auth store
@@ -14,7 +15,7 @@ const createAuthStore = () => {
   return {
     subscribe,
     
-    login: (token, user = null) => {
+    login: (token: string, user: any = null) => {
       const auth = { isAuthenticated: true, token, user };
       
       // Update store
@@ -52,7 +53,7 @@ const createAuthStore = () => {
       }
     },
     
-    updateUser: (user) => {
+    updateUser: (user: any) => {
       update(state => {
         const newState = { ...state, user };
         
