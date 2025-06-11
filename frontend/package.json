@@ -6,6 +6,7 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
+    "serve": "node server.js",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "lint": "eslint ."
@@ -28,6 +29,7 @@
   },
   "type": "module",
   "dependencies": {
+    "express": "^4.21.2",
     "jose": "^4.14.4"
   }
 }

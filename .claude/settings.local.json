@@ -103,7 +103,9 @@
       "mcp__redis__list",
       "mcp__filesystem__read_file",
       "mcp__filesystem__search_files",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Bash(/tmp/ssh_connect.expect)",
+      "Bash(npx:*)"
     ],
     "deny": []
   },

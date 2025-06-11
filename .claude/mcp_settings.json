@@ -46,6 +46,13 @@
         "-y",
         "mcp-ssh"
       ]
+    },
+    "svelte-docs": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-svelte-docs"
+      ]
     }
   }
 }

@@ -8,7 +8,7 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm install
 
-# Install serve for production frontend serving
+# Install serve for production frontend serving (fallback)
 RUN npm install -g serve
 
 # Copy frontend source code
@@ -57,6 +57,9 @@ COPY backend/ /app/backend/
 
 # Copy built frontend from previous stage
 COPY --from=frontend-builder /app/frontend/build /app/frontend/build
+COPY --from=frontend-builder /app/frontend/server.js /app/frontend/
+COPY --from=frontend-builder /app/frontend/package*.json /app/frontend/
+COPY --from=frontend-builder /app/frontend/node_modules /app/frontend/node_modules
 
 # Create uploads and logs directories
 RUN mkdir -p /app/uploads /app/logs
