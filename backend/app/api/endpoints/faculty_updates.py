@@ -124,13 +124,17 @@ async def create_faculty_update(
 @router.get("/{update_id}", response_model=FacultyUpdate)
 async def read_faculty_update(
     current_user: Annotated[User, Depends(get_current_user)],
-    update_id: int = Path(..., description="The ID of the faculty update to retrieve")
+    update_id: int = Path(..., description="The ID of the faculty update to retrieve"),
+    db: Session = Depends(get_sync_db)
 ):
     """
-    Get a specific faculty update by ID
+    Get a specific faculty update by ID - FROM DATABASE
     """
-    # Find the update in our "database"
-    update = next((u for u in FACULTY_UPDATES_DB if u["id"] == update_id), None)
+    # Find the update in database
+    update = db.query(DBFacultyUpdate).options(
+        joinedload(DBFacultyUpdate.user),
+        joinedload(DBFacultyUpdate.file_uploads)
+    ).filter(DBFacultyUpdate.id == update_id).first()
     
     if not update:
         raise HTTPException(
@@ -138,15 +142,39 @@ async def read_faculty_update(
             detail=f"Faculty update with ID {update_id} not found"
         )
     
-    # Check permissions
-    # Faculty can see their own updates and all other faculty updates
-    # Students can see all faculty updates
-    # Admins can see all updates
-    if current_user.role == "faculty" and update["user_id"] != current_user.id:
-        # Faculty can see other faculty updates but log the access
-        print(f"Faculty {current_user.id} accessed update from faculty {update['user_id']}")
+    # Check permissions - faculty can see all faculty updates, students can see all faculty updates
+    if current_user.role == "faculty" and update.user_id != current_user.id:
+        print(f"Faculty {current_user.id} accessed update from faculty {update.user_id}")
     
-    return update
+    # Convert files to expected format
+    files = []
+    for file_upload in update.file_uploads:
+        files.append({
+            "id": file_upload.id,
+            "name": file_upload.filename,
+            "size": file_upload.file_size or 0,
+            "file_path": file_upload.file_path,
+            "type": file_upload.file_type or "other",
+            "upload_date": file_upload.upload_date.isoformat() if file_upload.upload_date else None
+        })
+    
+    return FacultyUpdate(
+        id=update.id,
+        user_id=update.user_id,
+        user_name=update.user.full_name or update.user.username,
+        meeting_id=update.meeting_id,
+        announcements_text=update.announcements_text,
+        announcement_type=update.announcement_type,
+        projects_text=update.projects_text,
+        project_status_text=update.project_status_text,
+        faculty_questions=update.faculty_questions,
+        is_presenting=update.is_presenting,
+        files=files,
+        submission_date=update.submission_date,
+        submitted_at=update.submission_date,
+        created_at=update.created_at,
+        updated_at=update.updated_at
+    )
 
 
 @router.get("/", response_model=FacultyUpdateList)
@@ -227,24 +255,26 @@ async def list_faculty_updates(
 async def update_faculty_update(
     current_user: Annotated[User, Depends(get_current_user)],
     update_in: FacultyUpdateUpdate,
-    update_id: int = Path(..., description="The ID of the faculty update to update")
+    update_id: int = Path(..., description="The ID of the faculty update to update"),
+    db: Session = Depends(get_sync_db)
 ):
     """
-    Update an existing faculty update
+    Update an existing faculty update - PERSISTENT IN DATABASE
     """
-    # Find the update in our "database"
-    update_idx = next((i for i, u in enumerate(FACULTY_UPDATES_DB) if u["id"] == update_id), None)
+    # Find the update in database
+    update = db.query(DBFacultyUpdate).options(
+        joinedload(DBFacultyUpdate.user),
+        joinedload(DBFacultyUpdate.file_uploads)
+    ).filter(DBFacultyUpdate.id == update_id).first()
     
-    if update_idx is None:
+    if not update:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Faculty update with ID {update_id} not found"
         )
     
-    update = FACULTY_UPDATES_DB[update_idx]
-    
     # Check permissions - only the faculty owner or admins can update
-    if current_user.role != "admin" and update["user_id"] != current_user.id:
+    if current_user.role != "admin" and update.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only update your own updates"
@@ -252,27 +282,53 @@ async def update_faculty_update(
     
     # Update only fields that were provided
     if update_in.announcements_text is not None:
-        update["announcements_text"] = update_in.announcements_text
+        update.announcements_text = update_in.announcements_text
     if update_in.announcement_type is not None:
-        update["announcement_type"] = update_in.announcement_type
+        update.announcement_type = update_in.announcement_type
     if update_in.projects_text is not None:
-        update["projects_text"] = update_in.projects_text
+        update.projects_text = update_in.projects_text
     if update_in.project_status_text is not None:
-        update["project_status_text"] = update_in.project_status_text
+        update.project_status_text = update_in.project_status_text
     if update_in.faculty_questions is not None:
-        update["faculty_questions"] = update_in.faculty_questions
+        update.faculty_questions = update_in.faculty_questions
     if update_in.is_presenting is not None:
-        update["is_presenting"] = update_in.is_presenting
+        update.is_presenting = update_in.is_presenting
     if update_in.meeting_id is not None:
-        update["meeting_id"] = update_in.meeting_id
+        update.meeting_id = update_in.meeting_id
     
-    # Update the timestamp
-    update["updated_at"] = datetime.now()
+    # Save to database
+    db.commit()
+    db.refresh(update)
     
-    # Update in our "database"
-    FACULTY_UPDATES_DB[update_idx] = update
+    # Convert files to expected format
+    files = []
+    for file_upload in update.file_uploads:
+        files.append({
+            "id": file_upload.id,
+            "name": file_upload.filename,
+            "size": file_upload.file_size or 0,
+            "file_path": file_upload.file_path,
+            "type": file_upload.file_type or "other",
+            "upload_date": file_upload.upload_date.isoformat() if file_upload.upload_date else None
+        })
     
-    return update
+    return FacultyUpdate(
+        id=update.id,
+        user_id=update.user_id,
+        user_name=update.user.full_name or update.user.username,
+        meeting_id=update.meeting_id,
+        announcements_text=update.announcements_text,
+        announcement_type=update.announcement_type,
+        projects_text=update.projects_text,
+        project_status_text=update.project_status_text,
+        faculty_questions=update.faculty_questions,
+        is_presenting=update.is_presenting,
+        files=files,
+        submission_date=update.submission_date,
+        submitted_at=update.submission_date,
+        created_at=update.created_at,
+        updated_at=update.updated_at
+    )
 
 
 @router.post("/{update_id}/files")

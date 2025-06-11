@@ -87,7 +87,22 @@
       "Bash(PYTHONPATH=/config/workspace/gitea/DoR-Dash/backend python backend/app/debug_login.py)",
       "Bash(PYTHONPATH=/config/workspace/gitea/DoR-Dash/backend python app/debug_login.py)",
       "Bash(dpkg:*)",
-      "Bash(ssh:*)"
+      "Bash(ssh:*)",
+      "mcp__filesystem__list_directory",
+      "Bash(npx @modelcontextprotocol/server-postgres:*)",
+      "Bash(claude --debug)",
+      "Bash(groups)",
+      "Bash(npm config:*)",
+      "Bash(npx @modelcontextprotocol/server-filesystem:*)",
+      "Bash(npx mcp-server-git:*)",
+      "Bash(npx @modelcontextprotocol/server-git:*)",
+      "Bash(npm search @modelcontextprotocol mermaid)",
+      "Bash(npm search:*)",
+      "Bash(groups:*)",
+      "mcp__postgres__query",
+      "mcp__redis__list",
+      "mcp__filesystem__read_file",
+      "mcp__filesystem__search_files"
     ],
     "deny": []
   },

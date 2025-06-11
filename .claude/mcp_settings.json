@@ -5,48 +5,47 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-postgres",
-        "postgresql://postgres:postgres@172.30.98.177:5432/postgres"
-      ],
-      "env": {}
+        "postgresql://DoRadmin:1232@172.30.98.213:5432/DoR"
+      ]
     },
     "redis": {
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-redis",
-        "redis://172.30.98.177:6379"
-      ],
-      "env": {}
+        "@redis/mcp-redis",
+        "redis://172.30.98.214:6379"
+      ]
     },
     "filesystem": {
-      "command": "npx",
+      "command": "npx", 
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
         "/config/workspace/gitea/DoR-Dash"
-      ],
-      "env": {}
+      ]
     },
-    "svelte": {
+    "mermaid": {
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-svelte"
-      ],
-      "env": {}
+        "@peng-shawn/mermaid-mcp-server"
+      ]
+    },
+    "git": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-git",
+        "--repository",
+        "/config/workspace/gitea/DoR-Dash"
+      ]
     },
     "ssh": {
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-ssh"
-      ],
-      "env": {
-        "SSH_HOST": "172.30.98.177",
-        "SSH_PORT": "22",
-        "SSH_USERNAME": "root",
-        "SSH_PASSWORD": "dor-ssh-password-2024"
-      }
+        "mcp-ssh"
+      ]
     }
   }
 }

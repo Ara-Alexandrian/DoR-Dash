@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     openssh-server \
     sudo \
+    sshpass \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure SSH

@@ -4,10 +4,118 @@ This document contains detailed technical information about fixes, debugging ses
 
 ## Table of Contents
 
-1. [PostgreSQL Enum Case Mismatch Fix](#postgresql-enum-case-mismatch-fix)
-2. [JSON Response Parsing Fix](#json-response-parsing-fix)
-3. [Port Configuration Changes](#port-configuration-changes)
-4. [Database Architecture](#database-architecture)
+1. [MCP Server Configuration](#mcp-server-configuration)
+2. [PostgreSQL Enum Case Mismatch Fix](#postgresql-enum-case-mismatch-fix)
+3. [JSON Response Parsing Fix](#json-response-parsing-fix)
+4. [Port Configuration Changes](#port-configuration-changes)
+5. [Database Architecture](#database-architecture)
+
+## MCP Server Configuration
+
+### Problem Description
+
+**Date:** January 6, 2025  
+**Issue:** Multiple MCP (Model Context Protocol) servers failing to connect
+
+### Root Cause Analysis
+
+1. **PostgreSQL Server:** Using default credentials (`postgres:postgres`) instead of actual database credentials
+2. **Git Server:** Missing repository path parameter
+3. **Mermaid Server:** Incorrect package name (`mermaid-mcp-server` vs `@peng-shawn/mermaid-mcp-server`)
+4. **SSH Server:** Not configured (needed for container debugging)
+
+### Solution Implementation
+
+**MCP Configuration File:** `.claude/mcp_settings.json`
+
+```json
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://DoRadmin:1232@172.30.98.213:5432/DoR"
+      ]
+    },
+    "redis": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@redis/mcp-redis",
+        "redis://172.30.98.214:6379"
+      ]
+    },
+    "filesystem": {
+      "command": "npx", 
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/config/workspace/gitea/DoR-Dash"
+      ]
+    },
+    "mermaid": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@peng-shawn/mermaid-mcp-server"
+      ]
+    },
+    "git": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-git",
+        "--repository",
+        "/config/workspace/gitea/DoR-Dash"
+      ]
+    },
+    "ssh": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-ssh"
+      ]
+    }
+  }
+}
+```
+
+### MCP Server Details
+
+1. **PostgreSQL (`@modelcontextprotocol/server-postgres`)**
+   - Credentials: `DoRadmin:1232`
+   - Host: `172.30.98.213`
+   - Database: `DoR`
+
+2. **Redis (`@redis/mcp-redis`)**
+   - Host: `172.30.98.214`
+   - Port: `6379`
+
+3. **Mermaid (`@peng-shawn/mermaid-mcp-server`)**
+   - Correct package identified via npm search
+
+4. **Git (`@modelcontextprotocol/server-git`)**
+   - Added `--repository` parameter with path
+
+5. **SSH (`mcp-ssh`)**
+   - Added for direct container debugging capabilities
+
+### Verification
+
+Tested connections using Python scripts:
+```python
+# PostgreSQL
+psycopg2.connect('postgresql://DoRadmin:1232@172.30.98.213:5432/DoR')
+
+# Redis
+redis.Redis(host='172.30.98.214', port=6379).ping()
+```
+
+Both connections successful.
+
+---
 
 ## PostgreSQL Enum Case Mismatch Fix
 

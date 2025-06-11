@@ -155,13 +155,13 @@ Claude Code is configured with Model Context Protocol (MCP) servers that provide
    - Direct database queries and schema inspection
    - Data integrity checking and analysis
    - Performance monitoring and optimization
-   - Connection: `postgresql://postgres:postgres@localhost:5432/postgres`
+   - Connection: `postgresql://DoRadmin:1232@172.30.98.213:5432/DoR`
 
 2. **Redis Server** (`redis`)
    - Cache management and key-value operations
    - Memory usage analysis and monitoring
    - Session data inspection and cleanup
-   - Connection: `redis://localhost:6379`
+   - Connection: `redis://172.30.98.214:6379`
 
 3. **File System Server** (`filesystem`)
    - Enhanced file operations within project directory
@@ -174,21 +174,130 @@ Claude Code is configured with Model Context Protocol (MCP) servers that provide
    - Generate documentation visuals
    - Validate and render Mermaid syntax
    - Export diagrams in SVG format
+   - Package: `@peng-shawn/mermaid-mcp-server`
 
 5. **Git Server** (`git`)
    - Advanced version control operations
    - Repository analysis and health checks
    - Commit history and branch management
    - Security scanning for exposed credentials
+   - Repository path: `/config/workspace/gitea/DoR-Dash`
+
+6. **SSH Server** (`ssh`)
+   - Direct SSH access to containers and servers
+   - Real-time debugging of running containers
+   - Execute commands on remote hosts
+   - Container console access
+   - Package: `mcp-ssh`
 
 ### Using MCP Tools
 
 These servers provide additional capabilities beyond standard Claude Code tools:
-- **Database Operations**: Query live PostgreSQL data directly
-- **Cache Analysis**: Inspect Redis keys and performance metrics
-- **File Management**: Advanced operations on project files and uploads
-- **Documentation**: Generate visual diagrams for architecture documentation
-- **Repository Management**: Enhanced git operations and security analysis
+
+#### PostgreSQL Server Usage
+```sql
+-- Example: Query user data
+mcp__postgres__query(sql="SELECT * FROM users WHERE role='student'")
+
+-- Example: Check database schema
+mcp__postgres__query(sql="SELECT table_name FROM information_schema.tables WHERE table_schema='public'")
+
+-- Example: Analyze meeting data
+mcp__postgres__query(sql="SELECT COUNT(*) as total_meetings, COUNT(DISTINCT user_id) as unique_attendees FROM meetings")
+```
+
+#### Redis Server Usage
+```python
+# Example: Check cached sessions
+mcp__redis__list(pattern="session:*")
+
+# Example: Get specific cache value
+mcp__redis__get(key="user:123:preferences")
+
+# Example: Set cache with expiration
+mcp__redis__set(key="temp:data", value="{'status':'processing'}", expireSeconds=300)
+
+# Example: Clear specific cache keys
+mcp__redis__delete(key=["session:old1", "session:old2"])
+```
+
+#### File System Server Usage
+```python
+# Example: List upload directory
+mcp__filesystem__list_directory(path="/config/workspace/gitea/DoR-Dash/uploads")
+
+# Example: Search for specific files
+mcp__filesystem__search_files(path="/config/workspace/gitea/DoR-Dash", pattern="*.py", excludePatterns=["venv/*", "__pycache__/*"])
+
+# Example: Get file metadata
+mcp__filesystem__get_file_info(path="/config/workspace/gitea/DoR-Dash/uploads/update_1_file_1.pdf")
+
+# Example: Read multiple configuration files
+mcp__filesystem__read_multiple_files(paths=["backend/.env", "frontend/.env.example"])
+```
+
+#### Mermaid Server Usage
+```mermaid
+# Example: Create architecture diagram
+graph TD
+    A[Frontend SvelteKit] -->|API Calls| B[Backend FastAPI]
+    B --> C[PostgreSQL]
+    B --> D[Redis Cache]
+    B --> E[Ollama AI]
+```
+
+#### Git Server Usage
+```bash
+# Example: Check repository status
+mcp__git__status()
+
+# Example: View recent commits
+mcp__git__log(limit=10)
+
+# Example: Search for security issues
+mcp__git__search(pattern="password|secret|key", excludePaths=["*.md", "docs/*"])
+```
+
+#### SSH Server Usage
+```bash
+# Example: Connect to backend container
+mcp__ssh__connect(host="172.30.98.177", user="root", command="docker exec -it dor-dash-backend-1 bash")
+
+# Example: Check container logs
+mcp__ssh__execute(command="docker logs dor-dash-frontend-1 --tail 50")
+
+# Example: Debug running processes
+mcp__ssh__execute(command="docker exec dor-dash-backend-1 ps aux | grep python")
+```
+
+### Practical MCP Usage Examples
+
+#### Debugging Database Issues
+```python
+# Check if users are properly stored
+mcp__postgres__query(sql="SELECT id, username, role, created_at FROM users ORDER BY created_at DESC LIMIT 10")
+
+# Verify meeting-update relationships
+mcp__postgres__query(sql="SELECT m.id, m.title, COUNT(su.id) as student_updates FROM meetings m LEFT JOIN student_updates su ON m.id = su.meeting_id GROUP BY m.id, m.title")
+```
+
+#### Monitoring Redis Cache
+```python
+# Check active sessions
+mcp__redis__list(pattern="session:*")
+
+# Monitor cache memory usage
+mcp__redis__info()
+```
+
+#### File Upload Verification
+```python
+# List all uploaded files
+mcp__filesystem__list_directory(path="/config/workspace/gitea/DoR-Dash/uploads")
+
+# Check file sizes and dates
+mcp__filesystem__directory_tree(path="/config/workspace/gitea/DoR-Dash/uploads")
+```
 
 ### Managing MCP Servers
 
@@ -204,6 +313,46 @@ claude mcp add <name> <command> [args...]
 
 # Remove server
 claude mcp remove <server-name>
+```
+
+### MCP Server Troubleshooting
+
+#### Common Issues and Solutions
+
+1. **PostgreSQL Connection Failed**
+   - Verify credentials: `DoRadmin:1232@172.30.98.213:5432/DoR`
+   - Check if PostgreSQL container is running: `docker ps | grep postgres`
+   - Test connection: `psycopg2.connect('postgresql://DoRadmin:1232@172.30.98.213:5432/DoR')`
+
+2. **Redis Connection Failed**
+   - Verify host: `172.30.98.214:6379`
+   - Check if Redis container is running: `docker ps | grep redis`
+   - Test connection: `redis.Redis(host='172.30.98.214', port=6379).ping()`
+
+3. **Git Server Not Working**
+   - Ensure repository path is correct: `/config/workspace/gitea/DoR-Dash`
+   - Check git status manually: `git status`
+
+4. **Mermaid Server Issues**
+   - Correct package: `@peng-shawn/mermaid-mcp-server`
+   - May need to clear npm cache: `npm cache clean --force`
+
+5. **SSH Server Not Connecting**
+   - Verify SSH keys are configured
+   - Check host accessibility: `ssh user@host`
+
+### MCP Configuration File Location
+- **Settings**: `.claude/mcp_settings.json`
+- **Permissions**: `.claude/settings.local.json`
+
+### Restarting MCP Servers
+After configuration changes, restart Claude Code or use:
+```bash
+# Restart specific server
+claude mcp restart <server-name>
+
+# Restart all servers
+claude mcp restart --all
 ```
 
 ## Security Practices
@@ -239,7 +388,16 @@ The application is designed to work behind a reverse proxy with SSL termination.
 
 ## Recent Updates
 
-### CRITICAL DATA PERSISTENCE FIX (LATEST CRITICAL)
+### MCP Server Configuration Updates (Latest)
+- **CRITICAL FIX**: Updated MCP server configurations with correct database credentials
+- **PostgreSQL**: Changed from default `postgres:postgres` to actual credentials `DoRadmin:1232@172.30.98.213:5432/DoR`
+- **Redis**: Confirmed connection to `redis://172.30.98.214:6379`
+- **Git Server**: Added repository path parameter to fix initialization
+- **Mermaid Server**: Fixed package name to `@peng-shawn/mermaid-mcp-server`
+- **SSH Server**: Added new MCP server for direct container debugging
+- **Debug Output**: Faculty updates contain debug print statements (lines 101-102, 514)
+
+### CRITICAL DATA PERSISTENCE FIX
 - **CRITICAL BUG FIX**: Migrated student and faculty updates from in-memory storage to PostgreSQL database
 - **Root Cause**: Agenda items were lost on container restart because they were stored in-memory only
 - **Solution**: Updated all CRUD operations for student/faculty updates to use PostgreSQL database

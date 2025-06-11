@@ -257,19 +257,17 @@
             </div>
           </a>
           
-          <a href="/requests/mock-exam" class="group relative overflow-hidden card px-8 py-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border-2 border-gold-200 hover:border-gold-400 dark:border-gold-700 dark:hover:border-gold-500">
+          <a href="/calendar" class="group relative overflow-hidden card px-8 py-6 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border-2 border-gold-200 hover:border-gold-400 dark:border-gold-700 dark:hover:border-gold-500">
             <div class="absolute inset-0 bg-gradient-to-br from-gold-50 to-gold-100 dark:from-gold-900/20 dark:to-gold-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div class="relative flex items-center">
               <div class="p-4 bg-gold-100 dark:bg-gold-800 rounded-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gold-700 dark:text-gold-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path d="M12 14l9-5-9-5-9 5 9 5z" />
-                  <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
               <div class="ml-5 flex-1">
-                <h3 class="text-lg font-bold text-gold-800 dark:text-gold-200 group-hover:text-gold-900 dark:group-hover:text-gold-100 transition-colors">Schedule Mock Exam</h3>
-                <p class="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">Practice for your examinations</p>
+                <h3 class="text-lg font-bold text-gold-800 dark:text-gold-200 group-hover:text-gold-900 dark:group-hover:text-gold-100 transition-colors">View Calendar</h3>
+                <p class="mt-1 text-sm text-[rgb(var(--color-text-secondary))]">Check meeting schedules and agendas</p>
               </div>
               <svg class="h-5 w-5 text-gold-400 dark:text-gold-600 transform translate-x-1 group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
