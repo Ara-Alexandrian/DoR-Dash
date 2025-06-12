@@ -6,3 +6,4 @@ from .file_upload import FileUpload
 from .meeting import Meeting, MeetingType
 from .registration_request import RegistrationRequest, RegistrationStatus
 from .agenda_item import AgendaItem, AgendaItemType
+from .presentation import AssignedPresentation
