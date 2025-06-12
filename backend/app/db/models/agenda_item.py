@@ -64,8 +64,7 @@ class AgendaItem(Base):
 
     # Relationships
     user = relationship("User", back_populates="agenda_items")
-    meeting = relationship("Meeting", back_populates="agenda_items") 
-    file_uploads = relationship("FileUpload", back_populates="agenda_item", cascade="all, delete-orphan")
+    meeting = relationship("Meeting", back_populates="agenda_items")
 
     def __repr__(self):
         return f"<AgendaItem(id={self.id}, type={self.item_type}, user_id={self.user_id}, meeting_id={self.meeting_id})>"
