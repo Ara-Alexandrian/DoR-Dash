@@ -190,7 +190,7 @@ async def delete_meeting(
     db: Session = Depends(get_sync_db)
 ):
     """
-    Delete a meeting (admin only) - FROM POSTGRESQL
+    Delete a meeting and all associated agenda items (admin only) - FROM POSTGRESQL
     """
     # Check if user is admin
     if current_user.role not in ["admin", "faculty"]:
@@ -208,9 +208,23 @@ async def delete_meeting(
             detail=f"Meeting with ID {meeting_id} not found"
         )
     
-    # Delete from database
+    # Count associated agenda items for logging
+    student_updates_count = db.query(DBStudentUpdate).filter(DBStudentUpdate.meeting_id == meeting_id).count()
+    faculty_updates_count = db.query(DBFacultyUpdate).filter(DBFacultyUpdate.meeting_id == meeting_id).count()
+    
+    print(f"DEBUG: Deleting meeting {meeting_id} with {student_updates_count} student updates and {faculty_updates_count} faculty updates")
+    
+    # Delete all associated student updates first (with their file uploads via cascade)
+    db.query(DBStudentUpdate).filter(DBStudentUpdate.meeting_id == meeting_id).delete()
+    
+    # Delete all associated faculty updates first (with their file uploads via cascade)  
+    db.query(DBFacultyUpdate).filter(DBFacultyUpdate.meeting_id == meeting_id).delete()
+    
+    # Now delete the meeting itself
     db.delete(meeting)
     db.commit()
+    
+    print(f"DEBUG: Successfully deleted meeting {meeting_id} and all associated agenda items")
     
     return None
 
@@ -301,3 +315,148 @@ async def get_meeting_agenda(
     }
     
     return agenda
+
+
+@router.get("/integrity-check")
+async def check_meeting_data_integrity(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_sync_db)
+):
+    """
+    Check data integrity across meetings and updates (admin only)
+    """
+    # Check if user is admin
+    if current_user.role not in ["admin", "faculty"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins and faculty can access integrity checks"
+        )
+    
+    # Find orphaned student updates (meeting_id points to non-existent meeting)
+    orphaned_student_updates = db.query(DBStudentUpdate).outerjoin(
+        Meeting, DBStudentUpdate.meeting_id == Meeting.id
+    ).filter(
+        DBStudentUpdate.meeting_id.isnot(None),
+        Meeting.id.is_(None)
+    ).all()
+    
+    # Find orphaned faculty updates
+    orphaned_faculty_updates = db.query(DBFacultyUpdate).outerjoin(
+        Meeting, DBFacultyUpdate.meeting_id == Meeting.id
+    ).filter(
+        DBFacultyUpdate.meeting_id.isnot(None),
+        Meeting.id.is_(None)
+    ).all()
+    
+    # Find updates without meeting assignment
+    unassigned_student_updates = db.query(DBStudentUpdate).filter(
+        DBStudentUpdate.meeting_id.is_(None)
+    ).all()
+    
+    unassigned_faculty_updates = db.query(DBFacultyUpdate).filter(
+        DBFacultyUpdate.meeting_id.is_(None)
+    ).all()
+    
+    # Find meetings without any updates
+    meetings_without_updates = db.query(Meeting).outerjoin(
+        DBStudentUpdate, Meeting.id == DBStudentUpdate.meeting_id
+    ).outerjoin(
+        DBFacultyUpdate, Meeting.id == DBFacultyUpdate.meeting_id
+    ).filter(
+        DBStudentUpdate.id.is_(None),
+        DBFacultyUpdate.id.is_(None)
+    ).all()
+    
+    integrity_report = {
+        "orphaned_data": {
+            "student_updates": [
+                {"id": u.id, "user_id": u.user_id, "meeting_id": u.meeting_id, "created_at": u.created_at.isoformat()}
+                for u in orphaned_student_updates
+            ],
+            "faculty_updates": [
+                {"id": u.id, "user_id": u.user_id, "meeting_id": u.meeting_id, "created_at": u.created_at.isoformat()}
+                for u in orphaned_faculty_updates
+            ]
+        },
+        "unassigned_updates": {
+            "student_updates": [
+                {"id": u.id, "user_id": u.user_id, "created_at": u.created_at.isoformat()}
+                for u in unassigned_student_updates
+            ],
+            "faculty_updates": [
+                {"id": u.id, "user_id": u.user_id, "created_at": u.created_at.isoformat()}
+                for u in unassigned_faculty_updates
+            ]
+        },
+        "empty_meetings": [
+            {"id": m.id, "title": m.title, "start_time": m.start_time.isoformat()}
+            for m in meetings_without_updates
+        ],
+        "summary": {
+            "orphaned_student_updates": len(orphaned_student_updates),
+            "orphaned_faculty_updates": len(orphaned_faculty_updates),
+            "unassigned_student_updates": len(unassigned_student_updates),
+            "unassigned_faculty_updates": len(unassigned_faculty_updates),
+            "empty_meetings": len(meetings_without_updates),
+            "total_issues": len(orphaned_student_updates) + len(orphaned_faculty_updates)
+        }
+    }
+    
+    return integrity_report
+
+
+@router.post("/cleanup-orphaned")
+async def cleanup_orphaned_data(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_sync_db)
+):
+    """
+    Clean up orphaned agenda items (admin only)
+    """
+    # Check if user is admin
+    if current_user.role not in ["admin"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only admins can perform data cleanup"
+        )
+    
+    # Delete orphaned student updates
+    orphaned_student_count = db.query(DBStudentUpdate).outerjoin(
+        Meeting, DBStudentUpdate.meeting_id == Meeting.id
+    ).filter(
+        DBStudentUpdate.meeting_id.isnot(None),
+        Meeting.id.is_(None)
+    ).count()
+    
+    db.query(DBStudentUpdate).outerjoin(
+        Meeting, DBStudentUpdate.meeting_id == Meeting.id
+    ).filter(
+        DBStudentUpdate.meeting_id.isnot(None),
+        Meeting.id.is_(None)
+    ).delete()
+    
+    # Delete orphaned faculty updates
+    orphaned_faculty_count = db.query(DBFacultyUpdate).outerjoin(
+        Meeting, DBFacultyUpdate.meeting_id == Meeting.id
+    ).filter(
+        DBFacultyUpdate.meeting_id.isnot(None),
+        Meeting.id.is_(None)
+    ).count()
+    
+    db.query(DBFacultyUpdate).outerjoin(
+        Meeting, DBFacultyUpdate.meeting_id == Meeting.id
+    ).filter(
+        DBFacultyUpdate.meeting_id.isnot(None),
+        Meeting.id.is_(None)
+    ).delete()
+    
+    db.commit()
+    
+    return {
+        "message": "Cleanup completed successfully",
+        "deleted": {
+            "student_updates": orphaned_student_count,
+            "faculty_updates": orphaned_faculty_count,
+            "total": orphaned_student_count + orphaned_faculty_count
+        }
+    }

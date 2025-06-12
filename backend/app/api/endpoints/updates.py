@@ -37,11 +37,18 @@ async def create_student_update(
     """
     Create a new student update - NOW PERSISTENT IN DATABASE!
     """
-    # Check if user is submitting for themselves or admin submitting for a student
+    # Enhanced user validation with detailed error messages
     if current_user.role != "admin" and update_in.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only submit updates for yourself"
+            detail=f"Access denied: User {current_user.id} ({current_user.username}) cannot submit updates for user {update_in.user_id}. Students can only submit for themselves."
+        )
+    
+    # Additional security check - ensure user_id is valid and positive
+    if update_in.user_id <= 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid user_id: Must be a positive integer"
         )
     
     # Validate user exists
@@ -54,12 +61,23 @@ async def create_student_update(
     
     # Validate meeting exists if provided
     if update_in.meeting_id:
+        # Check for valid meeting_id format
+        if update_in.meeting_id <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid meeting_id: Must be a positive integer"
+            )
+        
         meeting = db.query(DBMeeting).filter(DBMeeting.id == update_in.meeting_id).first()
         if not meeting:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Meeting not found"
+                detail=f"Meeting with ID {update_in.meeting_id} not found. Please ensure the meeting exists before submitting updates."
             )
+        
+        # Additional check: ensure meeting is not in the past (optional warning)
+        if meeting.start_time < datetime.now():
+            print(f"WARNING: User {current_user.id} submitting update for past meeting {meeting.id} ({meeting.title})")
     
     # Create new database record
     db_update = DBStudentUpdate(
