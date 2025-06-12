@@ -35,6 +35,7 @@
   
   // UI state
   let isSubmitting = false;
+  let isLoading = true; // Add loading state for initial data
   let error = '';
   let success = '';
   let meetings = [];
@@ -409,6 +410,7 @@
   
   // Load upcoming meetings
   onMount(async () => {
+    isLoading = true; // Set loading state
     try {
       // Check if we're in edit mode
       const editId = $page.url.searchParams.get('edit');
@@ -438,7 +440,8 @@
             // Load student update data
             const update = await updateApi.getUpdate(editId);
             
-            // Pre-populate student form
+            // Pre-populate student form - Log what we're setting
+            console.log('Setting form fields from update:', update);
             progressText = update.progress_text || '';
             challengesText = update.challenges_text || '';
             goalsText = update.next_steps_text || '';
@@ -446,7 +449,14 @@
             isPresenting = update.will_present || false;
             selectedMeeting = update.meeting_id;
             
-            console.log('Loaded student update for editing:', update);
+            console.log('Form fields after setting:', {
+              progressText,
+              challengesText,
+              goalsText,
+              meetingNotes,
+              isPresenting,
+              selectedMeeting
+            });
           }
         } catch (err) {
           console.error('Failed to load update for editing:', err);
@@ -472,6 +482,8 @@
       }
     } catch (err) {
       console.error('Error loading page:', err);
+    } finally {
+      isLoading = false; // Clear loading state
     }
   });
   
@@ -523,6 +535,12 @@
     </div>
   {/if}
   
+  {#if isLoading}
+    <div class="text-center py-10">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
+      <p class="mt-2 text-gray-500">Loading update data...</p>
+    </div>
+  {:else}
   <form on:submit|preventDefault={handleSubmit} class="space-y-6">
     {#if isFaculty}
       <!-- FACULTY FORM -->
@@ -976,6 +994,7 @@
       </button>
     </div>
   </form>
+  {/if}
 </div>
 
 <!-- Floating AI Refinement Widget -->
