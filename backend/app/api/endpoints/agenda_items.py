@@ -299,11 +299,12 @@ async def delete_agenda_item(
 async def upload_files_to_agenda_item(
     current_user: Annotated[User, Depends(get_current_user)],
     item_id: int = Path(..., description="The ID of the agenda item"),
-    files: List[UploadFile] = File(...),
+    files: List[UploadFile] = File(..., description="Multiple files to upload (max 50MB each)"),
     db: Session = Depends(get_sync_db)
 ):
     """
-    Upload files to an agenda item
+    Upload multiple files to an agenda item
+    Supports any file type with 50MB max size per file
     """
     # Find the agenda item
     item = db.query(DBAgendaItem).filter(DBAgendaItem.id == item_id).first()
@@ -321,50 +322,272 @@ async def upload_files_to_agenda_item(
             detail="You can only upload files to your own agenda items"
         )
     
+    # Validate file count (reasonable limit)
+    if len(files) > 20:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Maximum 20 files can be uploaded at once"
+        )
+    
     uploaded_files = []
+    failed_files = []
     upload_dir = "/config/workspace/gitea/DoR-Dash/uploads"
     
     # Ensure upload directory exists
     os.makedirs(upload_dir, exist_ok=True)
     
     for file in files:
-        if file.size > 50 * 1024 * 1024:  # 50MB limit
-            raise HTTPException(
-                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                detail=f"File {file.filename} is too large. Maximum size is 50MB."
-            )
-        
-        # Generate unique filename
-        timestamp = int(datetime.now().timestamp())
-        file_extension = os.path.splitext(file.filename)[1] if file.filename else ''
-        unique_filename = f"agenda_{item_id}_file_{timestamp}_{file.filename}"
-        file_path = os.path.join(upload_dir, unique_filename)
-        
-        # Save file to disk
-        with open(file_path, "wb") as buffer:
+        try:
+            # Validate file size
             content = await file.read()
-            buffer.write(content)
+            if len(content) > 50 * 1024 * 1024:  # 50MB limit
+                failed_files.append({
+                    "filename": file.filename,
+                    "error": "File exceeds 50MB limit"
+                })
+                continue
+            
+            # Validate filename
+            if not file.filename or file.filename.strip() == "":
+                failed_files.append({
+                    "filename": "unnamed_file",
+                    "error": "Invalid filename"
+                })
+                continue
+            
+            # Generate unique filename to avoid conflicts
+            timestamp = int(datetime.now().timestamp() * 1000)  # Include milliseconds
+            safe_filename = "".join(c for c in file.filename if c.isalnum() or c in "._-").strip()
+            if not safe_filename:
+                safe_filename = f"file_{timestamp}"
+            
+            file_extension = os.path.splitext(file.filename)[1] if file.filename else ''
+            unique_filename = f"agenda_{item_id}_{timestamp}_{safe_filename}"
+            file_path = os.path.join(upload_dir, unique_filename)
+            
+            # Save file to disk
+            with open(file_path, "wb") as buffer:
+                buffer.write(content)
+            
+            # Determine MIME type more accurately
+            import mimetypes
+            mime_type = file.content_type
+            if not mime_type or mime_type == "application/octet-stream":
+                mime_type, _ = mimetypes.guess_type(file.filename)
+                if not mime_type:
+                    mime_type = "application/octet-stream"
+            
+            # Save file metadata to database
+            file_upload = DBFileUpload(
+                user_id=current_user.id,
+                agenda_item_id=item_id,
+                filename=file.filename,  # Keep original filename
+                filepath=file_path,      # Store full path
+                file_type=mime_type,
+                file_size=len(content)
+            )
+            
+            db.add(file_upload)
+            uploaded_files.append({
+                "id": None,  # Will be set after commit
+                "filename": file.filename,
+                "size": len(content),
+                "type": mime_type,
+                "upload_date": datetime.now().isoformat()
+            })
+            
+        except Exception as e:
+            failed_files.append({
+                "filename": file.filename or "unknown",
+                "error": f"Upload failed: {str(e)}"
+            })
+    
+    # Commit all successful uploads
+    if uploaded_files:
+        db.commit()
+        # Refresh to get file IDs
+        db.refresh(item)
         
-        # Save file metadata to database
-        file_upload = DBFileUpload(
-            user_id=current_user.id,
-            agenda_item_id=item_id,
-            filename=file.filename,
-            filepath=file_path,
-            file_type=file.content_type or "application/octet-stream",
-            file_size=len(content)
+        # Update uploaded_files with actual IDs
+        recent_files = db.query(DBFileUpload).filter(
+            DBFileUpload.agenda_item_id == item_id,
+            DBFileUpload.user_id == current_user.id
+        ).order_by(DBFileUpload.created_at.desc()).limit(len(uploaded_files)).all()
+        
+        for i, file_record in enumerate(recent_files):
+            if i < len(uploaded_files):
+                uploaded_files[-(i+1)]["id"] = file_record.id
+    
+    response = {
+        "uploaded": len(uploaded_files),
+        "failed": len(failed_files),
+        "files": uploaded_files
+    }
+    
+    if failed_files:
+        response["failed_files"] = failed_files
+    
+    return response
+
+
+# File download endpoint
+@router.get("/{item_id}/files/{file_id}/download")
+async def download_file_from_agenda_item(
+    current_user: Annotated[User, Depends(get_current_user)],
+    item_id: int = Path(..., description="The ID of the agenda item"),
+    file_id: int = Path(..., description="The ID of the file to download"),
+    db: Session = Depends(get_sync_db)
+):
+    """
+    Download a file from an agenda item
+    """
+    # Find the agenda item
+    item = db.query(DBAgendaItem).filter(DBAgendaItem.id == item_id).first()
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Agenda item with ID {item_id} not found"
         )
+    
+    # Find the file
+    file_upload = db.query(DBFileUpload).filter(
+        DBFileUpload.id == file_id,
+        DBFileUpload.agenda_item_id == item_id
+    ).first()
+    
+    if not file_upload:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"File with ID {file_id} not found for this agenda item"
+        )
+    
+    # Check permissions - anyone authenticated can download files from agenda items they can view
+    if current_user.role not in ["admin", "faculty"] and item.user_id != current_user.id:
+        # Allow viewing if user has general meeting access
+        # This could be enhanced with more granular permissions
+        pass
+    
+    # Check if file exists on disk
+    if not os.path.exists(file_upload.filepath):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found on disk. It may have been moved or deleted."
+        )
+    
+    # Return file for download
+    return FileResponse(
+        path=file_upload.filepath,
+        filename=file_upload.filename,
+        media_type=file_upload.file_type
+    )
+
+
+# List files for an agenda item
+@router.get("/{item_id}/files")
+async def list_files_for_agenda_item(
+    current_user: Annotated[User, Depends(get_current_user)],
+    item_id: int = Path(..., description="The ID of the agenda item"),
+    db: Session = Depends(get_sync_db)
+):
+    """
+    List all files attached to an agenda item
+    """
+    # Find the agenda item
+    item = db.query(DBAgendaItem).filter(DBAgendaItem.id == item_id).first()
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Agenda item with ID {item_id} not found"
+        )
+    
+    # Check permissions
+    if current_user.role not in ["admin", "faculty"] and item.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only view files for agenda items you have access to"
+        )
+    
+    # Get all files for this agenda item
+    files = db.query(DBFileUpload).filter(
+        DBFileUpload.agenda_item_id == item_id
+    ).order_by(DBFileUpload.upload_date.desc()).all()
+    
+    file_list = []
+    for file_upload in files:
+        # Check if file exists on disk
+        file_exists = os.path.exists(file_upload.filepath)
         
-        db.add(file_upload)
-        uploaded_files.append({
-            "filename": file.filename,
-            "size": len(content),
-            "type": file.content_type
+        file_list.append({
+            "id": file_upload.id,
+            "filename": file_upload.filename,
+            "file_size": file_upload.file_size,
+            "file_type": file_upload.file_type,
+            "upload_date": file_upload.upload_date.isoformat(),
+            "uploader": file_upload.user.username if file_upload.user else "Unknown",
+            "file_exists": file_exists,
+            "download_url": f"/api/v1/agenda-items/{item_id}/files/{file_upload.id}/download"
         })
     
+    return {
+        "agenda_item_id": item_id,
+        "total_files": len(file_list),
+        "files": file_list
+    }
+
+
+# Delete a file from an agenda item
+@router.delete("/{item_id}/files/{file_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_file_from_agenda_item(
+    current_user: Annotated[User, Depends(get_current_user)],
+    item_id: int = Path(..., description="The ID of the agenda item"),
+    file_id: int = Path(..., description="The ID of the file to delete"),
+    db: Session = Depends(get_sync_db)
+):
+    """
+    Delete a file from an agenda item
+    """
+    # Find the agenda item
+    item = db.query(DBAgendaItem).filter(DBAgendaItem.id == item_id).first()
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Agenda item with ID {item_id} not found"
+        )
+    
+    # Find the file
+    file_upload = db.query(DBFileUpload).filter(
+        DBFileUpload.id == file_id,
+        DBFileUpload.agenda_item_id == item_id
+    ).first()
+    
+    if not file_upload:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"File with ID {file_id} not found for this agenda item"
+        )
+    
+    # Check permissions - only file uploader, item owner, or admin/faculty can delete
+    if (current_user.role not in ["admin", "faculty"] and 
+        file_upload.user_id != current_user.id and 
+        item.user_id != current_user.id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only delete files you uploaded or files from your own agenda items"
+        )
+    
+    # Delete file from disk
+    try:
+        if os.path.exists(file_upload.filepath):
+            os.remove(file_upload.filepath)
+    except Exception as e:
+        # Log error but continue with database deletion
+        print(f"Warning: Could not delete file from disk: {e}")
+    
+    # Delete from database
+    db.delete(file_upload)
     db.commit()
     
-    return {"files": uploaded_files, "message": f"Uploaded {len(files)} files successfully"}
+    return None
 
 
 # Legacy compatibility endpoints for backward compatibility during transition
