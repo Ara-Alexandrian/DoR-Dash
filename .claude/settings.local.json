@@ -106,7 +106,8 @@
       "Bash(git config:*)",
       "Bash(/tmp/ssh_connect.expect)",
       "Bash(npx:*)",
-      "Bash(./qa_test_curl.sh)"
+      "Bash(./qa_test_curl.sh)",
+      "mcp__filesystem__list_allowed_directories"
     ],
     "deny": []
   },
