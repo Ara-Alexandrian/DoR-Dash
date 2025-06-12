@@ -418,16 +418,73 @@
     }
   }
   
+  // File validation and size formatting
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+  
+  function validateFiles(fileList) {
+    const validFiles = [];
+    const errors = [];
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    const maxFiles = 20;
+    
+    if (fileList.length > maxFiles) {
+      errors.push(`Maximum ${maxFiles} files allowed`);
+      return { validFiles: [], errors };
+    }
+    
+    for (let i = 0; i < fileList.length; i++) {
+      const file = fileList[i];
+      
+      if (file.size > maxSize) {
+        errors.push(`${file.name} exceeds 50MB limit (${formatFileSize(file.size)})`);
+        continue;
+      }
+      
+      if (!file.name || file.name.trim() === '') {
+        errors.push('File has invalid name');
+        continue;
+      }
+      
+      validFiles.push(file);
+    }
+    
+    return { validFiles, errors };
+  }
+  
   // Handle file input change for students
   function handleFileChange(event) {
-    const fileList = event.target.files;
-    files = fileList;
+    const fileList = Array.from(event.target.files || []);
+    const { validFiles, errors } = validateFiles(fileList);
+    
+    if (errors.length > 0) {
+      error = errors.join('; ');
+      setTimeout(() => error = '', 5000);
+    } else {
+      error = '';
+    }
+    
+    files = validFiles;
   }
   
   // Handle file input change for faculty
   function handleFacultyFileChange(event) {
-    const fileList = event.target.files;
-    facultyFiles = fileList;
+    const fileList = Array.from(event.target.files || []);
+    const { validFiles, errors } = validateFiles(fileList);
+    
+    if (errors.length > 0) {
+      error = errors.join('; ');
+      setTimeout(() => error = '', 5000);
+    } else {
+      error = '';
+    }
+    
+    facultyFiles = validFiles;
   }
   
   // Load upcoming meetings
@@ -761,6 +818,7 @@
           type="file"
           id="faculty-files"
           multiple
+          accept="*/*"
           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary-100 file:text-primary-700 hover:file:bg-primary-200"
           on:change={handleFacultyFileChange}
           disabled={isSubmitting}
@@ -770,9 +828,24 @@
           {#if facultyIsPresenting}
             Please attach your presentation materials. Required for presentations.
           {:else}
-            Attach relevant files, presentations, or papers. Max 50MB per file.
+            Upload any file type. Max 50MB per file, up to 20 files total.
           {/if}
         </p>
+        
+        <!-- Show selected files -->
+        {#if facultyFiles && facultyFiles.length > 0}
+          <div class="mt-3 p-3 bg-gray-50 rounded-md">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">Selected Files ({facultyFiles.length}):</h4>
+            <ul class="text-xs text-gray-600 space-y-1">
+              {#each facultyFiles as file}
+                <li class="flex justify-between">
+                  <span class="truncate">{file.name}</span>
+                  <span class="ml-2 text-gray-400">{formatFileSize(file.size)}</span>
+                </li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
       </div>
     {:else}
       <!-- STUDENT FORM -->
@@ -956,6 +1029,7 @@
           type="file"
           id="files"
           multiple
+          accept="*/*"
           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary-100 file:text-primary-700 hover:file:bg-primary-200"
           on:change={handleFileChange}
           disabled={isSubmitting}
@@ -965,9 +1039,24 @@
           {#if isPresenting}
             Please attach your presentation materials. Required for presentations.
           {:else}
-            Attach relevant files, presentations, or papers. Max 50MB per file.
+            Upload any file type. Max 50MB per file, up to 20 files total.
           {/if}
         </p>
+        
+        <!-- Show selected files -->
+        {#if files && files.length > 0}
+          <div class="mt-3 p-3 bg-gray-50 rounded-md">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">Selected Files ({files.length}):</h4>
+            <ul class="text-xs text-gray-600 space-y-1">
+              {#each files as file}
+                <li class="flex justify-between">
+                  <span class="truncate">{file.name}</span>
+                  <span class="ml-2 text-gray-400">{formatFileSize(file.size)}</span>
+                </li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
       </div>
     {/if}
     

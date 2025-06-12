@@ -45,6 +45,39 @@
     });
   }
   
+  // Format file size
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+  
+  // Format file type for display
+  function formatFileType(mimeType) {
+    if (!mimeType) return 'Unknown';
+    
+    const typeMap = {
+      'application/pdf': 'PDF',
+      'application/msword': 'Word',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word',
+      'application/vnd.ms-powerpoint': 'PowerPoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PowerPoint',
+      'application/vnd.ms-excel': 'Excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'Excel',
+      'text/plain': 'Text',
+      'image/jpeg': 'JPEG Image',
+      'image/png': 'PNG Image',
+      'image/gif': 'GIF Image',
+      'application/zip': 'ZIP Archive',
+      'text/csv': 'CSV',
+      'application/json': 'JSON'
+    };
+    
+    return typeMap[mimeType] || mimeType.split('/')[1]?.toUpperCase() || 'File';
+  }
+  
   // Toggle functions for expandable sections
   function toggleFacultySection() {
     facultyExpanded = !facultyExpanded;
@@ -413,20 +446,20 @@
                                 {/if}
                               </div>
                               
-                              <!-- File name as clickable link -->
-                              <a 
-                                href={`${API_BASE}/faculty-updates/${announcement.id}/files/${file.id}/download`}
-                                download={file.name}
-                                class="text-sm text-gray-700 hover:text-primary-600 hover:underline"
-                              >
-                                {file.name}
-                              </a>
+                              <!-- File name and size -->
+                              <div class="flex-1">
+                                <div class="text-sm text-gray-700 font-medium">{file.name}</div>
+                                <div class="text-xs text-gray-500">
+                                  {formatFileSize(file.size)} • {formatFileType(file.type)}
+                                </div>
+                              </div>
                               
                               <!-- Download button -->
                               <a 
-                                href={`${API_BASE}/faculty-updates/${announcement.id}/files/${file.id}/download`}
+                                href={`${API_BASE}/agenda-items/${announcement.id}/files/${file.id}/download`}
                                 download={file.name}
-                                class="ml-auto text-xs text-primary-600 hover:text-primary-800"
+                                class="ml-auto text-xs bg-primary-600 text-white px-2 py-1 rounded hover:bg-primary-700 transition-colors"
+                                target="_blank"
                               >
                                 Download
                               </a>
@@ -613,20 +646,20 @@
                                 {/if}
                               </div>
                               
-                              <!-- File name as clickable link -->
-                              <a 
-                                href={`${API_BASE}/updates/${update.id}/files/${file.id}/download`}
-                                download={file.name}
-                                class="text-sm text-gray-700 hover:text-primary-600 hover:underline"
-                              >
-                                {file.name}
-                              </a>
+                              <!-- File name and size -->
+                              <div class="flex-1">
+                                <div class="text-sm text-gray-700 font-medium">{file.name}</div>
+                                <div class="text-xs text-gray-500">
+                                  {formatFileSize(file.size)} • {formatFileType(file.type)}
+                                </div>
+                              </div>
                               
                               <!-- Download button -->
                               <a 
-                                href={`${API_BASE}/updates/${update.id}/files/${file.id}/download`}
+                                href={`${API_BASE}/agenda-items/${update.id}/files/${file.id}/download`}
                                 download={file.name}
-                                class="ml-auto text-xs text-primary-600 hover:text-primary-800"
+                                class="ml-auto text-xs bg-primary-600 text-white px-2 py-1 rounded hover:bg-primary-700 transition-colors"
+                                target="_blank"
                               >
                                 Download
                               </a>

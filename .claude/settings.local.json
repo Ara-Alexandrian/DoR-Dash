@@ -105,7 +105,8 @@
       "mcp__filesystem__search_files",
       "Bash(git config:*)",
       "Bash(/tmp/ssh_connect.expect)",
-      "Bash(npx:*)"
+      "Bash(npx:*)",
+      "Bash(./qa_test_curl.sh)"
     ],
     "deny": []
   },
