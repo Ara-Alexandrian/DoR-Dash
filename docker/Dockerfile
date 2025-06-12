@@ -22,7 +22,7 @@ RUN npm run build
 # Backend stage
 FROM python:3.11-slim AS backend-base
 
-# Install system dependencies including SSH
+# Install system dependencies including SSH and Node.js
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -30,6 +30,10 @@ RUN apt-get update && apt-get install -y \
     sudo \
     sshpass \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js (required for frontend server)
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
 
 # Configure SSH
 RUN mkdir /var/run/sshd
@@ -41,6 +45,12 @@ RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/
 RUN useradd -m -s /bin/bash dor-user && \
     echo 'dor-user:dor-user-password-2024' | chpasswd && \
     usermod -aG sudo dor-user
+
+# Setup SSH keys for automated access
+RUN mkdir -p /root/.ssh && \
+    chmod 700 /root/.ssh && \
+    echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDKCukViia1sdF9sP4RhdPa9fq6lyuEq7vLMZFhzpsouBq1D5rTVsoa2YTwuMY9AXG2cPIbzR9x/wj36GTWkwANg5w6sn4j7gQSTEoKqxF8SDfGIAwWfWD2hgOwwhbSEcScqze/fOzT5Zx8U/xujIEqY0vZJVPmqWRafEQeJgSxjyc65xpYDpNDs4wcIdT4cuCpq8FdXDXfpC5+nW23WiPpIR9os1dxikj51MEN3x0VDIwo82sAXGvm63OAYvPU/BAgtCXly0r+Enbtg7Rl/sdPMe9FsbkhoJvnjzBQ17dpmS/A4J7oEpCP8cVv1xUh6z9RyWKGfOmZzlF/pqKrN3WIB8JKPNeIavJVrrwBIOn9lOE7rGkjZBMY8/WXn2vngqoMUR28LgZyPkB7uyrEy3VTWt6qHIDmX/g7p/wQAZADmUGY3bh9yBz9NqLTf5V+V6LhgOKCTGn1Xsp9YP4SXAL4gvPvNwlEU6p6Q5i3FoQiaBHUWavgO5wOyP//IT+hVi8= codeuser@1294490bc291" > /root/.ssh/authorized_keys && \
+    chmod 600 /root/.ssh/authorized_keys
 
 # Generate host keys
 RUN ssh-keygen -A
