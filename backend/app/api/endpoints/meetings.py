@@ -208,23 +208,9 @@ async def delete_meeting(
             detail=f"Meeting with ID {meeting_id} not found"
         )
     
-    # Count associated agenda items for logging
-    student_updates_count = db.query(DBStudentUpdate).filter(DBStudentUpdate.meeting_id == meeting_id).count()
-    faculty_updates_count = db.query(DBFacultyUpdate).filter(DBFacultyUpdate.meeting_id == meeting_id).count()
-    
-    print(f"DEBUG: Deleting meeting {meeting_id} with {student_updates_count} student updates and {faculty_updates_count} faculty updates")
-    
-    # Delete all associated student updates first (with their file uploads via cascade)
-    db.query(DBStudentUpdate).filter(DBStudentUpdate.meeting_id == meeting_id).delete()
-    
-    # Delete all associated faculty updates first (with their file uploads via cascade)  
-    db.query(DBFacultyUpdate).filter(DBFacultyUpdate.meeting_id == meeting_id).delete()
-    
-    # Now delete the meeting itself
+    # Delete the meeting (agenda items will be deleted via CASCADE)
     db.delete(meeting)
     db.commit()
-    
-    print(f"DEBUG: Successfully deleted meeting {meeting_id} and all associated agenda items")
     
     return None
 
@@ -236,8 +222,12 @@ async def get_meeting_agenda(
     db: Session = Depends(get_sync_db)
 ):
     """
-    Get complete agenda for a meeting including all updates - FROM POSTGRESQL
+    Get complete agenda for a meeting - UNIFIED AGENDA ITEMS (SIMPLIFIED!)
     """
+    # Import here to avoid circular imports
+    from app.db.models.agenda_item import AgendaItem as DBAgendaItem, AgendaItemType
+    from app.schemas.agenda_item import StudentUpdate, FacultyUpdate
+    
     # Find the meeting in the database
     meeting = db.query(Meeting).filter(Meeting.id == meeting_id).first()
     
@@ -247,17 +237,22 @@ async def get_meeting_agenda(
             detail=f"Meeting with ID {meeting_id} not found"
         )
     
-    # Get student updates for this meeting from DATABASE
-    student_updates_query = db.query(DBStudentUpdate).options(
-        joinedload(DBStudentUpdate.user),
-        joinedload(DBStudentUpdate.file_uploads)
-    ).filter(DBStudentUpdate.meeting_id == meeting_id)
-
+    # Get ALL agenda items for this meeting in proper order - SINGLE QUERY!
+    agenda_items = db.query(DBAgendaItem).options(
+        joinedload(DBAgendaItem.user),
+        joinedload(DBAgendaItem.file_uploads)
+    ).filter(
+        DBAgendaItem.meeting_id == meeting_id
+    ).order_by(DBAgendaItem.order_index, DBAgendaItem.created_at).all()
+    
+    # Separate into legacy format for backward compatibility
     student_updates = []
-    for update in student_updates_query.all():
-        # Convert to same format as frontend expects
+    faculty_updates = []
+    
+    for item in agenda_items:
+        # Convert files to expected format
         files = []
-        for file_upload in update.file_uploads:
+        for file_upload in item.file_uploads:
             files.append({
                 "id": file_upload.id,
                 "name": file_upload.filename,
@@ -267,50 +262,44 @@ async def get_meeting_agenda(
                 "upload_date": file_upload.upload_date.isoformat() if file_upload.upload_date else None
             })
         
-        student_updates.append({
-            "id": update.id,
-            "user_id": update.user_id,
-            "user_name": update.user.full_name or update.user.username,
-            "progress_text": update.progress_text,
-            "challenges_text": update.challenges_text,
-            "next_steps_text": update.next_steps_text,
-            "meeting_notes": update.meeting_notes,
-            "will_present": update.will_present,
-            "meeting_id": update.meeting_id,
-            "files": files,
-            "submission_date": update.submission_date.isoformat(),
-            "created_at": update.created_at.isoformat(),
-            "updated_at": update.updated_at.isoformat()
-        })
+        if item.item_type == AgendaItemType.STUDENT_UPDATE:
+            content = item.content
+            student_updates.append({
+                "id": item.id,
+                "user_id": item.user_id,
+                "user_name": item.user.full_name or item.user.username,
+                "progress_text": content.get("progress_text", ""),
+                "challenges_text": content.get("challenges_text", ""),
+                "next_steps_text": content.get("next_steps_text", ""),
+                "meeting_notes": content.get("meeting_notes", ""),
+                "will_present": item.is_presenting,
+                "meeting_id": item.meeting_id,
+                "files": files,
+                "submission_date": item.created_at.isoformat(),
+                "created_at": item.created_at.isoformat(),
+                "updated_at": item.updated_at.isoformat()
+            })
+        
+        elif item.item_type == AgendaItemType.FACULTY_UPDATE:
+            content = item.content
+            faculty_updates.append({
+                "id": item.id,
+                "user_id": item.user_id,
+                "user_name": item.user.full_name or item.user.username,
+                "announcements_text": content.get("announcements_text", ""),
+                "announcement_type": content.get("announcement_type", "general"),
+                "projects_text": content.get("projects_text", ""),
+                "project_status_text": content.get("project_status_text", ""),
+                "faculty_questions": content.get("faculty_questions", ""),
+                "is_presenting": item.is_presenting,
+                "meeting_id": item.meeting_id,
+                "files": files,
+                "submission_date": item.created_at.isoformat(),
+                "created_at": item.created_at.isoformat(),
+                "updated_at": item.updated_at.isoformat()
+            })
     
-    # Get faculty updates for this meeting from DATABASE
-    faculty_updates_query = db.query(DBFacultyUpdate).options(
-        joinedload(DBFacultyUpdate.user)
-    ).filter(DBFacultyUpdate.meeting_id == meeting_id)
-
-    faculty_updates = []
-    for update in faculty_updates_query.all():
-        faculty_updates.append({
-            "id": update.id,
-            "user_id": update.user_id,
-            "user_name": update.user.full_name or update.user.username,
-            "announcements_text": update.announcements_text,
-            "announcement_type": update.announcement_type.value if update.announcement_type else "general",
-            "projects_text": update.projects_text,
-            "project_status_text": update.project_status_text,
-            "faculty_questions": update.faculty_questions,
-            "is_presenting": update.is_presenting,
-            "meeting_id": update.meeting_id,
-            "submission_date": update.submission_date.isoformat(),
-            "created_at": update.created_at.isoformat(),
-            "updated_at": update.updated_at.isoformat()
-        })
-    
-    print(f"DEBUG: Getting agenda for meeting {meeting_id} from DATABASE")
-    print(f"DEBUG: Found {len(student_updates)} student updates in PostgreSQL")
-    print(f"DEBUG: Found {len(faculty_updates)} faculty updates in PostgreSQL")
-    
-    # Compile agenda
+    # Compile agenda - MUCH SIMPLER!
     agenda = {
         "meeting": meeting,
         "student_updates": student_updates,
