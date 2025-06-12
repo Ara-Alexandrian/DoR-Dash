@@ -40,8 +40,11 @@ class User(Base):
     )
 
     # Relationships
-    student_updates = relationship("StudentUpdate", back_populates="user", cascade="all, delete-orphan")
-    faculty_updates = relationship("FacultyUpdate", back_populates="user", cascade="all, delete-orphan")
+    agenda_items = relationship("AgendaItem", back_populates="user", cascade="all, delete-orphan")
     created_meetings = relationship("Meeting", back_populates="creator", foreign_keys="Meeting.created_by", cascade="all, delete-orphan")
     file_uploads = relationship("FileUpload", back_populates="user", cascade="all, delete-orphan")
     presentations = relationship("AssignedPresentation", back_populates="user", cascade="all, delete-orphan")
+    
+    # Legacy relationships (to be removed after migration)
+    student_updates = relationship("StudentUpdate", back_populates="user", cascade="all, delete-orphan")
+    faculty_updates = relationship("FacultyUpdate", back_populates="user", cascade="all, delete-orphan")
