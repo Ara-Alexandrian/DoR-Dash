@@ -98,8 +98,6 @@ async def create_faculty_update(
     db.commit()
     db.refresh(db_update)
     
-    print(f"DEBUG: Created faculty update with ID {db_update.id}, meeting_id: {db_update.meeting_id}")
-    print(f"DEBUG: Update saved to PostgreSQL database")
     
     # Convert to response format
     return FacultyUpdate(
@@ -511,6 +509,5 @@ async def delete_faculty_update(
     db.delete(update)
     db.commit()
     
-    print(f"DEBUG: Deleted faculty update with ID {update_id} from PostgreSQL database")
     
     return None

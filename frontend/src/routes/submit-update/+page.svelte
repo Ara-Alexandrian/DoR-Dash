@@ -43,6 +43,7 @@
   // Edit mode state
   let isEditMode = false;
   let editingUpdateId = null;
+  let loadedUpdate = null;
   
   // Text refinement state
   let isRefining = false;
@@ -50,6 +51,27 @@
   let refinementResult = null;
   let refinementPosition = { x: 0, y: 0 };
   let refinementTarget = null;
+  
+  // Reactive statement to populate form when update is loaded
+  $: if (loadedUpdate) {
+    if (loadedUpdate.is_faculty) {
+      // Faculty form
+      announcementsText = loadedUpdate.announcements_text || '';
+      projectsText = loadedUpdate.projects_text || '';
+      projectStatusText = loadedUpdate.project_status_text || '';
+      facultyQuestions = loadedUpdate.faculty_questions || '';
+      announcementType = loadedUpdate.announcement_type || 'general';
+      facultyIsPresenting = loadedUpdate.is_presenting || false;
+    } else {
+      // Student form
+      progressText = loadedUpdate.progress_text || '';
+      challengesText = loadedUpdate.challenges_text || '';
+      goalsText = loadedUpdate.next_steps_text || '';
+      meetingNotes = loadedUpdate.meeting_notes || '';
+      isPresenting = loadedUpdate.will_present || false;
+    }
+    selectedMeeting = loadedUpdate.meeting_id;
+  }
   
   // Function to handle text refinement
   async function refineText(field, event) {
@@ -417,7 +439,6 @@
       const updateType = $page.url.searchParams.get('type');
       
       if (editId) {
-        console.log('Edit mode detected. ID:', editId, 'Type:', updateType);
         isEditMode = true;
         editingUpdateId = editId;
         
@@ -425,44 +446,20 @@
           if (updateType === 'faculty') {
             // Load faculty update data using the proper API function
             const update = await facultyUpdateApi.getFacultyUpdate(editId);
-            
-            // Pre-populate faculty form
-            announcementsText = update.announcements_text || '';
-            projectsText = update.projects_text || '';
-            projectStatusText = update.project_status_text || '';
-            facultyQuestions = update.faculty_questions || '';
-            announcementType = update.announcement_type || 'general';
-            facultyIsPresenting = update.is_presenting || false;
-            selectedMeeting = update.meeting_id;
-            
-            console.log('Loaded faculty update for editing:', update);
+            update.is_faculty = true; // Mark as faculty update
+            loadedUpdate = update;
           } else {
             // Load student update data
             const update = await updateApi.getUpdate(editId);
-            
-            // Pre-populate student form - Log what we're setting
-            console.log('Setting form fields from update:', update);
-            progressText = update.progress_text || '';
-            challengesText = update.challenges_text || '';
-            goalsText = update.next_steps_text || '';
-            meetingNotes = update.meeting_notes || '';
-            isPresenting = update.will_present || false;
-            selectedMeeting = update.meeting_id;
-            
-            console.log('Form fields after setting:', {
-              progressText,
-              challengesText,
-              goalsText,
-              meetingNotes,
-              isPresenting,
-              selectedMeeting
-            });
+            update.is_faculty = false; // Mark as student update
+            loadedUpdate = update;
           }
         } catch (err) {
           console.error('Failed to load update for editing:', err);
-          console.error('Edit ID:', editId, 'Update Type:', updateType);
-          console.error('Error details:', err.message, err.stack);
           error = `Failed to load update data: ${err.message}. Please try again.`;
+          // Don't continue loading if edit data failed
+          isLoading = false;
+          return;
         }
       }
       
