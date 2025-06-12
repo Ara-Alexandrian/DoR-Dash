@@ -94,8 +94,8 @@
       
       // Fetch meetings within date range
       meetings = await meetingsApi.getMeetings({
-        start_date: firstDay,
-        end_date: lastDay
+        start_date: firstDay.toISOString(),
+        end_date: lastDay.toISOString()
       });
     } catch (err) {
       console.error('Failed to load meetings:', err);
@@ -178,13 +178,13 @@
     // Set default times
     let startTime;
     if (day) {
-      // If day is provided, create meeting on that day at 2 PM
-      startTime = new Date(currentDate.getFullYear(), currentDate.getMonth(), day, 14, 0);
+      // If day is provided, create meeting on that day at 3:30 PM
+      startTime = new Date(currentDate.getFullYear(), currentDate.getMonth(), day, 15, 30);
     } else {
-      // Otherwise, use tomorrow at 2 PM
+      // Otherwise, use tomorrow at 3:30 PM
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      startTime = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), 14, 0);
+      startTime = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), 15, 30);
     }
     
     // Meeting end time is automatically calculated, no duration needed

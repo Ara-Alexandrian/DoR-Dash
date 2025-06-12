@@ -470,8 +470,8 @@
       
       try {
         meetings = await meetingsApi.getMeetings({
-          start_date: today,
-          end_date: threeMonthsFromNow
+          start_date: today.toISOString(),
+          end_date: threeMonthsFromNow.toISOString()
         });
       } catch (err) {
         console.warn('Failed to load meetings:', err);
