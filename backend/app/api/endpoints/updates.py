@@ -137,8 +137,8 @@ async def read_student_update(
             detail=f"Student update with ID {update_id} not found"
         )
     
-    # Check permissions - only admins can see all updates, students can only see their own
-    if current_user.role != "admin" and update.user_id != current_user.id:
+    # Check permissions - admins and faculty can see all updates, students can only see their own
+    if current_user.role not in ["admin", "faculty"] and update.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only access your own updates"
@@ -268,8 +268,8 @@ async def update_student_update(
             detail=f"Student update with ID {update_id} not found"
         )
     
-    # Check permissions - only admins can update all updates, students can only update their own
-    if current_user.role != "admin" and update.user_id != current_user.id:
+    # Check permissions - admins and faculty can update all updates, students can only update their own
+    if current_user.role not in ["admin", "faculty"] and update.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only update your own updates"

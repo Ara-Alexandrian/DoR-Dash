@@ -261,8 +261,6 @@ def get_current_user(
     except Exception:
         raise credentials_exception
     
-    print(f"DEBUG: Token validation for username: {username}")
-    
     user = get_user_by_username(db, username)
     if user is None:
         raise credentials_exception
