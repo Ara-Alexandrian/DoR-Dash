@@ -34,7 +34,7 @@ def upgrade() -> None:
             meeting_id,
             user_id,
             'student_update'::agendaitemtype,
-            ROW_NUMBER() OVER (PARTITION BY meeting_id ORDER BY created_at) - 1 as order_index,
+            ROW_NUMBER() OVER (PARTITION BY meeting_id ORDER BY su.created_at) - 1 as order_index,
             CONCAT('Student Update - ', u.full_name, ' (', u.username, ')') as title,
             jsonb_build_object(
                 'progress_text', COALESCE(progress_text, ''),
@@ -43,11 +43,11 @@ def upgrade() -> None:
                 'meeting_notes', COALESCE(meeting_notes, '')
             ) as content,
             will_present,
-            created_at,
-            updated_at
+            su.created_at,
+            su.updated_at
         FROM studentupdate su
         JOIN "user" u ON su.user_id = u.id
-        ORDER BY meeting_id, created_at;
+        ORDER BY meeting_id, su.created_at;
     """)
     
     result = bind.execute(student_migration)
@@ -74,11 +74,11 @@ def upgrade() -> None:
                 'faculty_questions', COALESCE(faculty_questions, '')
             ) as content,
             is_presenting,
-            created_at,
-            updated_at
+            fu.created_at,
+            fu.updated_at
         FROM facultyupdate fu
         JOIN "user" u ON fu.user_id = u.id
-        ORDER BY meeting_id, created_at;
+        ORDER BY meeting_id, fu.created_at;
     """)
     
     result = bind.execute(faculty_migration)
