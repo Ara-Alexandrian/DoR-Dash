@@ -47,6 +47,7 @@ def upgrade() -> None:
             su.updated_at
         FROM studentupdate su
         JOIN "user" u ON su.user_id = u.id
+        WHERE su.meeting_id IS NOT NULL
         ORDER BY meeting_id, su.created_at;
     """)
     
@@ -78,6 +79,7 @@ def upgrade() -> None:
             fu.updated_at
         FROM facultyupdate fu
         JOIN "user" u ON fu.user_id = u.id
+        WHERE fu.meeting_id IS NOT NULL
         ORDER BY meeting_id, fu.created_at;
     """)
     
