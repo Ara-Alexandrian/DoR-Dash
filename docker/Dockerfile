@@ -53,9 +53,9 @@ RUN useradd -m -s /bin/bash dor-user && \
     echo 'dor-user:dor-user-password-2024' | chpasswd && \
     usermod -aG sudo dor-user
 
-# Copy SSH public key for automated access
-COPY docker/ssh_key.pub /root/.ssh/authorized_keys
-RUN chmod 600 /root/.ssh/authorized_keys
+# Setup SSH keys for automated access
+RUN echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDKCukViia1sdF9sP4RhdPa9fq6lyuEq7vLMZFhzpsouBq1D5rTVsoa2YTwuMY9AXG2cPIbzR9x/wj36GTWkwANg5w6sn4j7gQSTEoKqxF8SDfGIAwWfWD2hgOwwhbSEcScqze/fOzT5Zx8U/xujIEqY0vZJVPmqWRafEQeJgSxjyc65xpYDpNDs4wcIdT4cuCpq8FdXDXfpC5+nW23WiPpIR9os1dxikj51MEN3x0VDIwo82sAXGvm63OAYvPU/BAgtCXly0r+Enbtg7Rl/sdPMe9FsbkhoJvnjzBQ17dpmS/A4J7oEpCP8cVv1xUh6z9RyWKGfOmZzlF/pqKrN3WIB8JKPNeIavJVrrwBIOn9lOE7rGkjZBMY8/WXn2vngqoMUR28LgZyPkB7uyrEy3VTWt6qHIDmX/g7p/wQAZADmUGY3bh9yBz9NqLTf5V+V6LhgOKCTGn1Xsp9YP4SXAL4gvPvNwlEU6p6Q5i3FoQiaBHUWavgO5wOyP//IT+hVi8= codeuser@1294490bc291" > /root/.ssh/authorized_keys && \
+    chmod 600 /root/.ssh/authorized_keys
 
 # Generate SSH host keys
 RUN ssh-keygen -A
