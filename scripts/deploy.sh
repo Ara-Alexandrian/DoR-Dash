@@ -60,7 +60,8 @@ stop_existing() {
 # Function to build image
 build_image() {
     log "Building Docker image..."
-    docker build -t "$IMAGE_NAME:latest" -f docker/Dockerfile . || {
+    local BUILD_ARGS="$1"
+    docker build $BUILD_ARGS -t "$IMAGE_NAME:latest" -f docker/Dockerfile . || {
         error "Failed to build Docker image"
         exit 1
     }
@@ -167,7 +168,12 @@ main() {
             log "Rebuilding and redeploying DoR-Dash..."
             stop_existing
             docker rmi "$IMAGE_NAME:latest" 2>/dev/null || true
-            build_image
+            # Check if --no-cache was passed as second argument
+            if [ "$2" = "--no-cache" ]; then
+                build_image "--no-cache"
+            else
+                build_image
+            fi
             run_container
             sleep 5
             show_status
@@ -181,7 +187,7 @@ main() {
             echo "  restart  - Restart the container"
             echo "  status   - Show container status and access URLs"
             echo "  logs     - Show container logs"
-            echo "  rebuild  - Rebuild image and redeploy"
+            echo "  rebuild [--no-cache] - Rebuild image and redeploy"
             exit 1
             ;;
     esac
