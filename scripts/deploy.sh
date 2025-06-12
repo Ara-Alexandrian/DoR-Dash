@@ -61,6 +61,14 @@ stop_existing() {
 build_image() {
     log "Building Docker image..."
     local BUILD_ARGS="$1"
+    
+    if [ -n "$BUILD_ARGS" ]; then
+        log "Using build arguments: $BUILD_ARGS"
+    else
+        log "Using cached build (no --no-cache flag)"
+    fi
+    
+    log "Docker build command: docker build $BUILD_ARGS -t $IMAGE_NAME:latest -f docker/Dockerfile ."
     docker build $BUILD_ARGS -t "$IMAGE_NAME:latest" -f docker/Dockerfile . || {
         error "Failed to build Docker image"
         exit 1
@@ -166,12 +174,16 @@ main() {
             ;;
         "rebuild")
             log "Rebuilding and redeploying DoR-Dash..."
+            log "Arguments received: $@"
             stop_existing
+            log "Removing existing Docker image..."
             docker rmi "$IMAGE_NAME:latest" 2>/dev/null || true
             # Check if --no-cache was passed as second argument
             if [ "$2" = "--no-cache" ]; then
+                log "Found --no-cache flag, forcing fresh build"
                 build_image "--no-cache"
             else
+                log "No --no-cache flag found, using cached build"
                 build_image
             fi
             run_container
