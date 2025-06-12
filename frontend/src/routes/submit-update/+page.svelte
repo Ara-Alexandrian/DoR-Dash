@@ -415,23 +415,14 @@
       const updateType = $page.url.searchParams.get('type');
       
       if (editId) {
+        console.log('Edit mode detected. ID:', editId, 'Type:', updateType);
         isEditMode = true;
         editingUpdateId = editId;
         
         try {
           if (updateType === 'faculty') {
-            // Load faculty update data
-            const response = await fetch(`${API_BASE}/faculty-updates/${editId}`, {
-              headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-              }
-            });
-            
-            if (!response.ok) {
-              throw new Error('Failed to load faculty update');
-            }
-            
-            const update = await response.json();
+            // Load faculty update data using the proper API function
+            const update = await facultyUpdateApi.getFacultyUpdate(editId);
             
             // Pre-populate faculty form
             announcementsText = update.announcements_text || '';
@@ -459,7 +450,9 @@
           }
         } catch (err) {
           console.error('Failed to load update for editing:', err);
-          error = 'Failed to load update data. Please try again.';
+          console.error('Edit ID:', editId, 'Update Type:', updateType);
+          console.error('Error details:', err.message, err.stack);
+          error = `Failed to load update data: ${err.message}. Please try again.`;
         }
       }
       
