@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import String, DateTime, Boolean, func, Enum, Text
+from sqlalchemy import String, DateTime, Boolean, func, Text
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.dialects.postgresql import ENUM as PostgresEnum
 from app.db.base_class import Base
 from app.db.models.user import UserRole
 import enum
@@ -22,16 +23,16 @@ class RegistrationRequest(Base):
     full_name: Mapped[str] = mapped_column(String(100), nullable=False)
     preferred_email: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     phone: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
-    role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole), default=UserRole.STUDENT, nullable=False
+    role: Mapped[str] = mapped_column(
+        String(20), default=UserRole.STUDENT.value, nullable=False
     )
     
     # Password (will be hashed when user is created)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     
     # Request status and tracking
-    status: Mapped[RegistrationStatus] = mapped_column(
-        Enum(RegistrationStatus), default=RegistrationStatus.PENDING, nullable=False
+    status: Mapped[str] = mapped_column(
+        String(20), default=RegistrationStatus.PENDING.value, nullable=False
     )
     admin_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     

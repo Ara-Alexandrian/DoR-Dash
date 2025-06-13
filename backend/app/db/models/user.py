@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import String, DateTime, Boolean, func, Enum
+from sqlalchemy import String, DateTime, Boolean, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import ENUM as PostgresEnum
 from app.db.base_class import Base
 import enum
 
@@ -25,8 +26,8 @@ class User(Base):
     phone: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     
     # Role and status
-    role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole), default=UserRole.STUDENT, nullable=False
+    role: Mapped[str] = mapped_column(
+        String(20), default=UserRole.STUDENT.value, nullable=False
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     last_login: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
@@ -43,3 +44,13 @@ class User(Base):
     agenda_items = relationship("AgendaItem", back_populates="user", cascade="all, delete-orphan")
     created_meetings = relationship("Meeting", back_populates="creator", foreign_keys="Meeting.created_by", cascade="all, delete-orphan")
     file_uploads = relationship("FileUpload", back_populates="user", cascade="all, delete-orphan")
+    
+    @property
+    def role_enum(self) -> UserRole:
+        """Get role as enum"""
+        return UserRole(self.role)
+    
+    @role_enum.setter
+    def role_enum(self, value: UserRole):
+        """Set role from enum"""
+        self.role = value.value
