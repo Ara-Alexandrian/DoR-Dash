@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional, Dict, Any
 from sqlalchemy import String, Text, DateTime, ForeignKey, func, Integer, Boolean, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, ENUM as PostgresEnum
 import enum
 
 from app.db.base_class import Base
@@ -30,9 +30,8 @@ class AgendaItem(Base):
         nullable=False,
         index=True
     )
-    item_type: Mapped[AgendaItemType] = mapped_column(
-        nullable=False,
-        index=True
+    item_type: Mapped[str] = mapped_column(
+        String(30), nullable=False, index=True
     )
     order_index: Mapped[int] = mapped_column(
         Integer,
@@ -65,6 +64,16 @@ class AgendaItem(Base):
     # Relationships
     user = relationship("User", back_populates="agenda_items")
     meeting = relationship("Meeting", back_populates="agenda_items")
+    
+    @property
+    def item_type_enum(self) -> AgendaItemType:
+        """Get item_type as enum"""
+        return AgendaItemType(self.item_type)
+    
+    @item_type_enum.setter
+    def item_type_enum(self, value: AgendaItemType):
+        """Set item_type from enum"""
+        self.item_type = value.value
 
     def __repr__(self):
         return f"<AgendaItem(id={self.id}, type={self.item_type}, user_id={self.user_id}, meeting_id={self.meeting_id})>"
@@ -80,7 +89,7 @@ class AgendaItem(Base):
     @property
     def student_content(self) -> Dict[str, str]:
         """Get student update specific content"""
-        if self.item_type != AgendaItemType.STUDENT_UPDATE:
+        if self.item_type != AgendaItemType.STUDENT_UPDATE.value:
             raise ValueError("This agenda item is not a student update")
         return {
             "progress_text": self.content.get("progress_text", ""),
@@ -92,7 +101,7 @@ class AgendaItem(Base):
     @property
     def faculty_content(self) -> Dict[str, str]:
         """Get faculty update specific content"""
-        if self.item_type != AgendaItemType.FACULTY_UPDATE:
+        if self.item_type != AgendaItemType.FACULTY_UPDATE.value:
             raise ValueError("This agenda item is not a faculty update")
         return {
             "announcements_text": self.content.get("announcements_text", ""),
@@ -104,7 +113,7 @@ class AgendaItem(Base):
 
     def update_student_content(self, **kwargs) -> None:
         """Update student update content"""
-        if self.item_type != AgendaItemType.STUDENT_UPDATE:
+        if self.item_type != AgendaItemType.STUDENT_UPDATE.value:
             raise ValueError("This agenda item is not a student update")
         
         valid_fields = {"progress_text", "challenges_text", "next_steps_text", "meeting_notes"}
@@ -114,7 +123,7 @@ class AgendaItem(Base):
 
     def update_faculty_content(self, **kwargs) -> None:
         """Update faculty update content"""
-        if self.item_type != AgendaItemType.FACULTY_UPDATE:
+        if self.item_type != AgendaItemType.FACULTY_UPDATE.value:
             raise ValueError("This agenda item is not a faculty update")
         
         valid_fields = {"announcements_text", "announcement_type", "projects_text", "project_status_text", "faculty_questions"}
@@ -138,7 +147,7 @@ class AgendaItem(Base):
         return cls(
             meeting_id=meeting_id,
             user_id=user_id,
-            item_type=AgendaItemType.STUDENT_UPDATE,
+            item_type=AgendaItemType.STUDENT_UPDATE.value,
             order_index=order_index,
             content={
                 "progress_text": progress_text,
@@ -166,7 +175,7 @@ class AgendaItem(Base):
         return cls(
             meeting_id=meeting_id,
             user_id=user_id,
-            item_type=AgendaItemType.FACULTY_UPDATE,
+            item_type=AgendaItemType.FACULTY_UPDATE.value,
             order_index=order_index,
             content={
                 "announcements_text": announcements_text,

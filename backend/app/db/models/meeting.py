@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Optional
-from sqlalchemy import String, DateTime, ForeignKey, Text, func, Enum
+from sqlalchemy import String, DateTime, ForeignKey, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import ENUM as PostgresEnum
 from app.db.base_class import Base
 import enum
 
@@ -17,8 +18,8 @@ class Meeting(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    meeting_type: Mapped[MeetingType] = mapped_column(
-        Enum(MeetingType), default=MeetingType.GENERAL_UPDATE, nullable=False
+    meeting_type: Mapped[str] = mapped_column(
+        String(50), default=MeetingType.GENERAL_UPDATE.value, nullable=False
     )
     start_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     end_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
@@ -35,3 +36,13 @@ class Meeting(Base):
     # Relationships
     creator = relationship("User", foreign_keys=[created_by], back_populates="created_meetings")
     agenda_items = relationship("AgendaItem", back_populates="meeting", cascade="all, delete-orphan", order_by="AgendaItem.order_index")
+    
+    @property
+    def meeting_type_enum(self) -> MeetingType:
+        """Get meeting_type as enum"""
+        return MeetingType(self.meeting_type)
+    
+    @meeting_type_enum.setter
+    def meeting_type_enum(self, value: MeetingType):
+        """Set meeting_type from enum"""
+        self.meeting_type = value.value

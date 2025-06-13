@@ -495,3 +495,92 @@ The application is designed to work behind a reverse proxy with SSL termination.
 - Test data modifications on a copy before applying to live data
 - When debugging, read data rather than modifying it
 - Use conditional logic to avoid overwriting existing entries
+
+## 🤖 Specialized Agent System
+
+DoR-Dash uses a specialized agent architecture for efficient task management. Each agent has domain expertise while sharing project context.
+
+### Available Specialized Agents
+
+1. **Website Testing Agent** (`agents/WEBSITE_TESTING_AGENT.md`)
+   - End-to-end testing, API validation, performance testing
+   - Authentication testing and error scenario validation
+   - Comprehensive test reporting and regression testing
+
+2. **Database Management Agent** (`agents/DATABASE_AGENT.md`)
+   - PostgreSQL schema management and migrations
+   - Data integrity checks and performance optimization
+   - Backup/recovery and database health monitoring
+
+3. **UI Management Agent** (`agents/UI_AGENT.md`)
+   - SvelteKit frontend development and component architecture
+   - Responsive design, accessibility, and user experience
+   - Performance optimization and build management
+
+4. **LLM Integration Agent** (`agents/LLM_AGENT.md`)
+   - Ollama API integration and AI-assisted features
+   - Text refinement, summarization, and academic writing assistance
+   - Natural language processing and intelligent automation
+
+5. **Repository Management Agent** (`agents/REPOSITORY_AGENT.md`)
+   - Git operations, branch management, and version control
+   - Code refactoring, project structure optimization
+   - Documentation management and code quality standards
+
+### Quick Agent Deployment Subroutines
+
+See `agents/SUBROUTINES.md` for comprehensive quick-access commands. Here are the most common patterns:
+
+#### Single-Letter Ultra-Fast Access
+```bash
+# W = Website Testing Agent - Quick health check
+Task(description="W", prompt="Website Testing Agent: Quick health check - frontend/backend status, basic auth test, API connectivity.")
+
+# D = Database Agent - Quick database check  
+Task(description="D", prompt="Database Agent: Quick database check - connection, schema integrity, user accounts status.")
+
+# U = UI Agent - Quick frontend check
+Task(description="U", prompt="UI Agent: Quick frontend check - build status, component integrity, basic UX validation.")
+
+# L = LLM Agent - Quick Ollama check
+Task(description="L", prompt="LLM Agent: Quick Ollama check - service status, model availability, basic text generation test.")
+
+# R = Repository Agent - Quick repo check
+Task(description="R", prompt="Repository Agent: Quick repo check - git health, project structure, code quality, documentation status.")
+```
+
+#### Full Deployment Commands
+```bash
+# Comprehensive website testing
+Task(description="Test Web", prompt="Deploy Website Testing Agent. Run comprehensive test suite: status check, auth testing, API validation, error handling. Provide executive summary with pass/fail status.")
+
+# Database management and health check
+Task(description="DB Admin", prompt="Deploy Database Management Agent. Check database health, verify schema integrity, ensure all tables exist with proper data.")
+
+# UI development and optimization
+Task(description="UI Dev", prompt="Deploy UI Management Agent. Review frontend architecture, check component structure, validate user experience, report UI issues.")
+
+# LLM integration and AI features
+Task(description="LLM Setup", prompt="Deploy LLM Integration Agent. Check Ollama connectivity, test AI features, validate text refinement capabilities.")
+
+# Repository management and code quality
+Task(description="Repo Admin", prompt="Deploy Repository Management Agent. Analyze repository structure, check code quality, validate documentation, assess git health.")
+```
+
+#### Emergency and Coordination Commands
+```bash
+# Full system health check
+Task(description="System Check", prompt="Deploy all agents in sequence: 1) Repository Agent - check git health, 2) Database Agent - verify schema, 3) Website Testing Agent - test functionality, 4) UI Agent - check frontend, 5) LLM Agent - verify AI features. Provide unified status report.")
+
+# Emergency database recovery
+Task(description="Emergency Fix", prompt="Deploy Database Agent for emergency recovery: fix critical database issues, restore user accounts, ensure application functionality. Then deploy Website Testing Agent to verify recovery.")
+```
+
+### Agent Integration Best Practices
+
+1. **Hierarchical Knowledge**: Each agent inherits from main CLAUDE.md then applies domain-specific expertise
+2. **Cross-Agent Coordination**: Agents can collaborate on complex tasks (e.g., DB Agent fixes schema, then Testing Agent validates)
+3. **Efficient Task Distribution**: Use specialized agents for their expertise areas rather than general-purpose commands
+4. **Quick Access Patterns**: Use single-letter shortcuts for frequent operations, full commands for comprehensive tasks
+
+For the complete list of agent subroutines and shortcuts, reference `agents/SUBROUTINES.md`.
