@@ -12,7 +12,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@redis/mcp-redis",
+        "redis-mcp",
         "redis://172.30.98.214:6379"
       ]
     },
@@ -35,7 +35,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@modelcontextprotocol/server-git",
+        "mcp-git",
         "--repository",
         "/config/workspace/gitea/DoR-Dash"
       ]
@@ -44,14 +44,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "mcp-ssh"
-      ]
-    },
-    "svelte-docs": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-svelte-docs"
+        "@aiondadotcom/mcp-ssh"
       ]
     }
   }

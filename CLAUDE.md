@@ -162,6 +162,7 @@ Claude Code is configured with Model Context Protocol (MCP) servers that provide
    - Memory usage analysis and monitoring
    - Session data inspection and cleanup
    - Connection: `redis://172.30.98.214:6379`
+   - Package: `redis-mcp`
 
 3. **File System Server** (`filesystem`)
    - Enhanced file operations within project directory
@@ -182,6 +183,7 @@ Claude Code is configured with Model Context Protocol (MCP) servers that provide
    - Commit history and branch management
    - Security scanning for exposed credentials
    - Repository path: `/config/workspace/gitea/DoR-Dash`
+   - Package: `mcp-git`
 
 6. **SSH Server** (`ssh`)
    - Direct SSH access to containers and servers
@@ -332,6 +334,7 @@ claude mcp remove <server-name>
 3. **Git Server Not Working**
    - Ensure repository path is correct: `/config/workspace/gitea/DoR-Dash`
    - Check git status manually: `git status`
+   - Verify package name: `mcp-git` (not `@modelcontextprotocol/server-git`)
 
 4. **Mermaid Server Issues**
    - Correct package: `@peng-shawn/mermaid-mcp-server`
@@ -389,12 +392,13 @@ The application is designed to work behind a reverse proxy with SSL termination.
 ## Recent Updates
 
 ### MCP Server Configuration Updates (Latest)
-- **CRITICAL FIX**: Updated MCP server configurations with correct database credentials
-- **PostgreSQL**: Changed from default `postgres:postgres` to actual credentials `DoRadmin:1232@172.30.98.213:5432/DoR`
-- **Redis**: Confirmed connection to `redis://172.30.98.214:6379`
-- **Git Server**: Added repository path parameter to fix initialization
-- **Mermaid Server**: Fixed package name to `@peng-shawn/mermaid-mcp-server`
-- **SSH Server**: Added new MCP server for direct container debugging
+- **CRITICAL FIX**: Updated MCP server configurations with correct package names and credentials
+- **PostgreSQL**: Using `@modelcontextprotocol/server-postgres` with credentials `DoRadmin:1232@172.30.98.213:5432/DoR`
+- **Redis**: Fixed package from `@redis/mcp-redis` to `redis-mcp` with connection `redis://172.30.98.214:6379`
+- **Git Server**: Fixed package from `@modelcontextprotocol/server-git` to `mcp-git` with repository path
+- **Mermaid Server**: Using `@peng-shawn/mermaid-mcp-server`
+- **SSH Server**: Using `mcp-ssh` for direct container debugging
+- **Filesystem Server**: Using `@modelcontextprotocol/server-filesystem`
 - **Debug Output**: Faculty updates contain debug print statements (lines 101-102, 514)
 
 ### CRITICAL DATA PERSISTENCE FIX
