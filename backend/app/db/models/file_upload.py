@@ -9,8 +9,12 @@ class FileUpload(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     
-    # Link to agenda item (unified model) - FK will be added manually
-    agenda_item_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    # Link to agenda item (unified model)
+    agenda_item_id: Mapped[Optional[int]] = mapped_column(ForeignKey("agendaitem.id", ondelete="CASCADE"), nullable=True)
+    
+    # Legacy foreign keys for backward compatibility
+    student_update_id: Mapped[Optional[int]] = mapped_column(ForeignKey("student_updates.id", ondelete="CASCADE"), nullable=True)
+    faculty_update_id: Mapped[Optional[int]] = mapped_column(ForeignKey("faculty_updates.id", ondelete="CASCADE"), nullable=True)
     
     filename: Mapped[str] = mapped_column(String(255), nullable=False)
     filepath: Mapped[str] = mapped_column(String(500), nullable=False)
@@ -29,6 +33,10 @@ class FileUpload(Base):
     # Relationships
     user = relationship("User", back_populates="file_uploads")
     agenda_item = relationship("AgendaItem", back_populates="file_uploads")
+    
+    # Legacy relationships for backward compatibility
+    student_update = relationship("StudentUpdate", back_populates="files")
+    faculty_update = relationship("FacultyUpdate", back_populates="files")
 
     @property
     def file_path(self) -> str:

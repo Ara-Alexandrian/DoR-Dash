@@ -37,6 +37,10 @@ class Meeting(Base):
     creator = relationship("User", foreign_keys=[created_by], back_populates="created_meetings")
     agenda_items = relationship("AgendaItem", back_populates="meeting", cascade="all, delete-orphan", order_by="AgendaItem.order_index")
     
+    # Legacy relationships for backward compatibility
+    student_updates = relationship("StudentUpdate", back_populates="meeting", cascade="all, delete-orphan")
+    faculty_updates = relationship("FacultyUpdate", back_populates="meeting", cascade="all, delete-orphan")
+    
     @property
     def meeting_type_enum(self) -> MeetingType:
         """Get meeting_type as enum"""
