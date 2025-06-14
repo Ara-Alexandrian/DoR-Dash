@@ -1,9 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
-
-Base = declarative_base()
+from app.db.base_class import Base
 
 class StudentUpdate(Base):
     """
@@ -13,8 +10,8 @@ class StudentUpdate(Base):
     __tablename__ = "student_updates"
     
     id = Column(Integer, primary_key=True, index=True)
-    student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    meeting_id = Column(Integer, ForeignKey("meetings.id"), nullable=True)
+    student_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    meeting_id = Column(Integer, ForeignKey("meeting.id"), nullable=True)
     title = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)
     original_content = Column(Text, nullable=True)
@@ -25,7 +22,4 @@ class StudentUpdate(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     is_submitted = Column(Boolean, default=False)
     
-    # Relationships
-    student = relationship("User", back_populates="student_updates")
-    meeting = relationship("Meeting", back_populates="student_updates")
-    files = relationship("FileUpload", back_populates="student_update")
+    # NO RELATIONSHIPS - avoid circular imports

@@ -33,13 +33,9 @@ class Meeting(Base):
         DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
     )
     
-    # Relationships
+    # Relationships (core only to avoid circular imports)
     creator = relationship("User", foreign_keys=[created_by], back_populates="created_meetings")
     agenda_items = relationship("AgendaItem", back_populates="meeting", cascade="all, delete-orphan", order_by="AgendaItem.order_index")
-    
-    # Legacy relationships for backward compatibility
-    student_updates = relationship("StudentUpdate", back_populates="meeting", cascade="all, delete-orphan")
-    faculty_updates = relationship("FacultyUpdate", back_populates="meeting", cascade="all, delete-orphan")
     
     @property
     def meeting_type_enum(self) -> MeetingType:
