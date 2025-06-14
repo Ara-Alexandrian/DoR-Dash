@@ -26,20 +26,6 @@
         "@modelcontextprotocol/server-filesystem",
         "/config/workspace/gitea/DoR-Dash"
       ]
-    },
-    "mermaid": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@peng-shawn/mermaid-mcp-server"
-      ]
-    },
-    "git": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-git"
-      ]
     }
   }
 }
