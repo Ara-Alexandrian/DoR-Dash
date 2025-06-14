@@ -12,9 +12,7 @@ class FileUpload(Base):
     # Link to agenda item (unified model)
     agenda_item_id: Mapped[Optional[int]] = mapped_column(ForeignKey("agendaitem.id", ondelete="CASCADE"), nullable=True)
     
-    # Legacy foreign keys for backward compatibility (no FK constraints to avoid circular issues)
-    student_update_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    faculty_update_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    # Legacy foreign keys removed to match existing database schema
     
     filename: Mapped[str] = mapped_column(String(255), nullable=False)
     filepath: Mapped[str] = mapped_column(String(500), nullable=False)

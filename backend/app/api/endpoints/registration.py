@@ -164,7 +164,7 @@ async def list_registration_requests(
             "role": req.role,
             "phone": req.phone,
             "preferred_email": req.preferred_email,
-            "status": req.status.value,
+            "status": req.status,
             "requested_at": req.requested_at,
             "reviewed_at": req.reviewed_at,
             "reviewed_by": req.reviewed_by
@@ -194,7 +194,7 @@ async def review_registration_request(
     if db_request.status != RegistrationStatus.PENDING:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Request has already been {db_request.status.value}"
+            detail=f"Request has already been {db_request.status}"
         )
     
     if review.status not in ["approved", "rejected"]:
@@ -221,7 +221,7 @@ async def review_registration_request(
             "phone": db_request.phone,
             "preferred_email": db_request.preferred_email,
             "password": db_request.password,
-            "role": db_request.role.value,  # Use the role they requested
+            "role": db_request.role,  # Use the role they requested
             "is_active": True
         }
         
