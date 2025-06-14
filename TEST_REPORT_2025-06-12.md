@@ -208,7 +208,7 @@ The authentication failures appear to stem from database schema issues:
 
 ### Network Configuration:
 - **Frontend Port:** 1717
-- **Backend Port:** 8000 (internal), 1718 (external via reverse proxy)
+- **Backend Port:** 8000
 - **Database:** PostgreSQL at 172.30.98.213:5432
 - **Redis:** 172.30.98.214:6379 (not tested due to auth dependency)
 

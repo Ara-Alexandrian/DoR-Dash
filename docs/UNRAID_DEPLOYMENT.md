@@ -19,8 +19,8 @@ This guide explains how to deploy DoR-Dash as a Docker container on Unraid with 
 
 3. **Access the application:**
    - Frontend: `http://172.30.98.177:1717`
-   - Backend API: `http://172.30.98.177:1718`
-   - Health Check: `http://172.30.98.177:1718/health`
+   - Backend API: `http://172.30.98.177:8000`
+   - Health Check: `http://172.30.98.177:8000/health`
 
 ## 📋 System Requirements
 
@@ -57,7 +57,7 @@ The container accepts the following environment variables:
 ### Ports
 
 - **1717**: Frontend application
-- **1718**: Backend API (for nginx reverse proxy)
+- **8000**: Backend API (internal port)
 
 ### Volumes
 
@@ -101,7 +101,7 @@ docker run -d --name dor-dash -e AUTO_UPDATE=false ...
    ```nginx
    # Backend API proxy
    location /api/ {
-       proxy_pass http://172.30.98.177:1718/api/;
+       proxy_pass http://172.30.98.177:8000/api/;
        proxy_set_header Host $host;
        proxy_set_header X-Real-IP $remote_addr;
        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -123,7 +123,7 @@ docker run -d --name dor-dash -e AUTO_UPDATE=false ...
    
    # Health check
    location /health {
-       proxy_pass http://172.30.98.177:1718/health;
+       proxy_pass http://172.30.98.177:8000/health;
        proxy_set_header Host $host;
        proxy_set_header X-Real-IP $remote_addr;
        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -192,7 +192,7 @@ docker stats dor-dash
 
 ### Health Check Endpoints
 
-- **Backend Health**: `http://172.30.98.177:1718/health`
+- **Backend Health**: `http://172.30.98.177:8000/health`
 - **Frontend**: `http://172.30.98.177:1717`
 
 ### Log Locations

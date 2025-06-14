@@ -1,13 +1,12 @@
 # DoR-Dash (Dose of Reality Dashboard)
 
-A responsive, high-quality web application for managing student research meetings. DoR-Dash enables users to log in, submit bi-monthly updates with AI-assisted refinement, request support, schedule mock exams, and share presentation files.
+A responsive, high-quality web application for managing student research meetings. DoR-Dash enables users to log in, submit bi-monthly updates with AI-assisted refinement, request support, and share presentation files.
 
 ## Features
 
 - User authentication with role-based access control
 - Bi-monthly update submission with AI-assisted text refinement
 - Support request system
-- Mock exam scheduling
 - File upload and sharing
 - Dynamic roster management
 - Automated presentation assignment
@@ -118,7 +117,7 @@ To stop the application:
    npm run dev -- --host 0.0.0.0 --port 3000
    ```
 
-8. Access the application at http://172.30.98.21:7117
+8. Access the application at http://172.30.98.177:1717
 
 ### Environment Setup
 

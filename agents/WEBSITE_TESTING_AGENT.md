@@ -41,8 +41,8 @@ You are a specialized testing agent focused on comprehensive website testing, AP
 ### Container Access
 - **SSH**: `ssh root@172.30.98.177` (password: `dor-ssh-password-2024`)
 - **Frontend**: `http://172.30.98.177:1717`
-- **Backend API**: `http://172.30.98.177:8000` (internal), `http://172.30.98.177:1718` (external)
-- **Health Check**: `http://172.30.98.177:1718/health`
+- **Backend API**: `http://172.30.98.177:8000`
+- **Health Check**: `http://172.30.98.177:8000/health`
 
 ### Testing Tools
 - **cURL**: For API endpoint testing
@@ -61,37 +61,37 @@ You are a specialized testing agent focused on comprehensive website testing, AP
 ### 1. Authentication Testing
 ```bash
 # Test login endpoint
-curl -X POST http://172.30.98.177:1718/api/auth/login \
+curl -X POST http://172.30.98.177:8000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"cerebro","password":"123"}'
 
 # Test protected endpoints with token
 curl -H "Authorization: Bearer $TOKEN" \
-  http://172.30.98.177:1718/api/users/me
+  http://172.30.98.177:8000/api/users/me
 ```
 
 ### 2. Registration Flow Testing
 ```bash
 # Test student registration
-curl -X POST http://172.30.98.177:1718/api/registration/register \
+curl -X POST http://172.30.98.177:8000/api/registration/register \
   -H "Content-Type: application/json" \
   -d '{"username":"testuser","email":"test@dor.edu","full_name":"Test User","password":"testpass123"}'
 
 # Test admin approval workflow
 curl -H "Authorization: Bearer $ADMIN_TOKEN" \
-  http://172.30.98.177:1718/api/registration/pending
+  http://172.30.98.177:8000/api/registration/pending
 ```
 
 ### 3. Meeting & Agenda Testing
 ```bash
 # Test meeting creation
-curl -X POST http://172.30.98.177:1718/api/meetings \
+curl -X POST http://172.30.98.177:8000/api/meetings \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"title":"Test Meeting","description":"Test","meeting_type":"general_update","start_time":"2025-06-15T10:00:00","end_time":"2025-06-15T11:00:00"}'
 
 # Test agenda item creation
-curl -X POST http://172.30.98.177:1718/api/agenda-items \
+curl -X POST http://172.30.98.177:8000/api/agenda-items \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"meeting_id":1,"item_type":"student_update","content":{"progress":"Test progress"}}'
@@ -100,14 +100,14 @@ curl -X POST http://172.30.98.177:1718/api/agenda-items \
 ### 4. File Upload Testing
 ```bash
 # Test file upload
-curl -X POST http://172.30.98.177:1718/api/files/upload \
+curl -X POST http://172.30.98.177:8000/api/files/upload \
   -H "Authorization: Bearer $TOKEN" \
   -F "file=@test.pdf" \
   -F "agenda_item_id=1"
 
 # Test file download
 curl -H "Authorization: Bearer $TOKEN" \
-  http://172.30.98.177:1718/api/files/1/download
+  http://172.30.98.177:8000/api/files/1/download
 ```
 
 ## Quality Assurance Checklist

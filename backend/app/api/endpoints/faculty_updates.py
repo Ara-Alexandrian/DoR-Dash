@@ -9,13 +9,16 @@ import tempfile
 
 from app.api.endpoints.auth import User, get_current_user
 from app.schemas.faculty_update import (
-    FacultyUpdate,
     FacultyUpdateCreate,
     FacultyUpdateUpdate,
     FacultyUpdateList,
     AnnouncementType
 )
-from app.db.models.faculty_update import FacultyUpdate as DBFacultyUpdate
+from app.schemas.agenda_item import (
+    FacultyUpdate,
+    AgendaItem as AgendaItemSchema
+)
+from app.db.models.agenda_item import AgendaItem, AgendaItemType
 from app.db.models.user import User as DBUser
 from app.db.models.meeting import Meeting as DBMeeting
 from app.db.models.file_upload import FileUpload as DBFileUpload
@@ -81,16 +84,16 @@ async def create_faculty_update(
                 detail="Meeting not found"
             )
     
-    # Create new database record
-    db_update = DBFacultyUpdate(
-        user_id=update_in.user_id,
-        meeting_id=update_in.meeting_id,
-        announcements_text=update_in.announcements_text,
-        announcement_type=update_in.announcement_type,
-        projects_text=update_in.projects_text,
-        project_status_text=update_in.project_status_text,
-        faculty_questions=update_in.faculty_questions,
-        is_presenting=update_in.is_presenting
+    # Create new database record using unified AgendaItem model
+    agenda_item_data = update_in.to_agenda_item_create()
+    db_update = AgendaItem(
+        meeting_id=agenda_item_data.meeting_id,
+        user_id=agenda_item_data.user_id,
+        item_type=agenda_item_data.item_type,
+        order_index=agenda_item_data.order_index,
+        title=agenda_item_data.title,
+        content=agenda_item_data.content,
+        is_presenting=agenda_item_data.is_presenting
     )
     
     # Save to database
@@ -99,21 +102,22 @@ async def create_faculty_update(
     db.refresh(db_update)
     
     
-    # Convert to response format
+    # Convert to response format - use content JSON field
+    content = db_update.content or {}
     return FacultyUpdate(
         id=db_update.id,
         user_id=db_update.user_id,
         user_name=user.full_name or user.username,
         meeting_id=db_update.meeting_id,
-        announcements_text=db_update.announcements_text,
-        announcement_type=db_update.announcement_type,
-        projects_text=db_update.projects_text,
-        project_status_text=db_update.project_status_text,
-        faculty_questions=db_update.faculty_questions,
+        announcements_text=content.get("announcements_text", ""),
+        announcement_type=content.get("announcement_type", "general"),
+        projects_text=content.get("projects_text", ""),
+        project_status_text=content.get("project_status_text", ""),
+        faculty_questions=content.get("faculty_questions", ""),
         is_presenting=db_update.is_presenting,
         files=[],  # Will be loaded separately
-        submission_date=db_update.submission_date,
-        submitted_at=db_update.submission_date,  # For frontend compatibility
+        submission_date=db_update.created_at,
+        submitted_at=db_update.created_at,  # For frontend compatibility
         created_at=db_update.created_at,
         updated_at=db_update.updated_at
     )
@@ -129,24 +133,24 @@ async def read_faculty_update(
     Get a specific faculty update by ID - FROM DATABASE
     """
     # Find the update in database
-    update = db.query(DBFacultyUpdate).options(
-        joinedload(DBFacultyUpdate.user),
-        joinedload(DBFacultyUpdate.file_uploads)
-    ).filter(DBFacultyUpdate.id == update_id).first()
+    agenda_item = db.query(AgendaItem).options(
+        joinedload(AgendaItem.user),
+        joinedload(AgendaItem.file_uploads)
+    ).filter(AgendaItem.id == update_id, AgendaItem.item_type == AgendaItemType.FACULTY_UPDATE).first()
     
-    if not update:
+    if not agenda_item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Faculty update with ID {update_id} not found"
         )
     
     # Check permissions - faculty can see all faculty updates, students can see all faculty updates
-    if current_user.role == "faculty" and update.user_id != current_user.id:
-        print(f"Faculty {current_user.id} accessed update from faculty {update.user_id}")
+    if current_user.role == "faculty" and agenda_item.user_id != current_user.id:
+        print(f"Faculty {current_user.id} accessed update from faculty {agenda_item.user_id}")
     
     # Convert files to expected format
     files = []
-    for file_upload in update.file_uploads:
+    for file_upload in agenda_item.file_uploads:
         files.append({
             "id": file_upload.id,
             "name": file_upload.filename,
@@ -156,22 +160,24 @@ async def read_faculty_update(
             "upload_date": file_upload.upload_date.isoformat() if file_upload.upload_date else None
         })
     
+    # Use content JSON field
+    content = agenda_item.content or {}
     return FacultyUpdate(
-        id=update.id,
-        user_id=update.user_id,
-        user_name=update.user.full_name or update.user.username,
-        meeting_id=update.meeting_id,
-        announcements_text=update.announcements_text,
-        announcement_type=update.announcement_type,
-        projects_text=update.projects_text,
-        project_status_text=update.project_status_text,
-        faculty_questions=update.faculty_questions,
-        is_presenting=update.is_presenting,
+        id=agenda_item.id,
+        user_id=agenda_item.user_id,
+        user_name=agenda_item.user.full_name or agenda_item.user.username,
+        meeting_id=agenda_item.meeting_id,
+        announcements_text=content.get("announcements_text", ""),
+        announcement_type=content.get("announcement_type", "general"),
+        projects_text=content.get("projects_text", ""),
+        project_status_text=content.get("project_status_text", ""),
+        faculty_questions=content.get("faculty_questions", ""),
+        is_presenting=agenda_item.is_presenting,
         files=files,
-        submission_date=update.submission_date,
-        submitted_at=update.submission_date,
-        created_at=update.created_at,
-        updated_at=update.updated_at
+        submission_date=agenda_item.created_at,
+        submitted_at=agenda_item.created_at,
+        created_at=agenda_item.created_at,
+        updated_at=agenda_item.updated_at
     )
 
 
@@ -188,17 +194,17 @@ async def list_faculty_updates(
     List faculty updates with pagination and optional filtering - FROM DATABASE
     """
     # Start with base query
-    query = db.query(DBFacultyUpdate).options(
-        joinedload(DBFacultyUpdate.user),
-        joinedload(DBFacultyUpdate.file_uploads)
-    )
+    query = db.query(AgendaItem).options(
+        joinedload(AgendaItem.user),
+        joinedload(AgendaItem.file_uploads)
+    ).filter(AgendaItem.item_type == AgendaItemType.FACULTY_UPDATE)
     
     # Apply filters
     if user_id:
-        query = query.filter(DBFacultyUpdate.user_id == user_id)
+        query = query.filter(AgendaItem.user_id == user_id)
         
     if meeting_id:
-        query = query.filter(DBFacultyUpdate.meeting_id == meeting_id)
+        query = query.filter(AgendaItem.meeting_id == meeting_id)
     
     # Faculty members can see all faculty updates
     # Students can see all faculty updates
@@ -208,14 +214,14 @@ async def list_faculty_updates(
     total = query.count()
     
     # Sort by submission date (newest first) and apply pagination
-    updates = query.order_by(DBFacultyUpdate.submission_date.desc()).offset(skip).limit(limit).all()
+    agenda_items = query.order_by(AgendaItem.created_at.desc()).offset(skip).limit(limit).all()
     
     # Convert to response format
     result_items = []
-    for update in updates:
+    for agenda_item in agenda_items:
         # Convert files to expected format
         files = []
-        for file_upload in update.file_uploads:
+        for file_upload in agenda_item.file_uploads:
             files.append({
                 "id": file_upload.id,
                 "name": file_upload.filename,
@@ -225,22 +231,24 @@ async def list_faculty_updates(
                 "upload_date": file_upload.upload_date.isoformat() if file_upload.upload_date else None
             })
         
+        # Use content JSON field
+        content = agenda_item.content or {}
         result_items.append(FacultyUpdate(
-            id=update.id,
-            user_id=update.user_id,
-            user_name=update.user.full_name or update.user.username,
-            meeting_id=update.meeting_id,
-            announcements_text=update.announcements_text,
-            announcement_type=update.announcement_type,
-            projects_text=update.projects_text,
-            project_status_text=update.project_status_text,
-            faculty_questions=update.faculty_questions,
-            is_presenting=update.is_presenting,
+            id=agenda_item.id,
+            user_id=agenda_item.user_id,
+            user_name=agenda_item.user.full_name or agenda_item.user.username,
+            meeting_id=agenda_item.meeting_id,
+            announcements_text=content.get("announcements_text", ""),
+            announcement_type=content.get("announcement_type", "general"),
+            projects_text=content.get("projects_text", ""),
+            project_status_text=content.get("project_status_text", ""),
+            faculty_questions=content.get("faculty_questions", ""),
+            is_presenting=agenda_item.is_presenting,
             files=files,
-            submission_date=update.submission_date,
-            submitted_at=update.submission_date,  # For frontend compatibility
-            created_at=update.created_at,
-            updated_at=update.updated_at
+            submission_date=agenda_item.created_at,
+            submitted_at=agenda_item.created_at,  # For frontend compatibility
+            created_at=agenda_item.created_at,
+            updated_at=agenda_item.updated_at
         ))
     
     return {
@@ -260,47 +268,52 @@ async def update_faculty_update(
     Update an existing faculty update - PERSISTENT IN DATABASE
     """
     # Find the update in database
-    update = db.query(DBFacultyUpdate).options(
-        joinedload(DBFacultyUpdate.user),
-        joinedload(DBFacultyUpdate.file_uploads)
-    ).filter(DBFacultyUpdate.id == update_id).first()
+    agenda_item = db.query(AgendaItem).options(
+        joinedload(AgendaItem.user),
+        joinedload(AgendaItem.file_uploads)
+    ).filter(AgendaItem.id == update_id, AgendaItem.item_type == AgendaItemType.FACULTY_UPDATE).first()
     
-    if not update:
+    if not agenda_item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Faculty update with ID {update_id} not found"
         )
     
     # Check permissions - only the faculty owner or admins can update
-    if current_user.role != "admin" and update.user_id != current_user.id:
+    if current_user.role != "admin" and agenda_item.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only update your own updates"
         )
     
-    # Update only fields that were provided
+    # Update the content field with new values
+    content = agenda_item.content.copy()  # Copy existing content
+    
     if update_in.announcements_text is not None:
-        update.announcements_text = update_in.announcements_text
+        content["announcements_text"] = update_in.announcements_text
     if update_in.announcement_type is not None:
-        update.announcement_type = update_in.announcement_type
+        content["announcement_type"] = update_in.announcement_type
     if update_in.projects_text is not None:
-        update.projects_text = update_in.projects_text
+        content["projects_text"] = update_in.projects_text
     if update_in.project_status_text is not None:
-        update.project_status_text = update_in.project_status_text
+        content["project_status_text"] = update_in.project_status_text
     if update_in.faculty_questions is not None:
-        update.faculty_questions = update_in.faculty_questions
+        content["faculty_questions"] = update_in.faculty_questions
+    
+    # Update the agenda item
+    agenda_item.content = content
     if update_in.is_presenting is not None:
-        update.is_presenting = update_in.is_presenting
+        agenda_item.is_presenting = update_in.is_presenting
     if update_in.meeting_id is not None:
-        update.meeting_id = update_in.meeting_id
+        agenda_item.meeting_id = update_in.meeting_id
     
     # Save to database
     db.commit()
-    db.refresh(update)
+    db.refresh(agenda_item)
     
     # Convert files to expected format
     files = []
-    for file_upload in update.file_uploads:
+    for file_upload in agenda_item.file_uploads:
         files.append({
             "id": file_upload.id,
             "name": file_upload.filename,
@@ -310,22 +323,24 @@ async def update_faculty_update(
             "upload_date": file_upload.upload_date.isoformat() if file_upload.upload_date else None
         })
     
+    # Use content JSON field
+    content = agenda_item.content or {}
     return FacultyUpdate(
-        id=update.id,
-        user_id=update.user_id,
-        user_name=update.user.full_name or update.user.username,
-        meeting_id=update.meeting_id,
-        announcements_text=update.announcements_text,
-        announcement_type=update.announcement_type,
-        projects_text=update.projects_text,
-        project_status_text=update.project_status_text,
-        faculty_questions=update.faculty_questions,
-        is_presenting=update.is_presenting,
+        id=agenda_item.id,
+        user_id=agenda_item.user_id,
+        user_name=agenda_item.user.full_name or agenda_item.user.username,
+        meeting_id=agenda_item.meeting_id,
+        announcements_text=content.get("announcements_text", ""),
+        announcement_type=content.get("announcement_type", "general"),
+        projects_text=content.get("projects_text", ""),
+        project_status_text=content.get("project_status_text", ""),
+        faculty_questions=content.get("faculty_questions", ""),
+        is_presenting=agenda_item.is_presenting,
         files=files,
-        submission_date=update.submission_date,
-        submitted_at=update.submission_date,
-        created_at=update.created_at,
-        updated_at=update.updated_at
+        submission_date=agenda_item.created_at,
+        submitted_at=agenda_item.created_at,
+        created_at=agenda_item.created_at,
+        updated_at=agenda_item.updated_at
     )
 
 
@@ -490,23 +505,26 @@ async def delete_faculty_update(
     Delete a faculty update - PERSISTENT IN DATABASE
     """
     # Find the update in database
-    update = db.query(DBFacultyUpdate).filter(DBFacultyUpdate.id == update_id).first()
+    agenda_item = db.query(AgendaItem).filter(
+        AgendaItem.id == update_id, 
+        AgendaItem.item_type == AgendaItemType.FACULTY_UPDATE
+    ).first()
     
-    if not update:
+    if not agenda_item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Faculty update with ID {update_id} not found"
         )
     
     # Check permissions - only the faculty owner or admins can delete
-    if current_user.role != "admin" and update.user_id != current_user.id:
+    if current_user.role != "admin" and agenda_item.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only delete your own updates"
         )
     
     # Delete from database (cascades to file_uploads automatically)
-    db.delete(update)
+    db.delete(agenda_item)
     db.commit()
     
     

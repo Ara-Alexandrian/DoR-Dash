@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.api.endpoints.auth import User, get_current_user, get_all_users
 from app.core.permissions import get_admin_user
 from app.db.session import get_sync_db
-from app.db.models.presentation import AssignedPresentation as DBPresentation
+from app.db.models.agenda_item import AgendaItem as DBAgendaItem, AgendaItemType
 from app.db.models.user import User as DBUser
 
 router = APIRouter()

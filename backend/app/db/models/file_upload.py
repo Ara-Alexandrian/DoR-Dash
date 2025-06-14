@@ -9,7 +9,7 @@ class FileUpload(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     
-    # For now, just use integer column without FK constraint until we have database schema  
+    # Link to agenda item (unified model) - FK will be added manually
     agenda_item_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     
     filename: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -28,6 +28,7 @@ class FileUpload(Base):
 
     # Relationships
     user = relationship("User", back_populates="file_uploads")
+    agenda_item = relationship("AgendaItem", back_populates="file_uploads")
 
     @property
     def file_path(self) -> str:

@@ -64,6 +64,7 @@ class AgendaItem(Base):
     # Relationships
     user = relationship("User", back_populates="agenda_items")
     meeting = relationship("Meeting", back_populates="agenda_items")
+    file_uploads = relationship("FileUpload", back_populates="agenda_item", cascade="all, delete-orphan")
     
     @property
     def item_type_enum(self) -> AgendaItemType:

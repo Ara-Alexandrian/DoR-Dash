@@ -130,7 +130,11 @@
       "Bash(/config/workspace/gitea/DoR-Dash/venv/bin/python fix_passwords.py)",
       "Bash(/config/workspace/gitea/DoR-Dash/venv/bin/python cleanup_database.py)",
       "Bash(git count-objects:*)",
-      "Bash(docker-compose:*)"
+      "Bash(docker-compose:*)",
+      "WebFetch(domain:dd.kronisto.net)",
+      "Bash(scp:*)",
+      "Bash(nc:*)",
+      "Bash(npm view:*)"
     ],
     "deny": []
   },

@@ -30,9 +30,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://dd.kronisto.net",
-        "http://172.30.98.21:7117",
-        "http://localhost:7117",
-        "http://127.0.0.1:7117"
+        "http://172.30.98.21:1717",
+        "http://localhost:1717",
+        "http://127.0.0.1:1717"
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],

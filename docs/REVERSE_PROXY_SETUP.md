@@ -5,7 +5,7 @@ This document provides instructions for setting up a reverse proxy to access the
 ## Overview
 
 The DoR-Dash application consists of two services:
-- **Frontend**: SvelteKit application running on port 7117
+- **Frontend**: SvelteKit application running on port 1717
 - **Backend**: FastAPI application running on port 8000
 
 To serve the application through a reverse proxy with SSL, you need to configure your proxy to forward both frontend and API requests.
@@ -24,8 +24,8 @@ To serve the application through a reverse proxy with SSL, you need to configure
 2. **Configure the main proxy settings:**
    - **Domain Names**: Your domain (e.g., `dd.kronisto.net`)
    - **Scheme**: `http`
-   - **Forward Hostname/IP**: `172.30.98.21` (or your server IP)
-   - **Forward Port**: `7117`
+   - **Forward Hostname/IP**: `172.30.98.177` (or your server IP)
+   - **Forward Port**: `1717`
    - **Cache Assets**: ✅ Enabled
    - **Block Common Exploits**: ✅ Enabled
    - **Websockets Support**: ✅ Enabled
@@ -42,7 +42,7 @@ To serve the application through a reverse proxy with SSL, you need to configure
    ```nginx
    # API proxy (add this to your existing configuration)
    location /api/ {
-       proxy_pass http://172.30.98.21:8000/api/;
+       proxy_pass http://172.30.98.177:8000/api/;
        proxy_set_header Host $host;
        proxy_set_header X-Real-IP $remote_addr;
        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -63,11 +63,11 @@ To serve the application through a reverse proxy with SSL, you need to configure
 
 5. **🚨 REQUIRED: Update Main Proxy Configuration**
    
-   **The root issue**: Your current nginx setup only proxies `/api/` requests but doesn't proxy the frontend application itself. Users are likely accessing the frontend directly at `http://172.30.98.21:7117` instead of through the reverse proxy.
+   **The root issue**: Your current nginx setup only proxies `/api/` requests but doesn't proxy the frontend application itself. Users are likely accessing the frontend directly at `http://172.30.98.177:1717` instead of through the reverse proxy.
    
    **Fix**: Update your main proxy host configuration in Nginx Proxy Manager:
-   - **Forward Hostname/IP**: `172.30.98.21` 
-   - **Forward Port**: `7117` (frontend port, not backend port)
+   - **Forward Hostname/IP**: `172.30.98.177` 
+   - **Forward Port**: `1717` (frontend port, not backend port)
 
 ## Application Configuration
 

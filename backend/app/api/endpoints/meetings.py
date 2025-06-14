@@ -6,12 +6,10 @@ from sqlalchemy.orm import Session
 
 from app.api.endpoints.auth import User, get_current_user
 from app.db.models.meeting import Meeting, MeetingType
-from app.db.models.student_update import StudentUpdate as DBStudentUpdate
-from app.db.models.faculty_update import FacultyUpdate as DBFacultyUpdate
+from app.db.models.agenda_item import AgendaItem as DBAgendaItem, AgendaItemType
 from app.db.session import get_sync_db
 from sqlalchemy.orm import joinedload
-from app.api.endpoints.updates import STUDENT_UPDATES_DB
-from app.api.endpoints.faculty_updates import FACULTY_UPDATES_DB
+# Legacy in-memory storage no longer needed - all data is in PostgreSQL
 
 router = APIRouter()
 
@@ -325,60 +323,37 @@ async def check_meeting_data_integrity(
             detail="Only admins and faculty can access integrity checks"
         )
     
-    # Find orphaned student updates (meeting_id points to non-existent meeting)
-    orphaned_student_updates = db.query(DBStudentUpdate).outerjoin(
-        Meeting, DBStudentUpdate.meeting_id == Meeting.id
+    # Find orphaned agenda items (meeting_id points to non-existent meeting)
+    orphaned_agenda_items = db.query(DBAgendaItem).outerjoin(
+        Meeting, DBAgendaItem.meeting_id == Meeting.id
     ).filter(
-        DBStudentUpdate.meeting_id.isnot(None),
+        DBAgendaItem.meeting_id.isnot(None),
         Meeting.id.is_(None)
     ).all()
     
-    # Find orphaned faculty updates
-    orphaned_faculty_updates = db.query(DBFacultyUpdate).outerjoin(
-        Meeting, DBFacultyUpdate.meeting_id == Meeting.id
-    ).filter(
-        DBFacultyUpdate.meeting_id.isnot(None),
-        Meeting.id.is_(None)
+    # Find agenda items without meeting assignment
+    unassigned_agenda_items = db.query(DBAgendaItem).filter(
+        DBAgendaItem.meeting_id.is_(None)
     ).all()
     
-    # Find updates without meeting assignment
-    unassigned_student_updates = db.query(DBStudentUpdate).filter(
-        DBStudentUpdate.meeting_id.is_(None)
-    ).all()
-    
-    unassigned_faculty_updates = db.query(DBFacultyUpdate).filter(
-        DBFacultyUpdate.meeting_id.is_(None)
-    ).all()
-    
-    # Find meetings without any updates
+    # Find meetings without any agenda items
     meetings_without_updates = db.query(Meeting).outerjoin(
-        DBStudentUpdate, Meeting.id == DBStudentUpdate.meeting_id
-    ).outerjoin(
-        DBFacultyUpdate, Meeting.id == DBFacultyUpdate.meeting_id
+        DBAgendaItem, Meeting.id == DBAgendaItem.meeting_id
     ).filter(
-        DBStudentUpdate.id.is_(None),
-        DBFacultyUpdate.id.is_(None)
+        DBAgendaItem.id.is_(None)
     ).all()
     
     integrity_report = {
         "orphaned_data": {
-            "student_updates": [
-                {"id": u.id, "user_id": u.user_id, "meeting_id": u.meeting_id, "created_at": u.created_at.isoformat()}
-                for u in orphaned_student_updates
-            ],
-            "faculty_updates": [
-                {"id": u.id, "user_id": u.user_id, "meeting_id": u.meeting_id, "created_at": u.created_at.isoformat()}
-                for u in orphaned_faculty_updates
+            "agenda_items": [
+                {"id": u.id, "user_id": u.user_id, "meeting_id": u.meeting_id, "item_type": u.item_type, "created_at": u.created_at.isoformat()}
+                for u in orphaned_agenda_items
             ]
         },
         "unassigned_updates": {
-            "student_updates": [
-                {"id": u.id, "user_id": u.user_id, "created_at": u.created_at.isoformat()}
-                for u in unassigned_student_updates
-            ],
-            "faculty_updates": [
-                {"id": u.id, "user_id": u.user_id, "created_at": u.created_at.isoformat()}
-                for u in unassigned_faculty_updates
+            "agenda_items": [
+                {"id": u.id, "user_id": u.user_id, "item_type": u.item_type, "created_at": u.created_at.isoformat()}
+                for u in unassigned_agenda_items
             ]
         },
         "empty_meetings": [
@@ -386,12 +361,10 @@ async def check_meeting_data_integrity(
             for m in meetings_without_updates
         ],
         "summary": {
-            "orphaned_student_updates": len(orphaned_student_updates),
-            "orphaned_faculty_updates": len(orphaned_faculty_updates),
-            "unassigned_student_updates": len(unassigned_student_updates),
-            "unassigned_faculty_updates": len(unassigned_faculty_updates),
+            "orphaned_agenda_items": len(orphaned_agenda_items),
+            "unassigned_agenda_items": len(unassigned_agenda_items),
             "empty_meetings": len(meetings_without_updates),
-            "total_issues": len(orphaned_student_updates) + len(orphaned_faculty_updates)
+            "total_issues": len(orphaned_agenda_items) + len(unassigned_agenda_items)
         }
     }
     
@@ -413,33 +386,18 @@ async def cleanup_orphaned_data(
             detail="Only admins can perform data cleanup"
         )
     
-    # Delete orphaned student updates
-    orphaned_student_count = db.query(DBStudentUpdate).outerjoin(
-        Meeting, DBStudentUpdate.meeting_id == Meeting.id
+    # Delete orphaned agenda items
+    orphaned_count = db.query(DBAgendaItem).outerjoin(
+        Meeting, DBAgendaItem.meeting_id == Meeting.id
     ).filter(
-        DBStudentUpdate.meeting_id.isnot(None),
+        DBAgendaItem.meeting_id.isnot(None),
         Meeting.id.is_(None)
     ).count()
     
-    db.query(DBStudentUpdate).outerjoin(
-        Meeting, DBStudentUpdate.meeting_id == Meeting.id
+    db.query(DBAgendaItem).outerjoin(
+        Meeting, DBAgendaItem.meeting_id == Meeting.id
     ).filter(
-        DBStudentUpdate.meeting_id.isnot(None),
-        Meeting.id.is_(None)
-    ).delete()
-    
-    # Delete orphaned faculty updates
-    orphaned_faculty_count = db.query(DBFacultyUpdate).outerjoin(
-        Meeting, DBFacultyUpdate.meeting_id == Meeting.id
-    ).filter(
-        DBFacultyUpdate.meeting_id.isnot(None),
-        Meeting.id.is_(None)
-    ).count()
-    
-    db.query(DBFacultyUpdate).outerjoin(
-        Meeting, DBFacultyUpdate.meeting_id == Meeting.id
-    ).filter(
-        DBFacultyUpdate.meeting_id.isnot(None),
+        DBAgendaItem.meeting_id.isnot(None),
         Meeting.id.is_(None)
     ).delete()
     
@@ -448,8 +406,7 @@ async def cleanup_orphaned_data(
     return {
         "message": "Cleanup completed successfully",
         "deleted": {
-            "student_updates": orphaned_student_count,
-            "faculty_updates": orphaned_faculty_count,
-            "total": orphaned_student_count + orphaned_faculty_count
+            "agenda_items": orphaned_count,
+            "total": orphaned_count
         }
     }

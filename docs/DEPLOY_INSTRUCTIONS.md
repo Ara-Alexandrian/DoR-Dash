@@ -164,7 +164,7 @@ ping 172.30.98.14   # Ollama
 **For auto-update issues:**
 ```bash
 # Disable auto-updates temporarily
-docker run -d --name dor-dash-manual -p 1717:1717 -p 1718:8000 \
+docker run -d --name dor-dash-manual -p 1717:1717 -p 8000:8000 \
   -e AUTO_UPDATE=false [other environment variables...] dor-dash:latest
 ```
 

@@ -1,22 +1,4 @@
-#!/usr/bin/env python3
-"""
-Database Migration Script: Fix Critical DBStudentUpdate/DBFacultyUpdate Issues
-
-This script fixes the critical model migration issues by updating all references 
-to the old DBStudentUpdate and DBFacultyUpdate models to use the new unified 
-AgendaItem model.
-"""
-
-import sys
-import os
-
-# Add the backend directory to Python path
-sys.path.insert(0, '/config/workspace/gitea/DoR-Dash/backend')
-
-def fix_updates_file():
-    """Fix the updates.py file to use AgendaItem instead of DBStudentUpdate"""
-    
-    updates_content = '''from datetime import datetime
+from datetime import datetime
 from typing import List, Optional, Annotated
 from fastapi import APIRouter, HTTPException, Depends, Path, Query, status, UploadFile, File, Form
 from fastapi.responses import FileResponse, Response
@@ -105,20 +87,3 @@ async def list_student_updates(
         "items": result_items,
         "total": total
     }
-'''
-    
-    print("✅ Generated corrected updates.py content")
-    return updates_content
-
-if __name__ == "__main__":
-    print("🚀 Starting Database Migration Fix")
-    
-    content = fix_updates_file()
-    print("📄 Fixed content generated successfully")
-    
-    # Save the content to a file that can be copied to the container
-    with open('/config/workspace/gitea/DoR-Dash/backend/updates_fixed.py', 'w') as f:
-        f.write(content)
-    
-    print("✅ Fixed updates.py content saved to updates_fixed.py")
-    print("🔧 Next: Copy this file to the container to fix the endpoints")
