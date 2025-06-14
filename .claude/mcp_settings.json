@@ -13,7 +13,10 @@
       "args": [
         "-y",
         "redis-mcp",
-        "redis://172.30.98.214:6379"
+        "--redis-host",
+        "172.30.98.214",
+        "--redis-port",
+        "6379"
       ]
     },
     "filesystem": {
@@ -35,16 +38,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "mcp-git",
-        "--repository",
-        "/config/workspace/gitea/DoR-Dash"
-      ]
-    },
-    "ssh": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@aiondadotcom/mcp-ssh"
+        "mcp-git"
       ]
     }
   }
