@@ -9,6 +9,7 @@ from app.core.permissions import get_admin_user
 from app.db.session import get_sync_db
 from app.db.models.agenda_item import AgendaItem as DBAgendaItem, AgendaItemType
 from app.db.models.user import User as DBUser
+from app.db.models.presentation import AssignedPresentation as DBPresentation
 
 router = APIRouter()
 
