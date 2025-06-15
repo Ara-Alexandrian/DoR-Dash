@@ -3,7 +3,7 @@
   import { updateApi, fileApi, apiFetch } from '$lib/api';
   import { facultyUpdateApi } from '$lib/api/faculty-updates';
   import { meetingsApi } from '$lib/api/meetings';
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { goto } from '$app/navigation';
   import { get } from 'svelte/store';
   import { page } from '$app/stores';
@@ -53,8 +53,12 @@
   let refinementTarget = null;
   
   // Function to populate form fields from loaded update
-  function populateForm(update) {
+  async function populateForm(update) {
     console.log('Populating form with update data:', update);
+    
+    // Wait for any pending DOM updates
+    await tick();
+    
     if (update.is_faculty) {
       // Faculty form - populate from loaded data
       announcementsText = update.announcements_text || '';
@@ -81,21 +85,36 @@
     selectedMeeting = update.meeting_id;
     console.log('Selected meeting:', selectedMeeting);
     
-    // Force reactivity update
-    progressText = progressText;
-    challengesText = challengesText;
-    goalsText = goalsText;
-    meetingNotes = meetingNotes;
-    announcementsText = announcementsText;
-    projectsText = projectsText;
-    projectStatusText = projectStatusText;
-    facultyQuestions = facultyQuestions;
-  }
-
-  // Reactive statement to populate form when update is loaded
-  $: if (loadedUpdate && !isLoading) {
-    // Use setTimeout to ensure DOM is ready
-    setTimeout(() => populateForm(loadedUpdate), 0);
+    // Force DOM update
+    await tick();
+    
+    // Debug: Check if DOM elements exist and have values
+    const progressEl = document.getElementById('progress');
+    const challengesEl = document.getElementById('challenges');
+    const goalsEl = document.getElementById('goals');
+    
+    console.log('DOM elements after population:', {
+      progressEl: progressEl?.value,
+      challengesEl: challengesEl?.value,
+      goalsEl: goalsEl?.value,
+      progressText,
+      challengesText,
+      goalsText
+    });
+    
+    // Force update DOM values if they don't match
+    if (progressEl && progressEl.value !== progressText) {
+      progressEl.value = progressText;
+      console.log('Manually set progress field value');
+    }
+    if (challengesEl && challengesEl.value !== challengesText) {
+      challengesEl.value = challengesText;
+      console.log('Manually set challenges field value');
+    }
+    if (goalsEl && goalsEl.value !== goalsText) {
+      goalsEl.value = goalsText;
+      console.log('Manually set goals field value');
+    }
   }
   
   // Function to handle text refinement
@@ -527,11 +546,7 @@
           loadedUpdate = update;
           
           // Populate form immediately after loading
-          setTimeout(() => {
-            if (loadedUpdate) {
-              populateForm(loadedUpdate);
-            }
-          }, 100);
+          await populateForm(update);
         } catch (err) {
           console.error('Failed to load update for editing:', err);
           error = `Failed to load update data: ${err.message}. Please try again.`;
