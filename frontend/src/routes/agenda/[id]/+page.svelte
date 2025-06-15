@@ -143,9 +143,17 @@
     }
   }
   
-  // Start editing faculty update inline
+  // Toggle editing faculty update inline
   function startEditFacultyUpdate(announcement) {
-    console.log('Starting edit for faculty update:', announcement);
+    console.log('Toggle edit for faculty update:', announcement);
+    
+    // If already editing this item, cancel edit (toggle off)
+    if (editingFaculty === announcement.id) {
+      console.log('Canceling faculty edit (toggle off)');
+      editingFaculty = null;
+      editForm = {};
+      return;
+    }
     
     // First, ensure the faculty section is expanded
     facultyExpanded = true;
@@ -217,9 +225,17 @@
     }
   }
   
-  // Start editing student update inline
+  // Toggle editing student update inline
   function startEditStudentUpdate(update) {
-    console.log('Starting edit for student update:', update);
+    console.log('Toggle edit for student update:', update);
+    
+    // If already editing this item, cancel edit (toggle off)
+    if (editingStudent === update.id) {
+      console.log('Canceling student edit (toggle off)');
+      editingStudent = null;
+      editForm = {};
+      return;
+    }
     
     // First, ensure the student section is expanded
     studentExpanded = true;
@@ -429,12 +445,20 @@
                       {#if $auth.user && (Number(announcement.user_id) === Number($auth.user.id) || $auth.user.role === 'admin')}
                         <button 
                           on:click|stopPropagation={() => startEditFacultyUpdate(announcement)}
-                          class="p-1 text-gray-400 hover:text-primary-600 transition-colors"
-                          title="Edit announcement"
+                          class="p-1 transition-colors {editingFaculty === announcement.id ? 'text-blue-600 bg-blue-100 rounded' : 'text-gray-400 hover:text-primary-600'}"
+                          title="{editingFaculty === announcement.id ? 'Cancel edit' : 'Edit announcement'}"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.379-8.379-2.828-2.828z" />
-                          </svg>
+                          {#if editingFaculty === announcement.id}
+                            <!-- Cancel/Close icon when editing -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                          {:else}
+                            <!-- Edit/Pencil icon when viewing -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.379-8.379-2.828-2.828z" />
+                            </svg>
+                          {/if}
                         </button>
                         <button 
                           on:click|stopPropagation={() => deleteFacultyUpdate(announcement.id)}
@@ -745,12 +769,20 @@
                       {#if $auth.user && (Number(update.user_id) === Number($auth.user.id) || $auth.user.role === 'admin')}
                         <button 
                           on:click|stopPropagation={() => startEditStudentUpdate(update)}
-                          class="p-1 text-gray-400 hover:text-primary-600 transition-colors"
-                          title="Edit update"
+                          class="p-1 transition-colors {editingStudent === update.id ? 'text-green-600 bg-green-100 rounded' : 'text-gray-400 hover:text-primary-600'}"
+                          title="{editingStudent === update.id ? 'Cancel edit' : 'Edit update'}"
                         >
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.379-8.379-2.828-2.828z" />
-                          </svg>
+                          {#if editingStudent === update.id}
+                            <!-- Cancel/Close icon when editing -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                          {:else}
+                            <!-- Edit/Pencil icon when viewing -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.379-8.379-2.828-2.828z" />
+                            </svg>
+                          {/if}
                         </button>
                         <button 
                           on:click|stopPropagation={() => deleteStudentUpdate(update.id)}
