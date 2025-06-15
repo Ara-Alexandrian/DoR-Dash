@@ -358,24 +358,26 @@ async def update_faculty_update(
 async def upload_files_to_faculty_update(
     current_user: Annotated[User, Depends(get_current_user)],
     update_id: int = Path(..., description="The ID of the faculty update"),
-    files: List[UploadFile] = File(..., max_length=50 * 1024 * 1024)  # 50MB max per file
+    files: List[UploadFile] = File(..., max_length=50 * 1024 * 1024),  # 50MB max per file
+    db: Session = Depends(get_sync_db)
 ):
     """
-    Upload files and attach them to an existing faculty update
+    Upload files and attach them to an existing faculty update - DATABASE VERSION
     """
-    # Find the update in our "database"
-    update_idx = next((i for i, u in enumerate(FACULTY_UPDATES_DB) if u["id"] == update_id), None)
+    # Find the update in database (agenda items)
+    agenda_item = db.query(AgendaItem).filter(
+        AgendaItem.id == update_id,
+        AgendaItem.item_type == AgendaItemType.FACULTY_UPDATE
+    ).first()
     
-    if update_idx is None:
+    if agenda_item is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Faculty update with ID {update_id} not found"
         )
     
-    update = FACULTY_UPDATES_DB[update_idx]
-    
     # Check permissions - only the faculty owner or admins can upload files
-    if current_user.role != "admin" and update["user_id"] != current_user.id:
+    if current_user.role != "admin" and agenda_item.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only upload files to your own updates"
@@ -386,12 +388,11 @@ async def upload_files_to_faculty_update(
     upload_dir = "/config/workspace/gitea/DoR-Dash/uploads"
     os.makedirs(upload_dir, exist_ok=True)
     
-    for file in files:
+    for i, file in enumerate(files, 1):
         # Generate unique filename to avoid conflicts
-        file_id = len(update.get("files", [])) + 1
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         file_extension = os.path.splitext(file.filename)[1]
-        unique_filename = f"faculty_{update_id}_file_{file_id}_{timestamp}{file_extension}"
+        unique_filename = f"faculty_{update_id}_file_{i}_{timestamp}{file_extension}"
         file_path = os.path.join(upload_dir, unique_filename)
         
         # Save the actual file content to disk
@@ -405,28 +406,31 @@ async def upload_files_to_faculty_update(
                 detail=f"Failed to save file {file.filename}: {str(e)}"
             )
         
-        # Store file metadata with actual file path
+        # Save file metadata to database using FileUpload model
+        file_upload = DBFileUpload(
+            user_id=current_user.id,
+            agenda_item_id=agenda_item.id,
+            filename=file.filename,
+            filepath=file_path,
+            file_type=file.content_type or "application/octet-stream",
+            file_size=len(content),
+            upload_date=datetime.utcnow()
+        )
+        
+        db.add(file_upload)
+        
+        # Store file info for response
         file_info = {
-            "id": file_id,
             "name": file.filename,
-            "size": len(content),  # Actual size of content
-            "file_path": file_path,  # Path to actual saved file
-            "type": "document" if file.filename.endswith('.pdf') else 
-                   "presentation" if file.filename.endswith(('.ppt', '.pptx')) else
-                   "data" if file.filename.endswith(('.xlsx', '.csv')) else
-                   "code" if file.filename.endswith('.zip') else
-                   "other",
-            "upload_date": datetime.now().isoformat()
+            "size": len(content),
+            "file_path": file_path,
+            "type": file.content_type or "application/octet-stream",
+            "upload_date": datetime.utcnow().isoformat()
         }
         uploaded_files.append(file_info)
     
-    # Add files to the update
-    if "files" not in update:
-        update["files"] = []
-    update["files"].extend(uploaded_files)
-    
-    # Update in our "database"
-    FACULTY_UPDATES_DB[update_idx] = update
+    # Commit all file uploads to database
+    db.commit()
     
     return {"message": f"Successfully uploaded {len(uploaded_files)} files", "files": uploaded_files}
 
