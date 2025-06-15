@@ -54,23 +54,32 @@
   
   // Reactive statement to populate form when update is loaded
   $: if (loadedUpdate) {
+    console.log('Loading update data:', loadedUpdate);
     if (loadedUpdate.is_faculty) {
-      // Faculty form
+      // Faculty form - populate from loaded data
       announcementsText = loadedUpdate.announcements_text || '';
       projectsText = loadedUpdate.projects_text || '';
       projectStatusText = loadedUpdate.project_status_text || '';
       facultyQuestions = loadedUpdate.faculty_questions || '';
       announcementType = loadedUpdate.announcement_type || 'general';
       facultyIsPresenting = loadedUpdate.is_presenting || false;
+      console.log('Populated faculty form:', {
+        announcementsText, projectsText, projectStatusText, 
+        facultyQuestions, announcementType, facultyIsPresenting
+      });
     } else {
-      // Student form
+      // Student form - populate from loaded data
       progressText = loadedUpdate.progress_text || '';
       challengesText = loadedUpdate.challenges_text || '';
       goalsText = loadedUpdate.next_steps_text || '';
       meetingNotes = loadedUpdate.meeting_notes || '';
       isPresenting = loadedUpdate.will_present || false;
+      console.log('Populated student form:', {
+        progressText, challengesText, goalsText, meetingNotes, isPresenting
+      });
     }
     selectedMeeting = loadedUpdate.meeting_id;
+    console.log('Selected meeting:', selectedMeeting);
   }
   
   // Function to handle text refinement
@@ -249,21 +258,8 @@
         // Submit faculty update
         let update;
         if (isEditMode && editingUpdateId) {
-          // Update existing faculty update
-          const response = await fetch(`${API_BASE}/faculty-updates/${editingUpdateId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify(updateData)
-          });
-          
-          if (!response.ok) {
-            throw new Error('Failed to update faculty announcement');
-          }
-          
-          update = await response.json();
+          // Update existing faculty update using proper API
+          update = await facultyUpdateApi.updateFacultyUpdate(editingUpdateId, updateData);
           console.log('Faculty update updated successfully:', update);
         } else {
           // Create new faculty update
