@@ -24,6 +24,12 @@
   let scheduleExpanded = false;
   let expandedStudents = new Set(); // Track which individual students are expanded
   let expandedFaculty = new Set(); // Track which individual faculty are expanded
+
+  // Inline editing state
+  let editingStudent = null; // ID of student update being edited
+  let editingFaculty = null; // ID of faculty update being edited
+  let editForm = {}; // Form data for editing
+  let isSaving = false; // Save state
   
   // Format date for display
   function formatDate(dateString) {
@@ -137,10 +143,47 @@
     }
   }
   
-  // Edit faculty update function
-  async function editFacultyUpdate(announcement) {
-    // Redirect to faculty update edit page (will need to be created)
-    window.location.href = `/submit-update?type=faculty&edit=${announcement.id}&meeting=${meetingId}`;
+  // Start editing faculty update inline
+  function startEditFacultyUpdate(announcement) {
+    editingFaculty = announcement.id;
+    editForm = {
+      announcements_text: announcement.announcements_text || '',
+      projects_text: announcement.projects_text || '',
+      project_status_text: announcement.project_status_text || '',
+      faculty_questions: announcement.faculty_questions || '',
+      announcement_type: announcement.announcement_type || 'general',
+      is_presenting: announcement.is_presenting || false
+    };
+  }
+
+  // Save faculty update
+  async function saveFacultyUpdate() {
+    if (!editingFaculty) return;
+    
+    isSaving = true;
+    try {
+      await facultyUpdateApi.updateFacultyUpdate(editingFaculty, editForm);
+      
+      // Reload agenda to reflect changes
+      await loadMeetingDetails();
+      
+      // Reset editing state
+      editingFaculty = null;
+      editForm = {};
+      
+      alert('Faculty announcement updated successfully');
+    } catch (err) {
+      console.error('Error updating faculty announcement:', err);
+      alert('Failed to update announcement. Please try again.');
+    } finally {
+      isSaving = false;
+    }
+  }
+
+  // Cancel faculty edit
+  function cancelFacultyEdit() {
+    editingFaculty = null;
+    editForm = {};
   }
   
   // Delete faculty update function
@@ -161,10 +204,46 @@
     }
   }
   
-  // Edit student update function
-  async function editStudentUpdate(update) {
-    // Redirect to student update edit page
-    window.location.href = `/submit-update?edit=${update.id}&meeting=${meetingId}`;
+  // Start editing student update inline
+  function startEditStudentUpdate(update) {
+    editingStudent = update.id;
+    editForm = {
+      progress_text: update.progress_text || '',
+      challenges_text: update.challenges_text || '',
+      next_steps_text: update.next_steps_text || '',
+      meeting_notes: update.meeting_notes || '',
+      will_present: update.will_present || false
+    };
+  }
+
+  // Save student update
+  async function saveStudentUpdate() {
+    if (!editingStudent) return;
+    
+    isSaving = true;
+    try {
+      await updateApi.updateUpdate(editingStudent, editForm);
+      
+      // Reload agenda to reflect changes
+      await loadMeetingDetails();
+      
+      // Reset editing state
+      editingStudent = null;
+      editForm = {};
+      
+      alert('Student update updated successfully');
+    } catch (err) {
+      console.error('Error updating student update:', err);
+      alert('Failed to update. Please try again.');
+    } finally {
+      isSaving = false;
+    }
+  }
+
+  // Cancel student edit
+  function cancelStudentEdit() {
+    editingStudent = null;
+    editForm = {};
   }
   
   // Delete student update function
@@ -323,7 +402,7 @@
                       <!-- Show edit/delete buttons for authorized faculty users -->
                       {#if $auth.user && (Number(announcement.user_id) === Number($auth.user.id) || $auth.user.role === 'admin' || $auth.user.role === 'faculty')}
                         <button 
-                          on:click|stopPropagation={() => editFacultyUpdate(announcement)}
+                          on:click|stopPropagation={() => startEditFacultyUpdate(announcement)}
                           class="p-1 text-gray-400 hover:text-primary-600 transition-colors"
                           title="Edit announcement"
                         >
@@ -356,44 +435,151 @@
                 {#if expandedFaculty.has(announcement.id)}
                   <div class="px-4 pb-6">
                     
-                    <!-- Faculty Announcements -->
-                    {#if announcement.announcements_text}
-                      <div class="mt-4">
-                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Announcements</h5>
-                        <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
-                          {announcement.announcements_text}
+                    {#if editingFaculty === announcement.id}
+                      <!-- INLINE EDIT FORM -->
+                      <div class="space-y-4 mt-4">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <h5 class="text-sm font-semibold text-blue-800 mb-3">✏️ Editing Faculty Update</h5>
+                          
+                          <!-- Announcements -->
+                          <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Announcements</label>
+                            <textarea
+                              bind:value={editForm.announcements_text}
+                              rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Share announcements, deadlines, or important information..."
+                            ></textarea>
+                          </div>
+                          
+                          <!-- Projects -->
+                          <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Current Projects</label>
+                            <textarea
+                              bind:value={editForm.projects_text}
+                              rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Describe current research projects and initiatives..."
+                            ></textarea>
+                          </div>
+                          
+                          <!-- Project Status -->
+                          <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Project Status Updates</label>
+                            <textarea
+                              bind:value={editForm.project_status_text}
+                              rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Share updates on the status of current projects..."
+                            ></textarea>
+                          </div>
+                          
+                          <!-- Faculty Questions -->
+                          <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Questions for Students</label>
+                            <textarea
+                              bind:value={editForm.faculty_questions}
+                              rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Any questions you have for students or topics to discuss..."
+                            ></textarea>
+                          </div>
+                          
+                          <!-- Announcement Type -->
+                          <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Announcement Type</label>
+                            <div class="flex space-x-4">
+                              <label class="inline-flex items-center">
+                                <input type="radio" bind:group={editForm.announcement_type} value="general" class="form-radio text-blue-600">
+                                <span class="ml-2 text-sm">General</span>
+                              </label>
+                              <label class="inline-flex items-center">
+                                <input type="radio" bind:group={editForm.announcement_type} value="urgent" class="form-radio text-red-600">
+                                <span class="ml-2 text-sm">Urgent</span>
+                              </label>
+                              <label class="inline-flex items-center">
+                                <input type="radio" bind:group={editForm.announcement_type} value="deadline" class="form-radio text-yellow-600">
+                                <span class="ml-2 text-sm">Deadline</span>
+                              </label>
+                            </div>
+                          </div>
+                          
+                          <!-- Presenting -->
+                          <div class="mb-4">
+                            <label class="inline-flex items-center">
+                              <input type="checkbox" bind:checked={editForm.is_presenting} class="form-checkbox text-blue-600">
+                              <span class="ml-2 text-sm font-medium text-gray-700">I will be presenting at this meeting</span>
+                            </label>
+                          </div>
+                          
+                          <!-- Save/Cancel buttons -->
+                          <div class="flex justify-end space-x-3">
+                            <button
+                              on:click={cancelFacultyEdit}
+                              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                              disabled={isSaving}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              on:click={saveFacultyUpdate}
+                              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                              disabled={isSaving}
+                            >
+                              {#if isSaving}
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Saving...
+                              {:else}
+                                Save Changes
+                              {/if}
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    {/if}
-                
-                    <!-- Show projects information if available -->
-                    {#if announcement.projects_text}
-                      <div class="mt-4">
-                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Current Projects</h5>
-                        <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
-                          {announcement.projects_text}
+                    {:else}
+                      <!-- DISPLAY MODE -->
+                      <!-- Faculty Announcements -->
+                      {#if announcement.announcements_text}
+                        <div class="mt-4">
+                          <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Announcements</h5>
+                          <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                            {announcement.announcements_text}
+                          </div>
                         </div>
-                      </div>
-                    {/if}
-                    
-                    <!-- Show project status if available -->
-                    {#if announcement.project_status_text}
-                      <div class="mt-4">
-                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Project Status Updates</h5>
-                        <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
-                          {announcement.project_status_text}
+                      {/if}
+                  
+                      <!-- Show projects information if available -->
+                      {#if announcement.projects_text}
+                        <div class="mt-4">
+                          <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Current Projects</h5>
+                          <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                            {announcement.projects_text}
+                          </div>
                         </div>
-                      </div>
-                    {/if}
-                
-                    <!-- Show faculty questions if available -->
-                    {#if announcement.faculty_questions}
-                      <div class="mt-4">
-                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Questions for Students</h5>
-                        <div class="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded border border-gray-200 whitespace-pre-line">
-                          {announcement.faculty_questions}
+                      {/if}
+                      
+                      <!-- Show project status if available -->
+                      {#if announcement.project_status_text}
+                        <div class="mt-4">
+                          <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Project Status Updates</h5>
+                          <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                            {announcement.project_status_text}
+                          </div>
                         </div>
-                      </div>
+                      {/if}
+                  
+                      <!-- Show faculty questions if available -->
+                      {#if announcement.faculty_questions}
+                        <div class="mt-4">
+                          <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Questions for Students</h5>
+                          <div class="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded border border-gray-200 whitespace-pre-line">
+                            {announcement.faculty_questions}
+                          </div>
+                        </div>
+                      {/if}
                     {/if}
                     
                     <!-- Faculty Update Files -->
@@ -529,7 +715,7 @@
                       <!-- Edit/Delete buttons for student update -->
                       {#if $auth.user && (Number(update.user_id) === Number($auth.user.id) || $auth.user.role === 'admin')}
                         <button 
-                          on:click|stopPropagation={() => editStudentUpdate(update)}
+                          on:click|stopPropagation={() => startEditStudentUpdate(update)}
                           class="p-1 text-gray-400 hover:text-primary-600 transition-colors"
                           title="Edit update"
                         >
@@ -562,38 +748,127 @@
                 {#if expandedStudents.has(update.id)}
                   <div class="px-4 pb-6">
                     
-                    <!-- Research Progress -->
-                    <div class="mt-4">
-                      <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Research Progress</h5>
-                      <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
-                        {update.progress_text}
-                      </div>
-                    </div>
-                    
-                    <!-- Challenges -->
-                    <div class="mt-4">
-                      <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Challenges</h5>
-                      <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
-                        {update.challenges_text}
-                      </div>
-                    </div>
-                    
-                    <!-- Next Steps -->
-                    <div class="mt-4">
-                      <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Next Steps</h5>
-                      <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
-                        {update.next_steps_text}
-                      </div>
-                    </div>
-                    
-                    <!-- Meeting Notes -->
-                    {#if update.meeting_notes}
-                      <div class="mt-4">
-                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Meeting Notes</h5>
-                        <div class="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded border border-gray-200">
-                          {update.meeting_notes}
+                    {#if editingStudent === update.id}
+                      <!-- INLINE EDIT FORM -->
+                      <div class="space-y-4 mt-4">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                          <h5 class="text-sm font-semibold text-green-800 mb-3">✏️ Editing Student Update</h5>
+                          
+                          <!-- Research Progress -->
+                          <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Research Progress <span class="text-red-500">*</span></label>
+                            <textarea
+                              bind:value={editForm.progress_text}
+                              rows="4"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                              placeholder="Describe your recent research progress, experiments performed, and results obtained..."
+                              required
+                            ></textarea>
+                          </div>
+                          
+                          <!-- Challenges -->
+                          <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Challenges & Obstacles</label>
+                            <textarea
+                              bind:value={editForm.challenges_text}
+                              rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                              placeholder="Describe any challenges or obstacles you've encountered..."
+                            ></textarea>
+                          </div>
+                          
+                          <!-- Next Steps -->
+                          <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Upcoming Goals</label>
+                            <textarea
+                              bind:value={editForm.next_steps_text}
+                              rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                              placeholder="What are your research goals for the next two weeks..."
+                            ></textarea>
+                          </div>
+                          
+                          <!-- Meeting Notes -->
+                          <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Meeting Notes</label>
+                            <textarea
+                              bind:value={editForm.meeting_notes}
+                              rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                              placeholder="Notes from your recent advisor/supervisor meetings..."
+                            ></textarea>
+                          </div>
+                          
+                          <!-- Presenting -->
+                          <div class="mb-4">
+                            <label class="inline-flex items-center">
+                              <input type="checkbox" bind:checked={editForm.will_present} class="form-checkbox text-green-600">
+                              <span class="ml-2 text-sm font-medium text-gray-700">I will be presenting at this meeting</span>
+                            </label>
+                          </div>
+                          
+                          <!-- Save/Cancel buttons -->
+                          <div class="flex justify-end space-x-3">
+                            <button
+                              on:click={cancelStudentEdit}
+                              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                              disabled={isSaving}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              on:click={saveStudentUpdate}
+                              class="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                              disabled={isSaving}
+                            >
+                              {#if isSaving}
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Saving...
+                              {:else}
+                                Save Changes
+                              {/if}
+                            </button>
+                          </div>
                         </div>
                       </div>
+                    {:else}
+                      <!-- DISPLAY MODE -->
+                      <!-- Research Progress -->
+                      <div class="mt-4">
+                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Research Progress</h5>
+                        <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                          {update.progress_text}
+                        </div>
+                      </div>
+                      
+                      <!-- Challenges -->
+                      <div class="mt-4">
+                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Challenges</h5>
+                        <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                          {update.challenges_text}
+                        </div>
+                      </div>
+                      
+                      <!-- Next Steps -->
+                      <div class="mt-4">
+                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Next Steps</h5>
+                        <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                          {update.next_steps_text}
+                        </div>
+                      </div>
+                      
+                      <!-- Meeting Notes -->
+                      {#if update.meeting_notes}
+                        <div class="mt-4">
+                          <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Meeting Notes</h5>
+                          <div class="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded border border-gray-200">
+                            {update.meeting_notes}
+                          </div>
+                        </div>
+                      {/if}
                     {/if}
                     
                     <!-- Presentation Files -->
