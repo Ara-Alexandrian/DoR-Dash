@@ -15,6 +15,11 @@ export const facultyUpdateApi = {
     return await apiFetch(`/faculty-updates/${id}`);
   },
   
+  // Alias for backward compatibility
+  getFacultyUpdate: async (id: number | string): Promise<FacultyUpdate> => {
+    return await apiFetch(`/faculty-updates/${id}`);
+  },
+  
   // Create faculty update
   createUpdate: async (updateData: Partial<FacultyUpdate>): Promise<FacultyUpdate> => {
     return await apiFetch('/faculty-updates/', {
