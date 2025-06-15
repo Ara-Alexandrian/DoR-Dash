@@ -145,11 +145,8 @@
   
   // Toggle editing faculty update inline
   function startEditFacultyUpdate(announcement) {
-    console.log('Toggle edit for faculty update:', announcement);
-    
     // If already editing this item, cancel edit (toggle off)
     if (editingFaculty === announcement.id) {
-      console.log('Canceling faculty edit (toggle off)');
       editingFaculty = null;
       editForm = {};
       return;
@@ -174,7 +171,6 @@
       announcement_type: announcement.announcement_type || 'general',
       is_presenting: announcement.is_presenting || false
     };
-    console.log('Edit state set:', { editingFaculty, editForm, expandedFaculty });
   }
 
   // Save faculty update
@@ -227,11 +223,8 @@
   
   // Toggle editing student update inline
   function startEditStudentUpdate(update) {
-    console.log('Toggle edit for student update:', update);
-    
     // If already editing this item, cancel edit (toggle off)
     if (editingStudent === update.id) {
-      console.log('Canceling student edit (toggle off)');
       editingStudent = null;
       editForm = {};
       return;
@@ -255,7 +248,6 @@
       meeting_notes: update.meeting_notes || '',
       will_present: update.will_present || false
     };
-    console.log('Edit state set:', { editingStudent, editForm, expandedStudents });
   }
 
   // Save student update
@@ -485,8 +477,6 @@
                 {#if expandedFaculty.has(announcement.id)}
                   <div class="px-4 pb-6">
                     
-                    <!-- Debug info -->
-                    {console.log('Faculty announcement check:', announcement.id, 'editingFaculty:', editingFaculty, 'match:', editingFaculty === announcement.id, 'expandedFaculty has:', expandedFaculty.has(announcement.id), 'facultyExpanded:', facultyExpanded)}
                     
                     {#if editingFaculty === announcement.id}
                       <!-- INLINE EDIT FORM -->
@@ -703,11 +693,7 @@
     <div class="bg-white shadow overflow-hidden rounded-lg mb-8">
       <button 
         class="w-full px-4 py-5 sm:px-6 bg-gold-700 text-white text-left hover:bg-gold-800 transition-colors"
-        on:click={() => {
-          console.log('Student section clicked, was:', studentExpanded);
-          toggleStudentSection();
-          console.log('Student section now:', !studentExpanded);
-        }}
+        on:click={toggleStudentSection}
       >
         <div class="flex items-center justify-between">
           <div>
@@ -809,8 +795,6 @@
                 {#if expandedStudents.has(update.id)}
                   <div class="px-4 pb-6">
                     
-                    <!-- Debug info -->
-                    {console.log('Student update check:', update.id, 'editingStudent:', editingStudent, 'match:', editingStudent === update.id)}
                     
                     {#if editingStudent === update.id}
                       <!-- INLINE EDIT FORM -->
