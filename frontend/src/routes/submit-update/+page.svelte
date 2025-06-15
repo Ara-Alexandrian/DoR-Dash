@@ -52,34 +52,50 @@
   let refinementPosition = { x: 0, y: 0 };
   let refinementTarget = null;
   
-  // Reactive statement to populate form when update is loaded
-  $: if (loadedUpdate) {
-    console.log('Loading update data:', loadedUpdate);
-    if (loadedUpdate.is_faculty) {
+  // Function to populate form fields from loaded update
+  function populateForm(update) {
+    console.log('Populating form with update data:', update);
+    if (update.is_faculty) {
       // Faculty form - populate from loaded data
-      announcementsText = loadedUpdate.announcements_text || '';
-      projectsText = loadedUpdate.projects_text || '';
-      projectStatusText = loadedUpdate.project_status_text || '';
-      facultyQuestions = loadedUpdate.faculty_questions || '';
-      announcementType = loadedUpdate.announcement_type || 'general';
-      facultyIsPresenting = loadedUpdate.is_presenting || false;
+      announcementsText = update.announcements_text || '';
+      projectsText = update.projects_text || '';
+      projectStatusText = update.project_status_text || '';
+      facultyQuestions = update.faculty_questions || '';
+      announcementType = update.announcement_type || 'general';
+      facultyIsPresenting = update.is_presenting || false;
       console.log('Populated faculty form:', {
         announcementsText, projectsText, projectStatusText, 
         facultyQuestions, announcementType, facultyIsPresenting
       });
     } else {
       // Student form - populate from loaded data
-      progressText = loadedUpdate.progress_text || '';
-      challengesText = loadedUpdate.challenges_text || '';
-      goalsText = loadedUpdate.next_steps_text || '';
-      meetingNotes = loadedUpdate.meeting_notes || '';
-      isPresenting = loadedUpdate.will_present || false;
+      progressText = update.progress_text || '';
+      challengesText = update.challenges_text || '';
+      goalsText = update.next_steps_text || '';
+      meetingNotes = update.meeting_notes || '';
+      isPresenting = update.will_present || false;
       console.log('Populated student form:', {
         progressText, challengesText, goalsText, meetingNotes, isPresenting
       });
     }
-    selectedMeeting = loadedUpdate.meeting_id;
+    selectedMeeting = update.meeting_id;
     console.log('Selected meeting:', selectedMeeting);
+    
+    // Force reactivity update
+    progressText = progressText;
+    challengesText = challengesText;
+    goalsText = goalsText;
+    meetingNotes = meetingNotes;
+    announcementsText = announcementsText;
+    projectsText = projectsText;
+    projectStatusText = projectStatusText;
+    facultyQuestions = facultyQuestions;
+  }
+
+  // Reactive statement to populate form when update is loaded
+  $: if (loadedUpdate && !isLoading) {
+    // Use setTimeout to ensure DOM is ready
+    setTimeout(() => populateForm(loadedUpdate), 0);
   }
   
   // Function to handle text refinement
@@ -496,17 +512,26 @@
         editingUpdateId = editId;
         
         try {
+          let update;
           if (updateType === 'faculty') {
             // Load faculty update data using the proper API function
-            const update = await facultyUpdateApi.getFacultyUpdate(editId);
+            update = await facultyUpdateApi.getFacultyUpdate(editId);
             update.is_faculty = true; // Mark as faculty update
-            loadedUpdate = update;
           } else {
             // Load student update data
-            const update = await updateApi.getUpdate(editId);
+            update = await updateApi.getUpdate(editId);
             update.is_faculty = false; // Mark as student update
-            loadedUpdate = update;
           }
+          
+          console.log('Loaded update data in onMount:', update);
+          loadedUpdate = update;
+          
+          // Populate form immediately after loading
+          setTimeout(() => {
+            if (loadedUpdate) {
+              populateForm(loadedUpdate);
+            }
+          }, 100);
         } catch (err) {
           console.error('Failed to load update for editing:', err);
           error = `Failed to load update data: ${err.message}. Please try again.`;
