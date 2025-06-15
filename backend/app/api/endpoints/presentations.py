@@ -84,6 +84,46 @@ async def get_presentations(
     
     return result
 
+@router.post("/", response_model=PresentationResponse, status_code=status.HTTP_201_CREATED)
+async def create_presentation(
+    presentation_data: PresentationBase,
+    current_user: User = Depends(get_admin_user),
+    db: Session = Depends(get_sync_db)
+):
+    """
+    Create a new presentation assignment (admin only).
+    """
+    # Validate that the user exists
+    user = db.query(DBUser).filter(DBUser.id == presentation_data.user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with ID {presentation_data.user_id} not found"
+        )
+    
+    # Create new presentation in database
+    new_presentation = DBPresentation(
+        user_id=presentation_data.user_id,
+        meeting_date=presentation_data.meeting_date,
+        status=presentation_data.status,
+        is_confirmed=presentation_data.is_confirmed
+    )
+    
+    db.add(new_presentation)
+    db.commit()
+    db.refresh(new_presentation)
+    
+    # Return response with user info
+    return {
+        "id": new_presentation.id,
+        "user_id": new_presentation.user_id,
+        "user_name": user.full_name if user.full_name else user.username,
+        "user_email": user.email,
+        "meeting_date": new_presentation.meeting_date,
+        "status": new_presentation.status,
+        "is_confirmed": new_presentation.is_confirmed
+    }
+
 @router.post("/assign", response_model=List[PresentationResponse])
 async def assign_presentations(
     assignment_data: PresentationCreate,

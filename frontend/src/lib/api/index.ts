@@ -328,6 +328,14 @@ export const presentationApi = {
     return await apiFetch('/presentations/');
   },
   
+  // Create presentation assignment (admin only)
+  createPresentation: async (presentationData: any) => {
+    return await apiFetch('/presentations/', {
+      method: 'POST',
+      body: JSON.stringify(presentationData)
+    });
+  },
+  
   // Assign presentations (admin only)
   assignPresentations: async (date: string) => {
     return await apiFetch('/presentations/assign', {
@@ -341,6 +349,13 @@ export const presentationApi = {
     return await apiFetch(`/presentations/${id}`, {
       method: 'PUT',
       body: JSON.stringify(presentationData)
+    });
+  },
+  
+  // Delete presentation assignment (admin only)
+  deletePresentation: async (id: number | string) => {
+    return await apiFetch(`/presentations/${id}`, {
+      method: 'DELETE'
     });
   }
 };

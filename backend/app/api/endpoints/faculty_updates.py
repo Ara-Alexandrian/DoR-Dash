@@ -75,13 +75,23 @@ async def create_faculty_update(
             detail="User not found"
         )
     
-    # Validate meeting exists if provided
+    # Handle meeting_id - use default if not provided
     if update_in.meeting_id:
         meeting = db.query(DBMeeting).filter(DBMeeting.id == update_in.meeting_id).first()
         if not meeting:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Meeting not found"
+            )
+    else:
+        # Use the most recent meeting as default for general faculty updates
+        default_meeting = db.query(DBMeeting).order_by(DBMeeting.id.desc()).first()
+        if default_meeting:
+            update_in.meeting_id = default_meeting.id
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No meetings available. Please create a meeting first or specify a meeting_id."
             )
     
     # Create new database record using unified AgendaItem model
@@ -475,12 +485,31 @@ async def download_faculty_file(
         '.doc': 'application/msword',
         '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        '.xls': 'application/vnd.ms-excel',
         '.csv': 'text/csv',
         '.txt': 'text/plain',
+        '.md': 'text/markdown',
         '.zip': 'application/zip',
+        '.rar': 'application/vnd.rar',
+        '.7z': 'application/x-7z-compressed',
         '.png': 'image/png',
         '.jpg': 'image/jpeg',
-        '.jpeg': 'image/jpeg'
+        '.jpeg': 'image/jpeg',
+        '.gif': 'image/gif',
+        '.bmp': 'image/bmp',
+        '.svg': 'image/svg+xml',
+        '.m': 'text/x-matlab',  # MATLAB files
+        '.py': 'text/x-python',  # Python files
+        '.js': 'application/javascript',  # JavaScript files
+        '.html': 'text/html',
+        '.css': 'text/css',
+        '.json': 'application/json',
+        '.xml': 'application/xml',
+        '.mp4': 'video/mp4',
+        '.avi': 'video/x-msvideo',
+        '.mov': 'video/quicktime',
+        '.mp3': 'audio/mpeg',
+        '.wav': 'audio/wav'
     }
     media_type = media_type_map.get(file_extension, 'application/octet-stream')
     

@@ -2,11 +2,22 @@
 
 This file contains quick subroutines for each specialized agent to reduce typing and streamline common tasks.
 
+## 🔧 **CRITICAL**: All Agent Deployments Must Reference CLAUDE.md
+
+**Every agent deployment MUST inherit the full context from CLAUDE.md, especially:**
+- **Deployment Information**: dd.kronisto.net (172.30.98.177), reverse proxy setup, port configurations
+- **Database Connections**: PostgreSQL (172.30.98.213:5432), Redis (172.30.98.214:6379) 
+- **MCP Server Tools**: Available database, filesystem, git, ssh access tools
+- **Live Data Warnings**: Current production status and data safety requirements
+- **Authentication Details**: Current user accounts (cerebro/admin, aalexandrian/student)
+
+All commands below automatically inherit this context through individual agent files that reference `/config/workspace/gitea/DoR-Dash/CLAUDE.md`.
+
 ## 🌐 Website Testing Agent Subroutines
 
 ### Quick Deploy
 ```
-Task(description="Test Web", prompt="Deploy Website Testing Agent. Run comprehensive test suite: status check, auth testing, API validation, error handling. Provide executive summary with pass/fail status.")
+Task(description="Test Web", prompt="Deploy Website Testing Agent. FIRST: Read /config/workspace/gitea/DoR-Dash/CLAUDE.md for full context including deployment at dd.kronisto.net (172.30.98.177), database connections, and live data warnings. THEN: Run comprehensive test suite: status check, auth testing, API validation, error handling. Provide executive summary with pass/fail status.")
 ```
 
 ### Specific Test Types
@@ -31,7 +42,7 @@ Task(description="Regression", prompt="Website Testing Agent: Full regression te
 
 ### Quick Deploy
 ```
-Task(description="DB Admin", prompt="Deploy Database Management Agent. Check database health, verify schema integrity, ensure all tables exist with proper data.")
+Task(description="DB Admin", prompt="Deploy Database Management Agent. FIRST: Read /config/workspace/gitea/DoR-Dash/CLAUDE.md for full deployment context including PostgreSQL at 172.30.98.213:5432 (DoRadmin:1232@DoR), MCP tools, and live data safety. THEN: Check database health, verify schema integrity, ensure all tables exist with proper data.")
 ```
 
 ### Specific Database Tasks
@@ -62,7 +73,7 @@ Task(description="Schema Fix", prompt="Database Agent: Emergency schema repair -
 
 ### Quick Deploy
 ```
-Task(description="UI Dev", prompt="Deploy UI Management Agent. Review frontend architecture, check component structure, validate user experience, report UI issues.")
+Task(description="UI Dev", prompt="Deploy UI Management Agent. FIRST: Read /config/workspace/gitea/DoR-Dash/CLAUDE.md for deployment context including frontend at dd.kronisto.net:1717, reverse proxy setup, and live user interface. THEN: Review frontend architecture, check component structure, validate user experience, report UI issues.")
 ```
 
 ### Specific UI Tasks
@@ -90,7 +101,7 @@ Task(description="UI Perf", prompt="UI Agent: Frontend performance - Core Web Vi
 
 ### Quick Deploy
 ```
-Task(description="LLM Setup", prompt="Deploy LLM Integration Agent. Check Ollama connectivity, test AI features, validate text refinement capabilities.")
+Task(description="LLM Setup", prompt="Deploy LLM Integration Agent. FIRST: Read /config/workspace/gitea/DoR-Dash/CLAUDE.md for deployment context including Ollama at localhost:11434 (CPU/RAM Mistral), MCP tools, and live AI features. THEN: Check Ollama connectivity, test AI features, validate text refinement capabilities.")
 ```
 
 ### Specific LLM Tasks
@@ -115,7 +126,41 @@ Task(description="Prompt Tune", prompt="LLM Agent: Review and optimize prompts f
 
 ### Quick Deploy
 ```
-Task(description="Repo Admin", prompt="Deploy Repository Management Agent. Analyze repository structure, check code quality, validate documentation, assess git health.")
+Task(description="Repo Admin", prompt="Deploy Repository Management Agent. FIRST: Read /config/workspace/gitea/DoR-Dash/CLAUDE.md for deployment context including git repository at /config/workspace/gitea/DoR-Dash, MCP tools, and live production code safety. THEN: Analyze repository structure, check code quality, validate documentation, assess git health.")
+```
+
+## 🔍 Quality Assurance (QA) Agent Subroutines
+
+### Quick Deploy
+```
+Task(description="QA Full", prompt="Deploy QA Agent. FIRST: Read /config/workspace/gitea/DoR-Dash/CLAUDE.md for complete deployment context including dd.kronisto.net, all database connections, MCP tools, live data warnings, and current user accounts. THEN: Execute comprehensive QA test suite covering authentication, core functionality, performance, security, data integrity. Generate timestamped report with pass/fail status for all components.")
+```
+
+### Specific QA Tasks
+```
+# Authentication Testing
+Task(description="QA Auth", prompt="QA Agent: Authentication-focused testing - test all user types (cerebro/admin, aalexandrian/student), role permissions, session management, security boundaries.")
+
+# Core Features Test
+Task(description="QA Core", prompt="QA Agent: Core functionality testing - student updates, faculty updates, meeting management, file uploads/downloads, user management workflows.")
+
+# Performance Testing
+Task(description="QA Perf", prompt="QA Agent: Performance testing - page load times, API response times, file upload speeds, database query performance, stress testing.")
+
+# Security Audit
+Task(description="QA Sec", prompt="QA Agent: Security testing - role-based access control, data isolation, file permissions, API endpoint security, session security.")
+
+# Data Integrity Check
+Task(description="QA Data", prompt="QA Agent: Data integrity testing - database consistency, file storage integrity, cross-table relationships, constraint validation.")
+
+# End-to-End Testing
+Task(description="QA E2E", prompt="QA Agent: End-to-end workflow testing - complete user journeys from login to task completion, cross-browser testing, mobile responsiveness.")
+
+# Regression Testing
+Task(description="QA Regression", prompt="QA Agent: Post-deployment regression testing - verify no existing functionality broken, validate recent fixes, ensure system stability.")
+
+# Integration Testing
+Task(description="QA Integration", prompt="QA Agent: Integration testing - frontend-backend API integration, database transactions, file system integration, LLM features.")
 ```
 
 ### Specific Repository Tasks
@@ -168,6 +213,9 @@ Task(description="Perf Audit", prompt="Full performance audit: Database Agent an
 
 ### Single Character Shortcuts (for ultra-fast access)
 ```
+# Q = Quality Assurance (COMPREHENSIVE)
+Task(description="Q", prompt="QA Agent: Comprehensive system validation - authentication, core functionality, performance, security, data integrity. Generate timestamped report with pass/fail status for all major components.")
+
 # W = Website Testing
 Task(description="W", prompt="Website Testing Agent: Quick health check - frontend/backend status, basic auth test, API connectivity.")
 

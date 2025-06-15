@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { auth } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
+  import { presentationApi, userApi, meetingsApi } from '$lib/api';
   
   let presentations = [];
   let users = [];
@@ -47,17 +48,7 @@
     error = null;
     
     try {
-      const response = await fetch('/api/presentations/', {
-        headers: {
-          'Authorization': `Bearer ${$auth.token}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to load presentations: ${response.statusText}`);
-      }
-      
-      presentations = await response.json();
+      presentations = await presentationApi.getPresentations();
       isLoading = false;
     } catch (err) {
       error = err.message;
@@ -71,20 +62,10 @@
   
   async function loadUsers() {
     try {
-      const response = await fetch('/api/users/', {
-        headers: {
-          'Authorization': `Bearer ${$auth.token}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to load users: ${response.statusText}`);
-      }
-      
-      users = await response.json();
+      const allUsers = await userApi.getUsers();
       
       // Filter to just student users
-      users = users.filter(user => user.role === 'student');
+      users = allUsers.filter(user => user.role === 'student');
       
     } catch (err) {
       console.error("Error loading users:", err);
@@ -96,17 +77,7 @@
   
   async function loadMeetings() {
     try {
-      const response = await fetch('/api/meetings/', {
-        headers: {
-          'Authorization': `Bearer ${$auth.token}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to load meetings: ${response.statusText}`);
-      }
-      
-      meetings = await response.json();
+      meetings = await meetingsApi.getMeetings();
       
     } catch (err) {
       console.error("Error loading meetings:", err);
@@ -133,19 +104,7 @@
     }
     
     try {
-      const response = await fetch('/api/presentations/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${$auth.token}`
-        },
-        body: JSON.stringify(newAssignment)
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to assign presentation');
-      }
+      await presentationApi.createPresentation(newAssignment);
       
       // Clear form and reload presentations
       newAssignment = {
@@ -199,24 +158,12 @@
     }
     
     try {
-      const response = await fetch(`/api/presentations/${editingPresentation.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${$auth.token}`
-        },
-        body: JSON.stringify({
-          user_id: parseInt(editingPresentation.user_id),
-          meeting_date: new Date(editingPresentation.meeting_date).toISOString(),
-          status: editingPresentation.status,
-          is_confirmed: editingPresentation.is_confirmed
-        })
+      await presentationApi.updatePresentation(editingPresentation.id, {
+        user_id: parseInt(editingPresentation.user_id),
+        meeting_date: new Date(editingPresentation.meeting_date).toISOString(),
+        status: editingPresentation.status,
+        is_confirmed: editingPresentation.is_confirmed
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to update presentation');
-      }
       
       successMessage = 'Presentation updated successfully';
       showEditModal = false;
@@ -236,17 +183,7 @@
     }
     
     try {
-      const response = await fetch(`/api/presentations/${presentationId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${$auth.token}`
-        }
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to delete presentation');
-      }
+      await presentationApi.deletePresentation(presentationId);
       
       successMessage = 'Presentation deleted successfully';
       await loadPresentations();

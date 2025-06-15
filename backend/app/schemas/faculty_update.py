@@ -3,6 +3,8 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 from enum import Enum
 
+from app.db.models.agenda_item import AgendaItemType
+
 
 class AnnouncementType(str, Enum):
     GENERAL = "general"
@@ -22,6 +24,34 @@ class FacultyUpdateBase(BaseModel):
 class FacultyUpdateCreate(FacultyUpdateBase):
     user_id: int = Field(..., description="ID of the faculty member submitting the update")
     meeting_id: Optional[int] = Field(None, description="ID of the meeting this update is for")
+    
+    def to_agenda_item_create(self):
+        """Convert faculty update to agenda item create format"""
+        # Import moved to avoid circular imports
+        from app.schemas.agenda_item import AgendaItemCreate
+        
+        # Build content dict from faculty update fields
+        content = {}
+        if self.announcements_text:
+            content["announcements_text"] = self.announcements_text
+        if self.announcement_type:
+            content["announcement_type"] = self.announcement_type.value
+        if self.projects_text:
+            content["projects_text"] = self.projects_text
+        if self.project_status_text:
+            content["project_status_text"] = self.project_status_text
+        if self.faculty_questions:
+            content["faculty_questions"] = self.faculty_questions
+            
+        return AgendaItemCreate(
+            meeting_id=self.meeting_id,
+            user_id=self.user_id,
+            item_type=AgendaItemType.FACULTY_UPDATE,
+            order_index=0,  # Default order
+            title=f"Faculty Update - {self.announcement_type.value.title()}",
+            content=content,
+            is_presenting=self.is_presenting
+        )
 
 
 class FacultyUpdateUpdate(BaseModel):

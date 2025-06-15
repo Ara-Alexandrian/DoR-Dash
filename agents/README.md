@@ -6,6 +6,7 @@ This directory contains specialized sub-agents for managing different aspects of
 
 ```
 Main CLAUDE.md (shared project context)
+├── QA_AGENT.md                 # Comprehensive quality assurance & system validation
 ├── WEBSITE_TESTING_AGENT.md    # E2E testing, API validation, UI testing
 ├── DATABASE_AGENT.md           # Schema management, migrations, data integrity
 ├── UI_AGENT.md                 # Frontend development, component design, UX
@@ -20,6 +21,32 @@ Each agent can be deployed with:
 # Deploy with agent-specific instructions
 Task(description="Agent deployment", prompt="Deploy [AGENT_NAME] with instructions from agents/[AGENT_FILE].md")
 ```
+
+## Quick Access Shortcuts
+
+For frequently used agents, use these ultra-fast single-character commands:
+
+```bash
+# Q = Comprehensive QA (MOST IMPORTANT)
+Task(description="Q", prompt="QA Agent: Comprehensive system validation with timestamped report")
+
+# W = Website Testing
+Task(description="W", prompt="Website Testing Agent: Quick health check")
+
+# D = Database Management  
+Task(description="D", prompt="Database Agent: Quick database check")
+
+# U = UI Management
+Task(description="U", prompt="UI Agent: Quick frontend check")
+
+# L = LLM Integration
+Task(description="L", prompt="LLM Agent: Quick Ollama check")
+
+# R = Repository Management
+Task(description="R", prompt="Repository Agent: Quick repo check")
+```
+
+**Recommended**: Run `Q` (QA Agent) regularly to ensure system health and catch potential issues early.
 
 ## Shared Resources
 

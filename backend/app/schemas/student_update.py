@@ -2,6 +2,8 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
+from app.db.models.agenda_item import AgendaItemType
+
 
 class StudentUpdateBase(BaseModel):
     progress_text: str = Field(..., description="Student's progress since last update")
@@ -15,6 +17,34 @@ class StudentUpdateCreate(StudentUpdateBase):
     user_id: int = Field(..., description="ID of the student submitting the update")
     meeting_id: Optional[int] = Field(None, description="ID of the meeting this update is for")
     file_ids: Optional[List[int]] = Field(None, description="IDs of files to attach to the update")
+    
+    def to_agenda_item_create(self):
+        """Convert student update to agenda item create format"""
+        # Import moved to avoid circular imports
+        from app.schemas.agenda_item import AgendaItemCreate
+        
+        # Build content dict from student update fields
+        content = {}
+        if self.progress_text:
+            content["progress_text"] = self.progress_text
+        if self.challenges_text:
+            content["challenges_text"] = self.challenges_text
+        if self.next_steps_text:
+            content["next_steps_text"] = self.next_steps_text
+        if self.meeting_notes:
+            content["meeting_notes"] = self.meeting_notes
+        if self.file_ids:
+            content["file_ids"] = self.file_ids
+            
+        return AgendaItemCreate(
+            meeting_id=self.meeting_id,
+            user_id=self.user_id,
+            item_type=AgendaItemType.STUDENT_UPDATE,
+            order_index=0,  # Default order
+            title=f"Student Update",
+            content=content,
+            is_presenting=self.will_present
+        )
 
 
 class StudentUpdateUpdate(BaseModel):
