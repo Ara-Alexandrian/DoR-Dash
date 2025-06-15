@@ -146,6 +146,17 @@
   // Start editing faculty update inline
   function startEditFacultyUpdate(announcement) {
     console.log('Starting edit for faculty update:', announcement);
+    
+    // First, ensure the faculty section is expanded
+    facultyExpanded = true;
+    
+    // Then, ensure this specific faculty item is expanded
+    if (!expandedFaculty.has(announcement.id)) {
+      expandedFaculty.add(announcement.id);
+      expandedFaculty = expandedFaculty; // Trigger reactivity
+    }
+    
+    // Set edit state
     editingFaculty = announcement.id;
     editForm = {
       announcements_text: announcement.announcements_text || '',
@@ -155,7 +166,7 @@
       announcement_type: announcement.announcement_type || 'general',
       is_presenting: announcement.is_presenting || false
     };
-    console.log('Edit state set:', { editingFaculty, editForm });
+    console.log('Edit state set:', { editingFaculty, editForm, expandedFaculty });
   }
 
   // Save faculty update
@@ -209,6 +220,17 @@
   // Start editing student update inline
   function startEditStudentUpdate(update) {
     console.log('Starting edit for student update:', update);
+    
+    // First, ensure the student section is expanded
+    studentExpanded = true;
+    
+    // Then, ensure this specific student item is expanded
+    if (!expandedStudents.has(update.id)) {
+      expandedStudents.add(update.id);
+      expandedStudents = expandedStudents; // Trigger reactivity
+    }
+    
+    // Set edit state
     editingStudent = update.id;
     editForm = {
       progress_text: update.progress_text || '',
@@ -217,7 +239,7 @@
       meeting_notes: update.meeting_notes || '',
       will_present: update.will_present || false
     };
-    console.log('Edit state set:', { editingStudent, editForm });
+    console.log('Edit state set:', { editingStudent, editForm, expandedStudents });
   }
 
   // Save student update
