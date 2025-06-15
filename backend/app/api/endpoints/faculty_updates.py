@@ -385,7 +385,7 @@ async def upload_files_to_faculty_update(
     
     # Process uploaded files - SAVE ACTUAL FILES
     uploaded_files = []
-    upload_dir = "/config/workspace/gitea/DoR-Dash/uploads"
+    upload_dir = "/app/uploads"
     os.makedirs(upload_dir, exist_ok=True)
     
     for i, file in enumerate(files, 1):

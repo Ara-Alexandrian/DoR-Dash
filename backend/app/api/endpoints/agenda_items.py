@@ -331,7 +331,7 @@ async def upload_files_to_agenda_item(
     
     uploaded_files = []
     failed_files = []
-    upload_dir = "/config/workspace/gitea/DoR-Dash/uploads"
+    upload_dir = "/app/uploads"
     
     # Ensure upload directory exists
     os.makedirs(upload_dir, exist_ok=True)
