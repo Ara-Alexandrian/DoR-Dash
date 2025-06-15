@@ -147,7 +147,7 @@ def delete_user(db: Session, user_id: int):
         "username": db_user.username,
         "email": db_user.email,
         "full_name": db_user.full_name,
-        "role": db_user.role.value
+        "role": db_user.role
     }
     
     db.delete(db_user)

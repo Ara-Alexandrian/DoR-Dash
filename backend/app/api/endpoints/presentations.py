@@ -53,8 +53,8 @@ async def get_presentations(
     - Students can only see their own presentations
     - Faculty and admins can see all presentations
     """
-    # Query presentations from database
-    query = db.query(DBPresentation).options(joinedload(DBPresentation.user))
+    # Query presentations from database (no joinedload to avoid relationship issues)
+    query = db.query(DBPresentation)
     
     # Filter presentations based on user role
     if current_user.role == "student":
@@ -67,11 +67,16 @@ async def get_presentations(
     # Convert to response format
     result = []
     for presentation in presentations:
+        # Get user data separately since no relationship exists
+        user = db.query(DBUser).filter(DBUser.id == presentation.user_id).first()
+        user_name = user.full_name if user and user.full_name else (user.username if user else "Unknown")
+        user_email = user.email if user else "unknown@example.com"
+        
         result.append({
             "id": presentation.id,
             "user_id": presentation.user_id,
-            "user_name": presentation.user.full_name or presentation.user.username,
-            "user_email": presentation.user.email,
+            "user_name": user_name,
+            "user_email": user_email,
             "meeting_date": presentation.meeting_date,
             "status": presentation.status,
             "is_confirmed": presentation.is_confirmed
