@@ -426,7 +426,7 @@
                     <div class="flex items-center space-x-2">
                       <!-- Edit/Delete buttons for faculty announcement -->
                       <!-- Show edit/delete buttons for authorized faculty users -->
-                      {#if $auth.user && (Number(announcement.user_id) === Number($auth.user.id) || $auth.user.role === 'admin' || $auth.user.role === 'faculty')}
+                      {#if $auth.user && (Number(announcement.user_id) === Number($auth.user.id) || $auth.user.role === 'admin')}
                         <button 
                           on:click|stopPropagation={() => startEditFacultyUpdate(announcement)}
                           class="p-1 text-gray-400 hover:text-primary-600 transition-colors"
@@ -462,7 +462,7 @@
                   <div class="px-4 pb-6">
                     
                     <!-- Debug info -->
-                    {console.log('Faculty announcement check:', announcement.id, 'editingFaculty:', editingFaculty, 'match:', editingFaculty === announcement.id)}
+                    {console.log('Faculty announcement check:', announcement.id, 'editingFaculty:', editingFaculty, 'match:', editingFaculty === announcement.id, 'expandedFaculty has:', expandedFaculty.has(announcement.id), 'facultyExpanded:', facultyExpanded)}
                     
                     {#if editingFaculty === announcement.id}
                       <!-- INLINE EDIT FORM -->
