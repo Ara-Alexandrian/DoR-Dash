@@ -39,5 +39,12 @@ export const facultyUpdateApi = {
   // Get faculty updates for a specific meeting
   getUpdatesByMeeting: async (meetingId: number | string): Promise<FacultyUpdate[]> => {
     return await apiFetch(`/faculty-updates?meeting_id=${meetingId}`);
+  },
+  
+  // Delete faculty update
+  deleteUpdate: async (id: number | string): Promise<void> => {
+    return await apiFetch(`/faculty-updates/${id}`, {
+      method: 'DELETE'
+    });
   }
 };

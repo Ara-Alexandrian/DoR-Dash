@@ -222,6 +222,13 @@ export const updateApi = {
     });
   },
   
+  // Delete update
+  deleteUpdate: async (id: number | string) => {
+    return await apiFetch(`/updates/${id}`, {
+      method: 'DELETE'
+    });
+  },
+  
   // Refine text using Ollama
   refineText: async (text: string) => {
     return await apiFetch('/text/refine-text', {
