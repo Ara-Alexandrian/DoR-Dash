@@ -391,26 +391,35 @@ The application is designed to work behind a reverse proxy with SSL termination.
 
 ## Recent Updates
 
-### MCP Server Configuration Updates (Latest)
-- **CRITICAL FIX**: Updated MCP server configurations with correct package names and credentials
-- **PostgreSQL**: Using `@modelcontextprotocol/server-postgres` with credentials `DoRadmin:1232@172.30.98.213:5432/DoR`
-- **Redis**: Fixed package from `@redis/mcp-redis` to `redis-mcp` with connection `redis://172.30.98.214:6379`
-- **Git Server**: Fixed package from `@modelcontextprotocol/server-git` to `mcp-git` with repository path
-- **Mermaid Server**: Using `@peng-shawn/mermaid-mcp-server`
-- **SSH Server**: Using `mcp-ssh` for direct container debugging
-- **Filesystem Server**: Using `@modelcontextprotocol/server-filesystem`
-- **Debug Output**: Faculty updates contain debug print statements (lines 101-102, 514)
+### Latest System Updates (June 2025)
 
-### CRITICAL DATA PERSISTENCE FIX
-- **CRITICAL BUG FIX**: Migrated student and faculty updates from in-memory storage to PostgreSQL database
-- **Root Cause**: Agenda items were lost on container restart because they were stored in-memory only
-- **Solution**: Updated all CRUD operations for student/faculty updates to use PostgreSQL database
-- **Files Modified**: 
-  - `backend/app/api/endpoints/updates.py` - Student updates now use database
-  - `backend/app/api/endpoints/faculty_updates.py` - Faculty updates now use database
-- **Result**: All agenda items (student updates, faculty announcements) now persist through restarts
-- **Impact**: No more data loss on deployment or container restart!
-- **Technical Details**: Converted in-memory `STUDENT_UPDATES_DB` and `FACULTY_UPDATES_DB` to use SQLAlchemy ORM with PostgreSQL
+#### Critical Bug Fixes (June 15, 2025)
+- **CRITICAL FIX**: Fixed faculty updates file upload system - migrated from in-memory to PostgreSQL database storage
+- **API Error Resolution**: Resolved HTTP 500 errors in faculty update endpoints with proper schema validation
+- **Student Update Bug**: Identified and documented missing `to_agenda_item_create()` method in StudentUpdateCreate schema
+- **QA System Implementation**: Added comprehensive QA agent with automated testing and reporting capabilities
+- **Database Persistence**: All agenda items (student/faculty updates) now use PostgreSQL instead of in-memory storage
+
+#### MCP Server Configuration (Updated)
+- **PostgreSQL**: Using `@modelcontextprotocol/server-postgres` with credentials `DoRadmin:1232@172.30.98.213:5432/DoR`
+- **Redis**: Using `redis-mcp` package with connection `redis://172.30.98.214:6379`
+- **Git Server**: Using `mcp-git` with properly configured repository path
+- **Mermaid Server**: Using `@peng-shawn/mermaid-mcp-server` for architecture diagrams
+- **SSH Server**: Using `mcp-ssh` for direct container debugging and remote access
+- **Filesystem Server**: Using `@modelcontextprotocol/server-filesystem` for file operations
+
+### CRITICAL DATA PERSISTENCE IMPLEMENTATION
+- **COMPLETED**: Full migration from in-memory storage to PostgreSQL database for all data
+- **Root Cause Resolved**: Agenda items were lost on container restart due to in-memory-only storage
+- **Solution Implemented**: All CRUD operations for student/faculty updates use PostgreSQL with proper schema design
+- **Files Updated**: 
+  - `backend/app/api/endpoints/updates.py` - Student updates use AgendaItem model
+  - `backend/app/api/endpoints/faculty_updates.py` - Faculty updates use AgendaItem model
+  - `backend/app/schemas/agenda_item.py` - Unified schema for all agenda items
+  - `backend/app/api/endpoints/auth.py` - Enhanced user management with database persistence
+- **Result**: Complete data persistence across restarts, deployments, and system updates
+- **Impact**: No data loss risk - all user data, meetings, and files safely stored in PostgreSQL and file system
+- **Technical Details**: Unified AgendaItem model with polymorphic content storage in JSONB fields
 
 ### PostgreSQL Enum Case Mismatch Fix
 - **CRITICAL BUG FIX**: Fixed user role update failures caused by PostgreSQL enum case mismatch
@@ -477,21 +486,25 @@ The application is designed to work behind a reverse proxy with SSL termination.
 
 **CRITICAL: This application now contains live user data and is actively being used.**
 
-### Live Data Locations:
-1. **User Accounts** (`backend/app/api/endpoints/auth.py` - `USERS_DB`) ⚠️ *IN-MEMORY*
-2. **📚 STUDENT UPDATES** (`PostgreSQL` - **PERSISTENT DATABASE**) ✅ *SAFE*
-3. **👨‍🏫 FACULTY UPDATES** (`PostgreSQL` - **PERSISTENT DATABASE**) ✅ *SAFE*
-4. **📅 MEETING CALENDAR** (`PostgreSQL` - **PERSISTENT DATABASE**) ✅ *SAFE*
-5. **Registration Requests** (`backend/app/api/endpoints/registration.py` - `REGISTRATION_REQUESTS`) ⚠️ *IN-MEMORY*
+### Live Data Locations (Updated June 2025):
+1. **👥 USER ACCOUNTS** (`PostgreSQL 'user' table` - **PERSISTENT DATABASE**) ✅ *SAFE*
+2. **📚 STUDENT UPDATES** (`PostgreSQL 'agendaitem' table` - **PERSISTENT DATABASE**) ✅ *SAFE*
+3. **👨‍🏫 FACULTY UPDATES** (`PostgreSQL 'agendaitem' table` - **PERSISTENT DATABASE**) ✅ *SAFE*
+4. **📅 MEETING CALENDAR** (`PostgreSQL 'meeting' table` - **PERSISTENT DATABASE**) ✅ *SAFE*
+5. **📋 REGISTRATION REQUESTS** (`PostgreSQL 'registrationrequest' table` - **PERSISTENT DATABASE**) ✅ *SAFE*
 6. **🗂️ UPLOADED FILES** (`/config/workspace/gitea/DoR-Dash/uploads/` - **PERSISTENT ON DISK**) ✅ *SAFE*
 
-### Development Safety Rules:
-- **NEVER** reset or clear in-memory data stores during development (User Accounts, Registration Requests)
-- **NEVER** change initialization logic that would overwrite existing users
+**STATUS: ALL DATA NOW PERSISTENT AND SAFE** 🎉
+
+### Development Safety Rules (Updated for Full Database Persistence):
+- **PRODUCTION DATABASE**: All data now in PostgreSQL - treat with extreme care
+- **NEVER** run destructive migrations without backups (DROP TABLE, DELETE, etc.)
+- **NEVER** modify database schema without proper migration files
 - **NEVER** delete or modify files in `/uploads/` directory
-- **ALWAYS** preserve existing data when modifying data structures
-- **TEST CAREFULLY** before pushing changes that modify user data handling
-- **DATABASE SAFETY**: Student/Faculty updates and meetings are now persistent in PostgreSQL and safe from restarts!
+- **ALWAYS** test database changes in development before production
+- **ALWAYS** use proper SQLAlchemy ORM operations instead of raw SQL
+- **BACKUP VERIFICATION**: Ensure PostgreSQL backups are working before major changes
+- **DATABASE SAFETY**: ALL data persistent in PostgreSQL - complete data safety achieved!
 
 ### Safe Modification Practices:
 - Add new users by appending to existing `USERS_DB`
@@ -530,6 +543,12 @@ DoR-Dash uses a specialized agent architecture for efficient task management. Ea
    - Git operations, branch management, and version control
    - Code refactoring, project structure optimization
    - Documentation management and code quality standards
+
+6. **Quality Assurance Agent** (`agents/QA_AGENT.md`)
+   - Comprehensive system testing and validation
+   - Automated health checks and performance monitoring
+   - Timestamped QA reports with traffic light status indicators
+   - End-to-end workflow testing and security validation
 
 ### Quick Agent Deployment Subroutines
 

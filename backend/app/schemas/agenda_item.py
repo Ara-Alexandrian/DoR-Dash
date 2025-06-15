@@ -235,6 +235,7 @@ class FacultyUpdate(BaseModel):
     is_presenting: bool
     files: List[AgendaItemFile] = []
     submission_date: datetime
+    submitted_at: datetime  # For frontend compatibility
     created_at: datetime
     updated_at: datetime
 
@@ -258,6 +259,7 @@ class FacultyUpdate(BaseModel):
             is_presenting=agenda_item.is_presenting,
             files=agenda_item.files,
             submission_date=agenda_item.created_at,
+            submitted_at=agenda_item.created_at,  # For frontend compatibility
             created_at=agenda_item.created_at,
             updated_at=agenda_item.updated_at
         )

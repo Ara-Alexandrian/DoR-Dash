@@ -439,49 +439,47 @@ async def upload_files_to_faculty_update(
 async def download_faculty_file(
     update_id: int = Path(..., description="The ID of the faculty update"),
     file_id: int = Path(..., description="The ID of the file to download"),
-    current_user: Optional[User] = Depends(lambda: None)  # Make auth optional for downloads
+    current_user: Optional[User] = Depends(lambda: None),  # Make auth optional for downloads
+    db: Session = Depends(get_sync_db)
 ):
     """
-    Download a specific file from a faculty update
+    Download a specific file from a faculty update - DATABASE VERSION
     """
-    # Find the update in our "database"
-    update = next((u for u in FACULTY_UPDATES_DB if u["id"] == update_id), None)
+    # Find the update in database (agenda items)
+    agenda_item = db.query(AgendaItem).filter(
+        AgendaItem.id == update_id,
+        AgendaItem.item_type == AgendaItemType.FACULTY_UPDATE
+    ).first()
     
-    if not update:
+    if not agenda_item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Faculty update with ID {update_id} not found"
         )
     
-    # Skip permission check for development
-    # In production, uncomment this to enforce permissions
-    # if current_user and current_user.role not in ["admin", "faculty"] and update["user_id"] != current_user.id:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_403_FORBIDDEN,
-    #         detail="You can only download files from your own updates"
-    #     )
+    # Find the file in database
+    file_upload = db.query(DBFileUpload).filter(
+        DBFileUpload.id == file_id,
+        DBFileUpload.agenda_item_id == update_id
+    ).first()
     
-    # Find the file
-    files = update.get("files", [])
-    file_info = next((f for f in files if f["id"] == file_id), None)
-    
-    if not file_info:
+    if not file_upload:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"File with ID {file_id} not found in this update"
         )
     
     # Check if the actual file exists on disk
-    file_path = file_info.get('file_path')
+    file_path = file_upload.filepath
     if not file_path or not os.path.exists(file_path):
         # If no file_path (old uploads) or file doesn't exist, show error
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"File {file_info['name']} not found on disk. This may be an older upload before file storage was implemented."
+            detail=f"File {file_upload.filename} not found on disk. This may be an older upload before file storage was implemented."
         )
     
     # Determine the correct media type based on file extension
-    file_extension = os.path.splitext(file_info['name'])[1].lower()
+    file_extension = os.path.splitext(file_upload.filename)[1].lower()
     media_type_map = {
         '.pdf': 'application/pdf',
         '.ppt': 'application/vnd.ms-powerpoint',
@@ -520,10 +518,10 @@ async def download_faculty_file(
     # Return the actual file
     return FileResponse(
         path=file_path,
-        filename=file_info['name'],
+        filename=file_upload.filename,
         media_type=media_type,
         headers={
-            "Content-Disposition": f"attachment; filename=\"{file_info['name']}\""
+            "Content-Disposition": f"attachment; filename=\"{file_upload.filename}\""
         }
     )
 
