@@ -145,6 +145,7 @@
   
   // Start editing faculty update inline
   function startEditFacultyUpdate(announcement) {
+    console.log('Starting edit for faculty update:', announcement);
     editingFaculty = announcement.id;
     editForm = {
       announcements_text: announcement.announcements_text || '',
@@ -154,6 +155,7 @@
       announcement_type: announcement.announcement_type || 'general',
       is_presenting: announcement.is_presenting || false
     };
+    console.log('Edit state set:', { editingFaculty, editForm });
   }
 
   // Save faculty update
@@ -206,6 +208,7 @@
   
   // Start editing student update inline
   function startEditStudentUpdate(update) {
+    console.log('Starting edit for student update:', update);
     editingStudent = update.id;
     editForm = {
       progress_text: update.progress_text || '',
@@ -214,6 +217,7 @@
       meeting_notes: update.meeting_notes || '',
       will_present: update.will_present || false
     };
+    console.log('Edit state set:', { editingStudent, editForm });
   }
 
   // Save student update
@@ -434,6 +438,9 @@
                 
                 {#if expandedFaculty.has(announcement.id)}
                   <div class="px-4 pb-6">
+                    
+                    <!-- Debug info -->
+                    {console.log('Faculty announcement check:', announcement.id, 'editingFaculty:', editingFaculty, 'match:', editingFaculty === announcement.id)}
                     
                     {#if editingFaculty === announcement.id}
                       <!-- INLINE EDIT FORM -->
@@ -747,6 +754,9 @@
                 
                 {#if expandedStudents.has(update.id)}
                   <div class="px-4 pb-6">
+                    
+                    <!-- Debug info -->
+                    {console.log('Student update check:', update.id, 'editingStudent:', editingStudent, 'match:', editingStudent === update.id)}
                     
                     {#if editingStudent === update.id}
                       <!-- INLINE EDIT FORM -->
