@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { auth } from '$lib/stores/auth';
-  import { meetingsApi } from '$lib/api';
+  import { meetingsApi, facultyUpdateApi, updateApi } from '$lib/api';
   import { get } from 'svelte/store';
   
   // API configuration
@@ -150,20 +150,11 @@
     }
     
     try {
-      const response = await fetch(`${API_BASE}/faculty-updates/${updateId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      await facultyUpdateApi.deleteUpdate(updateId);
       
-      if (response.ok) {
-        // Reload agenda to reflect changes
-        await loadMeetingDetails();
-        alert('Faculty announcement deleted successfully');
-      } else {
-        throw new Error('Failed to delete announcement');
-      }
+      // Reload agenda to reflect changes
+      await loadMeetingDetails();
+      alert('Faculty announcement deleted successfully');
     } catch (err) {
       console.error('Error deleting faculty announcement:', err);
       alert('Failed to delete announcement. Please try again.');
@@ -183,20 +174,11 @@
     }
     
     try {
-      const response = await fetch(`${API_BASE}/updates/${updateId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      await updateApi.deleteUpdate(updateId);
       
-      if (response.ok) {
-        // Reload agenda to reflect changes
-        await loadMeetingDetails();
-        alert('Student update deleted successfully');
-      } else {
-        throw new Error('Failed to delete update');
-      }
+      // Reload agenda to reflect changes
+      await loadMeetingDetails();
+      alert('Student update deleted successfully');
     } catch (err) {
       console.error('Error deleting student update:', err);
       alert('Failed to delete update. Please try again.');
