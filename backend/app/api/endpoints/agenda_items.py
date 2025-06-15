@@ -433,7 +433,6 @@ async def upload_files_to_agenda_item(
 # File download endpoint
 @router.get("/{item_id}/files/{file_id}/download")
 async def download_file_from_agenda_item(
-    current_user: Annotated[User, Depends(get_current_user)],
     item_id: int = Path(..., description="The ID of the agenda item"),
     file_id: int = Path(..., description="The ID of the file to download"),
     db: Session = Depends(get_sync_db)

@@ -439,7 +439,6 @@ async def upload_files_to_faculty_update(
 async def download_faculty_file(
     update_id: int = Path(..., description="The ID of the faculty update"),
     file_id: int = Path(..., description="The ID of the file to download"),
-    current_user: Optional[User] = Depends(lambda: None),  # Make auth optional for downloads
     db: Session = Depends(get_sync_db)
 ):
     """
