@@ -81,18 +81,18 @@
 <div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 via-primary-50 to-secondary-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dracula:from-gray-900 dracula:via-slate-900 dracula:to-gray-900 mbp:from-red-50 mbp:via-red-100/50 mbp:to-red-200/30 lsu:from-purple-50 lsu:via-purple-100/50 lsu:to-yellow-100/30 py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full">
     <!-- Main card -->
-    <div class="bg-white/95 dark:bg-slate-800/95 dracula:bg-gray-800/95 mbp:bg-red-50/95 lsu:bg-purple-50/95 backdrop-blur-sm p-10 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-600 dracula:border-purple-400/50 mbp:border-red-200 lsu:border-purple-200">
+    <div class="bg-white/95 dark:bg-slate-800/95 dracula:bg-gray-800/95 mbp:bg-gray-900/95 lsu:bg-purple-900/95 backdrop-blur-sm p-10 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-600 dracula:border-purple-400/50 mbp:border-red-500/50 lsu:border-purple-200">
       <!-- Logo and title -->
       <div class="text-center">
         <div class="flex justify-center mb-4">
-          <div class="p-3 rounded-xl bg-white dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-white lsu:bg-white shadow-lg">
+          <div class="p-3 rounded-xl bg-white dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-800/50 lsu:bg-purple-800/50 shadow-lg">
             <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-20 w-auto"/>
           </div>
         </div>
         <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-800 to-primary-600 dark:from-primary-400 dark:to-primary-300 dracula:from-cyan-200 dracula:to-purple-200 mbp:from-red-800 mbp:to-red-600 lsu:from-purple-800 lsu:to-purple-600 bg-clip-text text-transparent">
           DoR-Dash
         </h1>
-        <p class="mt-3 text-sm text-gray-600 dark:text-slate-300 dracula:text-slate-200 mbp:text-red-700 lsu:text-purple-700 font-medium">
+        <p class="mt-3 text-sm text-gray-600 dark:text-slate-300 dracula:text-slate-200 mbp:text-red-200 lsu:text-purple-200 font-medium">
           Sign in to access your dashboard
         </p>
       </div>
@@ -100,26 +100,26 @@
       <form class="mt-10 space-y-6" on:submit|preventDefault={handleLogin}>
         <div class="space-y-4">
           <div>
-            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-slate-300 dracula:text-slate-200 mbp:text-red-800 lsu:text-purple-800 mb-1">Username</label>
+            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-slate-300 dracula:text-slate-200 mbp:text-red-200 lsu:text-purple-200 mb-1">Username</label>
             <input
               id="username"
               name="username"
               type="text"
               required
-              class="appearance-none relative block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dracula:border-purple-400/60 mbp:border-red-300/60 lsu:border-purple-300/60 rounded-lg placeholder-gray-400 dark:placeholder-slate-400 dracula:placeholder-slate-300 mbp:placeholder-red-400/70 lsu:placeholder-purple-400/70 text-gray-900 dark:text-slate-100 dracula:text-slate-100 mbp:text-red-900 lsu:text-purple-900 bg-white dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-red-50/50 lsu:bg-purple-50/50 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-400 dracula:focus:ring-cyan-300 mbp:focus:ring-red-500 lsu:focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+              class="appearance-none relative block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dracula:border-purple-400/60 mbp:border-red-500/60 lsu:border-purple-300/60 rounded-lg placeholder-gray-400 dark:placeholder-slate-400 dracula:placeholder-slate-300 mbp:placeholder-red-300/70 lsu:placeholder-purple-400/70 text-gray-900 dark:text-slate-100 dracula:text-slate-100 mbp:text-red-100 lsu:text-purple-100 bg-white dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-800/50 lsu:bg-purple-800/50 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-400 dracula:focus:ring-cyan-300 mbp:focus:ring-red-400 lsu:focus:ring-purple-500 focus:border-transparent transition-all duration-200"
               placeholder="Enter your username"
               bind:value={username}
               disabled={loading}
             />
           </div>
           <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-slate-300 dracula:text-slate-200 mbp:text-red-800 lsu:text-purple-800 mb-1">Password</label>
+            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-slate-300 dracula:text-slate-200 mbp:text-red-200 lsu:text-purple-200 mb-1">Password</label>
             <input
               id="password"
               name="password"
               type="password"
               required
-              class="appearance-none relative block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dracula:border-purple-400/60 mbp:border-red-300/60 lsu:border-purple-300/60 rounded-lg placeholder-gray-400 dark:placeholder-slate-400 dracula:placeholder-slate-300 mbp:placeholder-red-400/70 lsu:placeholder-purple-400/70 text-gray-900 dark:text-slate-100 dracula:text-slate-100 mbp:text-red-900 lsu:text-purple-900 bg-white dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-red-50/50 lsu:bg-purple-50/50 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-400 dracula:focus:ring-cyan-300 mbp:focus:ring-red-500 lsu:focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+              class="appearance-none relative block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dracula:border-purple-400/60 mbp:border-red-500/60 lsu:border-purple-300/60 rounded-lg placeholder-gray-400 dark:placeholder-slate-400 dracula:placeholder-slate-300 mbp:placeholder-red-300/70 lsu:placeholder-purple-400/70 text-gray-900 dark:text-slate-100 dracula:text-slate-100 mbp:text-red-100 lsu:text-purple-100 bg-white dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-800/50 lsu:bg-purple-800/50 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-400 dracula:focus:ring-cyan-300 mbp:focus:ring-red-400 lsu:focus:ring-purple-500 focus:border-transparent transition-all duration-200"
               placeholder="Enter your password"
               bind:value={password}
               disabled={loading}
@@ -162,7 +162,7 @@
         
         <!-- Student Registration Link -->
         <div class="mt-4 text-center">
-          <p class="text-sm text-gray-600 dark:text-slate-400 dracula:text-slate-200 mbp:text-red-700 lsu:text-purple-700">
+          <p class="text-sm text-gray-600 dark:text-slate-400 dracula:text-slate-200 mbp:text-red-200 lsu:text-purple-200">
             New student? 
             <a href="/register" class="font-medium text-primary-600 dark:text-primary-400 dracula:text-cyan-300 mbp:text-red-600 lsu:text-purple-600 hover:text-primary-500 dark:hover:text-primary-300 dracula:hover:text-cyan-200 mbp:hover:text-red-500 lsu:hover:text-purple-500 transition-colors duration-200">
               Request account access
@@ -173,12 +173,12 @@
     </div>
     
     <!-- Partner logos at bottom -->
-    <div class="mt-8 flex items-center justify-center gap-4 text-xs text-gray-600 dark:text-slate-400 dracula:text-slate-200 mbp:text-red-700 lsu:text-purple-700">
-      <div class="p-3 rounded-lg bg-white dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-white lsu:bg-white shadow-md">
+    <div class="mt-8 flex items-center justify-center gap-4 text-xs text-gray-600 dark:text-slate-400 dracula:text-slate-200 mbp:text-red-200 lsu:text-purple-200">
+      <div class="p-3 rounded-lg bg-white dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-800/50 lsu:bg-purple-800/50 shadow-md">
         <img src="/images/mbp.png" alt="Mary Bird Perkins" class="h-12 opacity-90 hover:opacity-100 transition-opacity" />
       </div>
       <span class="font-medium px-2">in partnership with</span>
-      <div class="p-2 rounded-lg bg-white dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-white lsu:bg-white shadow-md">
+      <div class="p-2 rounded-lg bg-white dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-800/50 lsu:bg-purple-800/50 shadow-md">
         <img src="/images/lsu.png" alt="LSU" class="h-8 opacity-90 hover:opacity-100 transition-opacity" />
       </div>
     </div>
