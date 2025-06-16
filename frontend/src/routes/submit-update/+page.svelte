@@ -69,6 +69,14 @@
   let isSubmittingGeneralFeedback = false;
   let generalFeedbackSuccess = false;
   
+  // Star rating state
+  let textQualityRating = 0;
+  let textQualityHover = 0;
+  let helpfulnessRating = 0;
+  let helpfulnessHover = 0;
+  let easeOfUseRating = 0;
+  let easeOfUseHover = 0;
+  
   // Function to populate form fields from loaded update
   async function populateForm(update) {
     console.log('Populating form with update data:', update);
@@ -485,6 +493,40 @@
           meeting_id: selectedMeeting
         };
         
+        // Submit star ratings feedback if provided
+        if (textQualityRating > 0 || helpfulnessRating > 0 || easeOfUseRating > 0) {
+          try {
+            const feedbackData = {
+              feedback_text: `Star ratings: Text Quality ${textQualityRating}/5, Helpfulness ${helpfulnessRating}/5, Ease of Use ${easeOfUseRating}/5`,
+              feedback_type: 'star_ratings',
+              context: {
+                field: 'general_submission',
+                feedback_category: 'star_ratings',
+                text_quality_rating: textQualityRating,
+                helpfulness_rating: helpfulnessRating,
+                ease_of_use_rating: easeOfUseRating,
+                usage_context: 'faculty_submission_form'
+              },
+              timestamp: new Date().toISOString(),
+              user_context: {
+                is_faculty: true,
+                user_role: 'faculty'
+              }
+            };
+            
+            await fetch('/api/v1/text/feedback', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${$auth.token}`
+              },
+              body: JSON.stringify(feedbackData)
+            });
+          } catch (feedbackError) {
+            console.log('Feedback submission failed, but continuing with update:', feedbackError);
+          }
+        }
+        
         console.log('Submitting faculty update:', updateData);
         
         // Submit faculty update
@@ -575,6 +617,40 @@
           will_present: isPresenting,
           meeting_id: selectedMeeting
         };
+        
+        // Submit star ratings feedback if provided
+        if (textQualityRating > 0 || helpfulnessRating > 0 || easeOfUseRating > 0) {
+          try {
+            const feedbackData = {
+              feedback_text: `Star ratings: Text Quality ${textQualityRating}/5, Helpfulness ${helpfulnessRating}/5, Ease of Use ${easeOfUseRating}/5`,
+              feedback_type: 'star_ratings',
+              context: {
+                field: 'general_submission',
+                feedback_category: 'star_ratings',
+                text_quality_rating: textQualityRating,
+                helpfulness_rating: helpfulnessRating,
+                ease_of_use_rating: easeOfUseRating,
+                usage_context: 'student_submission_form'
+              },
+              timestamp: new Date().toISOString(),
+              user_context: {
+                is_faculty: false,
+                user_role: currentUser.role || 'student'
+              }
+            };
+            
+            await fetch('/api/v1/text/feedback', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${$auth.token}`
+              },
+              body: JSON.stringify(feedbackData)
+            });
+          } catch (feedbackError) {
+            console.log('Feedback submission failed, but continuing with update:', feedbackError);
+          }
+        }
         
         // Submit update using the correct endpoint
         let update;
@@ -1346,70 +1422,81 @@
     {/if}
     
     
-    <!-- Optional Feedback Section -->
-    <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-      <div class="flex items-start justify-between mb-3">
-        <div>
-          <h3 class="text-sm font-medium text-gray-900 dark:text-white">Help improve our AI text refinement (optional)</h3>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Share your experience with the refine & proofread feature to help us make it better</p>
-        </div>
-        <button 
-          type="button"
-          on:click={() => showGeneralFeedback = !showGeneralFeedback}
-          class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-        >
-          {showGeneralFeedback ? 'Hide' : 'Give Feedback'}
-        </button>
-      </div>
+    <!-- Optional Star Rating Feedback Section -->
+    <div class="mt-6 p-3 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
+      <h4 class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Help improve AI text refinement (optional)</h4>
       
-      {#if showGeneralFeedback}
-        <div class="space-y-3">
-          <div>
-            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">How was the text refinement feature?</label>
-            <select bind:value={generalFeedbackType} class="w-full text-sm border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-              <option value="">Select your experience...</option>
-              <option value="excellent">Excellent - Really helpful</option>
-              <option value="good">Good - Made useful improvements</option>
-              <option value="mixed">Mixed - Some parts good, some not</option>
-              <option value="poor">Poor - Didn't help much</option>
-              <option value="not_used">Didn't use the feature</option>
-            </select>
+      <div class="space-y-2">
+        <!-- Text Quality Rating -->
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-600 dark:text-gray-400">Text quality improvement:</span>
+          <div class="flex items-center space-x-1">
+            {#each [1, 2, 3, 4, 5] as star}
+              <button
+                type="button"
+                on:click={() => textQualityRating = star}
+                on:mouseenter={() => textQualityHover = star}
+                on:mouseleave={() => textQualityHover = 0}
+                class="text-lg hover:scale-110 transition-transform duration-150 focus:outline-none"
+              >
+                <span class={
+                  (textQualityHover > 0 ? star <= textQualityHover : star <= textQualityRating) 
+                    ? 'text-yellow-400' 
+                    : 'text-gray-300 dark:text-gray-600'
+                }>★</span>
+              </button>
+            {/each}
           </div>
-          
-          {#if generalFeedbackType && generalFeedbackType !== 'not_used'}
-            <div>
-              <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Comments (optional)</label>
-              <textarea 
-                bind:value={generalFeedbackText}
-                rows="2"
-                class="w-full text-sm border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                placeholder="What worked well? What could be improved? Any suggestions?"
-              ></textarea>
-            </div>
-            
-            <button 
-              type="button"
-              on:click={submitGeneralFeedback}
-              disabled={isSubmittingGeneralFeedback}
-              class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {#if isSubmittingGeneralFeedback}
-                <svg class="animate-spin -ml-1 mr-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Submitting...
-              {:else}
-                Submit Feedback
-              {/if}
-            </button>
-            
-            {#if generalFeedbackSuccess}
-              <span class="ml-2 text-xs text-green-600">✓ Thank you for your feedback!</span>
-            {/if}
-          {/if}
         </div>
-      {/if}
+        
+        <!-- Helpfulness Rating -->
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-600 dark:text-gray-400">Overall helpfulness:</span>
+          <div class="flex items-center space-x-1">
+            {#each [1, 2, 3, 4, 5] as star}
+              <button
+                type="button"
+                on:click={() => helpfulnessRating = star}
+                on:mouseenter={() => helpfulnessHover = star}
+                on:mouseleave={() => helpfulnessHover = 0}
+                class="text-lg hover:scale-110 transition-transform duration-150 focus:outline-none"
+              >
+                <span class={
+                  (helpfulnessHover > 0 ? star <= helpfulnessHover : star <= helpfulnessRating) 
+                    ? 'text-yellow-400' 
+                    : 'text-gray-300 dark:text-gray-600'
+                }>★</span>
+              </button>
+            {/each}
+          </div>
+        </div>
+        
+        <!-- Ease of Use Rating -->
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-gray-600 dark:text-gray-400">Ease of use:</span>
+          <div class="flex items-center space-x-1">
+            {#each [1, 2, 3, 4, 5] as star}
+              <button
+                type="button"
+                on:click={() => easeOfUseRating = star}
+                on:mouseenter={() => easeOfUseHover = star}
+                on:mouseleave={() => easeOfUseHover = 0}
+                class="text-lg hover:scale-110 transition-transform duration-150 focus:outline-none"
+              >
+                <span class={
+                  (easeOfUseHover > 0 ? star <= easeOfUseHover : star <= easeOfUseRating) 
+                    ? 'text-yellow-400' 
+                    : 'text-gray-300 dark:text-gray-600'
+                }>★</span>
+              </button>
+            {/each}
+          </div>
+        </div>
+        
+        {#if textQualityRating > 0 || helpfulnessRating > 0 || easeOfUseRating > 0}
+          <p class="text-xs text-gray-500 dark:text-gray-400 italic mt-2">Thank you! This feedback will be submitted with your update.</p>
+        {/if}
+      </div>
     </div>
 
     <!-- Submit button -->
