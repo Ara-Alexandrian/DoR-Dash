@@ -77,6 +77,9 @@
   let easeOfUseRating = 0;
   let easeOfUseHover = 0;
   
+  // Custom feedback text
+  let customFeedbackText = '';
+  
   // Function to populate form fields from loaded update
   async function populateForm(update) {
     console.log('Populating form with update data:', update);
@@ -493,38 +496,41 @@
           meeting_id: selectedMeeting
         };
         
-        // Submit star ratings feedback if provided
-        if (textQualityRating > 0 || helpfulnessRating > 0 || easeOfUseRating > 0) {
-          try {
-            const feedbackData = {
-              feedback_text: `Star ratings: Text Quality ${textQualityRating}/5, Helpfulness ${helpfulnessRating}/5, Ease of Use ${easeOfUseRating}/5`,
-              feedback_type: 'star_ratings',
-              context: {
-                field: 'general_submission',
-                feedback_category: 'star_ratings',
-                text_quality_rating: textQualityRating,
-                helpfulness_rating: helpfulnessRating,
-                ease_of_use_rating: easeOfUseRating,
-                usage_context: 'faculty_submission_form'
+        // Store feedback data to submit AFTER successful update creation
+        let pendingFeedbackData = null;
+        if (textQualityRating > 0 || helpfulnessRating > 0 || easeOfUseRating > 0 || customFeedbackText.trim()) {
+          pendingFeedbackData = {
+            feedback_text: customFeedbackText.trim() || 'Star ratings only',
+            feedback_type: 'comprehensive_submission_feedback',
+            context: {
+              field: 'general_submission',
+              feedback_category: 'submission_feedback',
+              // Star ratings for quantitative analysis
+              text_quality_rating: textQualityRating,
+              helpfulness_rating: helpfulnessRating,
+              ease_of_use_rating: easeOfUseRating,
+              // Custom feedback for qualitative analysis
+              custom_feedback: customFeedbackText.trim(),
+              // Submission context for LoRA training
+              submission_type: 'faculty_update',
+              usage_context: 'faculty_submission_form',
+              // Content context for training data
+              content_fields: {
+                announcements_text: announcementsText,
+                projects_text: projectsText,
+                project_status_text: projectStatusText,
+                faculty_questions: facultyQuestions
               },
-              timestamp: new Date().toISOString(),
-              user_context: {
-                is_faculty: true,
-                user_role: 'faculty'
-              }
-            };
-            
-            await fetch('/api/v1/text/feedback', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${$auth.token}`
-              },
-              body: JSON.stringify(feedbackData)
-            });
-          } catch (feedbackError) {
-            console.log('Feedback submission failed, but continuing with update:', feedbackError);
-          }
+              meeting_id: selectedMeeting,
+              is_presenting: facultyIsPresenting
+            },
+            timestamp: new Date().toISOString(),
+            user_context: {
+              is_faculty: true,
+              user_role: 'faculty',
+              user_id: $auth.user?.id
+            }
+          };
         }
         
         console.log('Submitting faculty update:', updateData);
@@ -575,6 +581,27 @@
           }
         }
         
+        // Submit feedback with submission ID for LoRA training dataset
+        if (pendingFeedbackData && update?.id) {
+          try {
+            // Add submission ID to feedback for training data linking
+            pendingFeedbackData.context.submission_id = update.id;
+            pendingFeedbackData.context.submission_data = updateData;
+            
+            await fetch('/api/v1/text/feedback', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${$auth.token}`
+              },
+              body: JSON.stringify(pendingFeedbackData)
+            });
+            console.log('Feedback submitted with submission ID:', update.id);
+          } catch (feedbackError) {
+            console.log('Feedback submission failed:', feedbackError);
+          }
+        }
+        
         // Show success and redirect
         success = 'Your faculty update has been submitted successfully!';
         setTimeout(() => {
@@ -618,38 +645,41 @@
           meeting_id: selectedMeeting
         };
         
-        // Submit star ratings feedback if provided
-        if (textQualityRating > 0 || helpfulnessRating > 0 || easeOfUseRating > 0) {
-          try {
-            const feedbackData = {
-              feedback_text: `Star ratings: Text Quality ${textQualityRating}/5, Helpfulness ${helpfulnessRating}/5, Ease of Use ${easeOfUseRating}/5`,
-              feedback_type: 'star_ratings',
-              context: {
-                field: 'general_submission',
-                feedback_category: 'star_ratings',
-                text_quality_rating: textQualityRating,
-                helpfulness_rating: helpfulnessRating,
-                ease_of_use_rating: easeOfUseRating,
-                usage_context: 'student_submission_form'
+        // Store feedback data to submit AFTER successful update creation
+        let pendingStudentFeedbackData = null;
+        if (textQualityRating > 0 || helpfulnessRating > 0 || easeOfUseRating > 0 || customFeedbackText.trim()) {
+          pendingStudentFeedbackData = {
+            feedback_text: customFeedbackText.trim() || 'Star ratings only',
+            feedback_type: 'comprehensive_submission_feedback',
+            context: {
+              field: 'general_submission',
+              feedback_category: 'submission_feedback',
+              // Star ratings for quantitative analysis
+              text_quality_rating: textQualityRating,
+              helpfulness_rating: helpfulnessRating,
+              ease_of_use_rating: easeOfUseRating,
+              // Custom feedback for qualitative analysis
+              custom_feedback: customFeedbackText.trim(),
+              // Submission context for LoRA training
+              submission_type: 'student_update',
+              usage_context: 'student_submission_form',
+              // Content context for training data
+              content_fields: {
+                progress_text: progressText,
+                challenges_text: challengesText,
+                next_steps_text: goalsText,
+                meeting_notes: meetingNotes
               },
-              timestamp: new Date().toISOString(),
-              user_context: {
-                is_faculty: false,
-                user_role: currentUser.role || 'student'
-              }
-            };
-            
-            await fetch('/api/v1/text/feedback', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${$auth.token}`
-              },
-              body: JSON.stringify(feedbackData)
-            });
-          } catch (feedbackError) {
-            console.log('Feedback submission failed, but continuing with update:', feedbackError);
-          }
+              meeting_id: selectedMeeting,
+              will_present: isPresenting
+            },
+            timestamp: new Date().toISOString(),
+            user_context: {
+              is_faculty: false,
+              user_role: currentUser.role || 'student',
+              user_id: currentUser.id
+            }
+          };
         }
         
         // Submit update using the correct endpoint
@@ -698,6 +728,27 @@
             console.error('File upload failed:', fileError);
             // Don't fail the entire submission for file upload errors
             error = `Update submitted but file upload failed: ${fileError.message}`;
+          }
+        }
+        
+        // Submit feedback with submission ID for LoRA training dataset
+        if (pendingStudentFeedbackData && update?.id) {
+          try {
+            // Add submission ID to feedback for training data linking
+            pendingStudentFeedbackData.context.submission_id = update.id;
+            pendingStudentFeedbackData.context.submission_data = updateData;
+            
+            await fetch('/api/v1/text/feedback', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${$auth.token}`
+              },
+              body: JSON.stringify(pendingStudentFeedbackData)
+            });
+            console.log('Student feedback submitted with submission ID:', update.id);
+          } catch (feedbackError) {
+            console.log('Student feedback submission failed:', feedbackError);
           }
         }
         
@@ -1493,7 +1544,18 @@
           </div>
         </div>
         
-        {#if textQualityRating > 0 || helpfulnessRating > 0 || easeOfUseRating > 0}
+        <!-- Custom Feedback Text Box -->
+        <div class="mt-3 pt-2 border-t border-gray-200 dark:border-gray-600">
+          <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Additional feedback (optional)</label>
+          <textarea 
+            bind:value={customFeedbackText}
+            rows="2"
+            class="w-full text-xs border border-gray-300 rounded p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            placeholder="What worked well? What could be improved? Any specific issues or suggestions?"
+          ></textarea>
+        </div>
+        
+        {#if textQualityRating > 0 || helpfulnessRating > 0 || easeOfUseRating > 0 || customFeedbackText.trim()}
           <p class="text-xs text-gray-500 dark:text-gray-400 italic mt-2">Thank you! This feedback will be submitted with your update.</p>
         {/if}
       </div>

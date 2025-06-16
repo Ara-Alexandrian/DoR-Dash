@@ -423,3 +423,40 @@ async def submit_feedback(
             status_code=500,
             detail=f"Error submitting feedback: {str(e)}"
         )
+
+@router.get("/export-lora-data")
+async def export_lora_training_data(
+    output_file: str = None,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Export feedback data for LoRA fine-tuning (admin only)
+    """
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    try:
+        from app.services.knowledge_base import get_knowledge_base_service
+        kb_service = get_knowledge_base_service()
+        
+        # Export training data
+        training_data = kb_service.export_lora_training_data(output_file)
+        
+        return {
+            "success": True,
+            "export_summary": {
+                "total_examples": training_data.get("total_examples", 0),
+                "faculty_examples": training_data.get("faculty_examples", 0),
+                "student_examples": training_data.get("student_examples", 0),
+                "rating_distribution": training_data.get("rating_distribution", {}),
+                "export_timestamp": training_data.get("export_timestamp")
+            },
+            "data_ready_for_lora": True,
+            "note": "Use this data to fine-tune Gemma3 with domain-specific feedback"
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error exporting LoRA training data: {str(e)}"
+        )

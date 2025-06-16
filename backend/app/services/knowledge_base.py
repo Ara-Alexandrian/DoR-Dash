@@ -377,15 +377,32 @@ class KnowledgeBaseService:
                         feedback_text TEXT,
                         context TEXT,
                         user_context TEXT,
+                        submission_id INTEGER,
+                        submission_type TEXT,
+                        text_quality_rating INTEGER,
+                        helpfulness_rating INTEGER,
+                        ease_of_use_rating INTEGER,
+                        custom_feedback TEXT,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                 ''')
                 
-                # Insert feedback entry
+                # Extract structured data for LoRA training
+                context = feedback_entry.get('context', {})
+                submission_id = context.get('submission_id')
+                submission_type = context.get('submission_type')
+                text_quality_rating = context.get('text_quality_rating', 0)
+                helpfulness_rating = context.get('helpfulness_rating', 0) 
+                ease_of_use_rating = context.get('ease_of_use_rating', 0)
+                custom_feedback = context.get('custom_feedback', '')
+                
+                # Insert feedback entry with structured fields for easier LoRA training data extraction
                 conn.execute('''
                     INSERT INTO feedback 
-                    (timestamp, user_id, user_role, feedback_type, feedback_text, context, user_context)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    (timestamp, user_id, user_role, feedback_type, feedback_text, context, user_context,
+                     submission_id, submission_type, text_quality_rating, helpfulness_rating, 
+                     ease_of_use_rating, custom_feedback)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     feedback_entry.get('timestamp'),
                     feedback_entry.get('user_id'),
@@ -393,7 +410,13 @@ class KnowledgeBaseService:
                     feedback_entry.get('feedback_type'),
                     feedback_entry.get('feedback_text', ''),
                     json.dumps(feedback_entry.get('context', {})),
-                    json.dumps(feedback_entry.get('user_context', {}))
+                    json.dumps(feedback_entry.get('user_context', {})),
+                    submission_id,
+                    submission_type,
+                    text_quality_rating,
+                    helpfulness_rating,
+                    ease_of_use_rating,
+                    custom_feedback
                 ))
                 
                 return True
@@ -401,6 +424,88 @@ class KnowledgeBaseService:
         except Exception as e:
             print(f"Warning: Could not store feedback in knowledge base: {e}")
             return False
+    
+    def export_lora_training_data(self, output_file: str = None) -> dict:
+        """Export feedback data for LoRA fine-tuning of Gemma3"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                # Get all feedback with submission data for training
+                cursor = conn.execute('''
+                    SELECT 
+                        f.id, f.timestamp, f.user_id, f.user_role, f.feedback_type,
+                        f.feedback_text, f.context, f.submission_id, f.submission_type,
+                        f.text_quality_rating, f.helpfulness_rating, f.ease_of_use_rating,
+                        f.custom_feedback, f.created_at
+                    FROM feedback f
+                    WHERE f.submission_id IS NOT NULL
+                    ORDER BY f.created_at DESC
+                ''')
+                
+                training_data = []
+                for row in cursor.fetchall():
+                    feedback_id, timestamp, user_id, user_role, feedback_type, feedback_text, context_json, submission_id, submission_type, text_quality, helpfulness, ease_of_use, custom_feedback, created_at = row
+                    
+                    try:
+                        context = json.loads(context_json) if context_json else {}
+                        
+                        # Create training example for LoRA
+                        training_example = {
+                            "feedback_id": feedback_id,
+                            "timestamp": timestamp,
+                            "user_context": {
+                                "user_id": user_id,
+                                "user_role": user_role,
+                                "is_faculty": user_role == 'faculty'
+                            },
+                            "submission_data": {
+                                "submission_id": submission_id,
+                                "submission_type": submission_type,
+                                "content_fields": context.get('content_fields', {}),
+                                "original_content": context.get('submission_data', {})
+                            },
+                            "feedback_data": {
+                                "feedback_type": feedback_type,
+                                "feedback_text": feedback_text,
+                                "custom_feedback": custom_feedback,
+                                "ratings": {
+                                    "text_quality": text_quality,
+                                    "helpfulness": helpfulness,
+                                    "ease_of_use": ease_of_use
+                                }
+                            },
+                            "training_context": context.get('usage_context', ''),
+                            "created_at": created_at
+                        }
+                        
+                        training_data.append(training_example)
+                        
+                    except Exception as parse_error:
+                        print(f"Error parsing feedback {feedback_id}: {parse_error}")
+                        continue
+                
+                export_summary = {
+                    "total_examples": len(training_data),
+                    "faculty_examples": len([ex for ex in training_data if ex['user_context']['is_faculty']]),
+                    "student_examples": len([ex for ex in training_data if not ex['user_context']['is_faculty']]),
+                    "rating_distribution": {
+                        "high_quality": len([ex for ex in training_data if ex['feedback_data']['ratings']['text_quality'] >= 4]),
+                        "medium_quality": len([ex for ex in training_data if 2 <= ex['feedback_data']['ratings']['text_quality'] < 4]),
+                        "low_quality": len([ex for ex in training_data if ex['feedback_data']['ratings']['text_quality'] < 2])
+                    },
+                    "export_timestamp": datetime.now().isoformat(),
+                    "training_data": training_data
+                }
+                
+                # Save to file if specified
+                if output_file:
+                    with open(output_file, 'w') as f:
+                        json.dump(export_summary, f, indent=2)
+                
+                return export_summary
+                
+        except Exception as e:
+            print(f"Error exporting LoRA training data: {e}")
+            return {"error": str(e), "training_data": []}
 
 # Global instance
 knowledge_service = KnowledgeBaseService()
