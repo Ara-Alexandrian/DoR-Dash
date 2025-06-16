@@ -274,6 +274,7 @@ async def get_meeting_agenda(
                 "meeting_id": item.meeting_id,
                 "files": files,
                 "submission_date": item.created_at.isoformat(),
+                "submitted_at": item.created_at.isoformat(),  # For frontend compatibility
                 "created_at": item.created_at.isoformat(),
                 "updated_at": item.updated_at.isoformat()
             })
@@ -293,6 +294,7 @@ async def get_meeting_agenda(
                 "meeting_id": item.meeting_id,
                 "files": files,
                 "submission_date": item.created_at.isoformat(),
+                "submitted_at": item.created_at.isoformat(),  # For frontend compatibility
                 "created_at": item.created_at.isoformat(),
                 "updated_at": item.updated_at.isoformat()
             })
