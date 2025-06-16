@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: List[Union[str, AnyHttpUrl]] = ["*"]
     
     # Ollama API settings
-    OLLAMA_API_URL: str = os.environ.get("OLLAMA_API_URL", "http://localhost:11434/api/generate")
+    OLLAMA_API_URL: str = os.environ.get("OLLAMA_API_URL", "http://172.30.98.14:11434/api/generate")
     
     # Database connection string - async
     @property
