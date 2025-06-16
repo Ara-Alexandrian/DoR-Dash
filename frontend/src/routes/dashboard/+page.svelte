@@ -135,39 +135,32 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" in:fly={{y: 20, duration: 400, delay: 100}}>
         <button 
           class="card group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-primary-200 dark:border-primary-700 w-full text-left cursor-pointer hover:bg-gradient-to-br hover:from-primary-100 hover:to-primary-200"
-          on:click={() => { console.log('Clicking total updates tile'); window.location.href = '/updates'; }}
+          on:click={() => { console.log('Clicking updates tile'); window.location.href = '/updates'; }}
           title="View all your submitted updates"
         >
           <div class="p-6">
             <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-primary-600 dark:text-primary-400">Total Updates</p>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-primary-600 dark:text-primary-400">Your Updates</p>
                 <p class="mt-2 text-3xl font-bold text-primary-900 dark:text-primary-100">{stats.totalUpdates}</p>
+                <div class="flex items-center gap-4 mt-3">
+                  <div class="flex items-center text-xs text-[rgb(var(--color-text-tertiary))]">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-1.5"></div>
+                    <span class="font-medium text-green-700 dark:text-green-400">{stats.recentUpdates}</span>
+                    <span class="ml-1">recent</span>
+                  </div>
+                  {#if stats.totalUpdates > stats.recentUpdates}
+                    <div class="flex items-center text-xs text-[rgb(var(--color-text-tertiary))]">
+                      <div class="w-2 h-2 bg-gray-400 rounded-full mr-1.5"></div>
+                      <span class="font-medium">{stats.totalUpdates - stats.recentUpdates}</span>
+                      <span class="ml-1">older</span>
+                    </div>
+                  {/if}
+                </div>
               </div>
               <div class="p-3 bg-primary-200 dark:bg-primary-700 rounded-full group-hover:scale-110 transition-transform duration-300">
                 <svg class="h-6 w-6 text-primary-700 dark:text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </button>
-
-        <button 
-          class="card group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900/20 dark:to-secondary-800/20 border-secondary-200 dark:border-secondary-700 w-full text-left cursor-pointer hover:bg-gradient-to-br hover:from-secondary-100 hover:to-secondary-200"
-          on:click={() => { console.log('Clicking recent updates tile'); window.location.href = '/updates'; }}
-          title="View your recent updates from the last 30 days"
-        >
-          <div class="p-6">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-secondary-600 dark:text-secondary-400">Recent Updates</p>
-                <p class="mt-2 text-3xl font-bold text-secondary-900 dark:text-secondary-100">{stats.recentUpdates}</p>
-                <p class="text-xs text-[rgb(var(--color-text-tertiary))] mt-1">Last 30 days</p>
-              </div>
-              <div class="p-3 bg-secondary-200 dark:bg-secondary-700 rounded-full group-hover:scale-110 transition-transform duration-300">
-                <svg class="h-6 w-6 text-secondary-700 dark:text-secondary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
             </div>
