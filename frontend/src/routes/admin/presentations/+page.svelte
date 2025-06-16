@@ -261,7 +261,7 @@
   {/if}
   
   <!-- Assign Presentation Form -->
-  <div class="bg-white shadow rounded-lg mb-6 p-6">
+  <div class="bg-[rgb(var(--color-bg-primary))] shadow rounded-lg mb-6 p-6">
     <h2 class="text-lg font-medium text-gray-900 mb-4">Assign New Presentation</h2>
     
     <div class="grid grid-cols-1 gap-y-5 gap-x-6 sm:grid-cols-2">
@@ -323,7 +323,7 @@
   </div>
   
   <!-- Presentation Filters -->
-  <div class="bg-white shadow rounded-lg mb-6 p-4">
+  <div class="bg-[rgb(var(--color-bg-primary))] shadow rounded-lg mb-6 p-4">
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div>
         <label for="filter_user" class="block text-sm font-medium text-gray-700">Filter by Student</label>
@@ -356,7 +356,7 @@
   </div>
   
   <!-- Presentations Table -->
-  <div class="bg-white shadow overflow-hidden rounded-lg">
+  <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg">
     <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
       <h2 class="text-lg font-medium text-gray-900">Presentation Assignments</h2>
     </div>
@@ -401,7 +401,7 @@
               </th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="bg-[rgb(var(--color-bg-primary))] divide-y divide-gray-200">
             {#each filteredPresentations as presentation}
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -466,7 +466,7 @@
         <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
       </div>
       
-      <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+      <div class="inline-block align-bottom bg-[rgb(var(--color-bg-primary))] rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
         <div>
           <h3 class="text-lg leading-6 font-medium text-gray-900">
             Edit Presentation

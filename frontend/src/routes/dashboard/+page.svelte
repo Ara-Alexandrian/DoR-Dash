@@ -121,7 +121,7 @@
           <div class="flex justify-between items-start">
             <div class="flex items-start space-x-6">
               <div class="transform hover:scale-105 transition-transform duration-300">
-                <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-700/80 dracula:bg-gray-700/80 mbp:bg-white/90 lsu:bg-white/90 shadow-lg">
+                <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-700/80 dracula:bg-gray-700/80 mbp:bg-gray-800/90 lsu:bg-purple-800/90 shadow-lg">
                   <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-16 w-auto"/>
                 </div>
               </div>
@@ -134,12 +134,12 @@
               </div>
             </div>
             <div class="flex items-center space-x-4 transform hover:scale-105 transition-transform duration-300">
-              <div class="p-3 rounded-lg bg-white/80 dark:bg-slate-700/80 dracula:bg-gray-700/80 mbp:bg-white/90 lsu:bg-white/90 shadow-md">
+              <div class="p-3 rounded-lg bg-white/80 dark:bg-slate-700/80 dracula:bg-gray-700/80 mbp:bg-gray-800/90 lsu:bg-purple-800/90 shadow-md">
                 <img src="/images/mbp.png" alt="Mary Bird Perkins Logo" class="h-14 w-auto"/>
               </div>
               <div class="flex items-center">
                 <span class="text-xs text-[rgb(var(--color-text-tertiary))] mr-2 font-medium">with</span>
-                <div class="p-2 rounded-lg bg-white/80 dark:bg-slate-700/80 dracula:bg-gray-700/80 mbp:bg-white/90 lsu:bg-white/90 shadow-md">
+                <div class="p-2 rounded-lg bg-white/80 dark:bg-slate-700/80 dracula:bg-gray-700/80 mbp:bg-gray-800/90 lsu:bg-purple-800/90 shadow-md">
                   <img src="/images/lsu.png" alt="LSU Logo" class="h-8 w-auto"/>
                 </div>
               </div>
@@ -469,11 +469,11 @@
       <div class="mt-12 pt-8 border-t border-[rgb(var(--color-border))]" in:fade={{duration: 300, delay: 400}}>
         <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
           <div class="flex items-center space-x-6">
-            <div class="p-3 rounded-lg bg-white/50 dark:bg-slate-700/50 dracula:bg-gray-700/50 mbp:bg-white/70 lsu:bg-white/70 shadow-sm">
+            <div class="p-3 rounded-lg bg-white/50 dark:bg-slate-700/50 dracula:bg-gray-700/50 mbp:bg-gray-800/70 lsu:bg-purple-800/70 shadow-sm">
               <img src="/images/mbp.png" alt="Mary Bird Perkins Logo" class="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity"/>
             </div>
             <span class="text-xs text-[rgb(var(--color-text-tertiary))] font-medium">in partnership with</span>
-            <div class="p-2 rounded-lg bg-white/50 dark:bg-slate-700/50 dracula:bg-gray-700/50 mbp:bg-white/70 lsu:bg-white/70 shadow-sm">
+            <div class="p-2 rounded-lg bg-white/50 dark:bg-slate-700/50 dracula:bg-gray-700/50 mbp:bg-gray-800/70 lsu:bg-purple-800/70 shadow-sm">
               <img src="/images/lsu.png" alt="LSU Logo" class="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity"/>
             </div>
           </div>

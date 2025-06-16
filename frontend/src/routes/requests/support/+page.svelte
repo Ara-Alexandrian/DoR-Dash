@@ -108,7 +108,7 @@
     </div>
   {/if}
   
-  <form on:submit|preventDefault={handleSubmit} class="space-y-6 bg-white p-6 rounded-lg shadow-sm">
+  <form on:submit|preventDefault={handleSubmit} class="space-y-6 bg-[rgb(var(--color-bg-primary))] p-6 rounded-lg shadow-sm">
     <!-- Support type -->
     <div>
       <label for="supportType" class="block text-sm font-medium text-gray-700 mb-1">

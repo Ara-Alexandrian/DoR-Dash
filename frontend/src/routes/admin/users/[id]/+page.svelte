@@ -152,7 +152,7 @@
       </div>
     </div>
   {:else if user}
-    <div class="bg-white shadow rounded-lg p-6">
+    <div class="bg-[rgb(var(--color-bg-primary))] shadow rounded-lg p-6">
       <h2 class="text-lg font-medium text-gray-900 mb-6">User Information</h2>
       
       <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">

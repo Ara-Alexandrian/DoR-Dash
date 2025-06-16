@@ -191,7 +191,7 @@
     </div>
   {:else}
     <!-- User information form -->
-    <div class="bg-white shadow overflow-hidden rounded-lg">
+    <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg">
       <div class="px-4 py-5 sm:px-6 bg-primary-50 border-b border-primary-100">
         <h2 class="text-lg font-medium text-gray-900">Personal Information</h2>
         <p class="mt-1 text-sm text-gray-500">Update your personal details and contact information</p>
@@ -237,7 +237,7 @@
                 <input
                   type="text"
                   id="username"
-                  class="shadow-sm bg-gray-50 focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md cursor-not-allowed"
+                  class="shadow-sm bg-[rgb(var(--color-bg-tertiary))] focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md cursor-not-allowed"
                   value={form.username}
                   disabled
                 />
@@ -254,7 +254,7 @@
                 <input
                   type="email"
                   id="email"
-                  class="shadow-sm bg-gray-50 focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md cursor-not-allowed"
+                  class="shadow-sm bg-[rgb(var(--color-bg-tertiary))] focus:ring-primary-500 focus:border-primary-500 block w-full sm:text-sm border-gray-300 rounded-md cursor-not-allowed"
                   value={form.email}
                   disabled
                 />
@@ -308,7 +308,7 @@
     </div>
     
     <!-- Password section -->
-    <div class="mt-8 bg-white shadow overflow-hidden rounded-lg">
+    <div class="mt-8 bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg">
       <div class="px-4 py-5 sm:px-6 bg-secondary-50 border-b border-secondary-100">
         <h2 class="text-lg font-medium text-gray-900">Password</h2>
         <p class="mt-1 text-sm text-gray-500">Update your password to keep your account secure</p>
@@ -418,7 +418,7 @@
     </div>
     
     <!-- Role information -->
-    <div class="mt-8 bg-white shadow overflow-hidden rounded-lg">
+    <div class="mt-8 bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg">
       <div class="px-4 py-5 sm:px-6 bg-gold-50 border-b border-gold-100">
         <h2 class="text-lg font-medium text-gray-900">Account Information</h2>
         <p class="mt-1 text-sm text-gray-500">Information about your account status and access level</p>

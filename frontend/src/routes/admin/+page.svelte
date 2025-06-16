@@ -19,7 +19,7 @@
   </div>
   
   <!-- Main Actions -->
-  <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
+  <div class="bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-sm border border-gray-200 mb-8">
     <div class="px-6 py-4 border-b border-gray-200">
       <h2 class="text-lg font-semibold text-gray-900">Core Management</h2>
     </div>
@@ -57,7 +57,7 @@
   </div>
 
   <!-- System Tools -->
-  <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+  <div class="bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-sm border border-gray-200">
     <div class="px-6 py-4 border-b border-gray-200">
       <h2 class="text-lg font-semibold text-gray-900">System Tools</h2>
     </div>

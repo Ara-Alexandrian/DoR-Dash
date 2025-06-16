@@ -334,11 +334,11 @@
     </div>
   {:else if meeting}
     <!-- Meeting Header Information -->
-    <div class="bg-white shadow overflow-hidden rounded-lg mb-8">
+    <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg mb-8">
       <div class="px-4 py-5 sm:px-6 bg-primary-700 text-white">
         <div class="flex justify-between">
           <h2 class="text-xl font-semibold">{(meeting.title && meeting.title !== 'undefined') ? meeting.title : 'Research Progress Meeting'}</h2>
-          <span class="px-2 py-1 rounded text-xs uppercase font-bold bg-white text-primary-700">
+          <span class="px-2 py-1 rounded text-xs uppercase font-bold bg-[rgb(var(--color-bg-primary))] text-primary-700">
             {meeting.status}
           </span>
         </div>
@@ -363,7 +363,7 @@
     </div>
     
     <!-- Faculty Announcements Section -->
-    <div class="bg-white shadow overflow-hidden rounded-lg mb-8">
+    <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg mb-8">
       <button 
         class="w-full px-4 py-5 sm:px-6 bg-secondary-700 text-white text-left hover:bg-secondary-800 transition-colors"
         on:click={toggleFacultySection}
@@ -559,7 +559,7 @@
                           <div class="flex justify-end space-x-3">
                             <button
                               on:click={cancelFacultyEdit}
-                              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                              class="px-4 py-2 text-sm font-medium text-gray-700 bg-[rgb(var(--color-bg-primary))] border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                               disabled={isSaving}
                             >
                               Cancel
@@ -631,7 +631,7 @@
                         <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider mb-2">Attached Files</h5>
                         <ul class="space-y-2">
                           {#each announcement.files as file}
-                            <li class="flex items-center p-2 bg-white rounded border border-gray-200">
+                            <li class="flex items-center p-2 bg-[rgb(var(--color-bg-primary))] rounded border border-gray-200">
                               <!-- File icon based on type -->
                               <div class="flex-shrink-0 mr-2">
                                 {#if file.type === 'presentation' || file.name.endsWith('.pptx') || file.name.endsWith('.ppt')}
@@ -690,7 +690,7 @@
     </div>
     
     <!-- Student Updates Section -->
-    <div class="bg-white shadow overflow-hidden rounded-lg mb-8">
+    <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg mb-8">
       <button 
         class="w-full px-4 py-5 sm:px-6 bg-gold-700 text-white text-left hover:bg-gold-800 transition-colors"
         on:click={toggleStudentSection}
@@ -859,7 +859,7 @@
                           <div class="flex justify-end space-x-3">
                             <button
                               on:click={cancelStudentEdit}
-                              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                              class="px-4 py-2 text-sm font-medium text-gray-700 bg-[rgb(var(--color-bg-primary))] border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                               disabled={isSaving}
                             >
                               Cancel
@@ -925,7 +925,7 @@
                         <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider mb-2">Presentation Materials</h5>
                         <ul class="space-y-2">
                           {#each update.files as file}
-                            <li class="flex items-center p-2 bg-white rounded border border-gray-200">
+                            <li class="flex items-center p-2 bg-[rgb(var(--color-bg-primary))] rounded border border-gray-200">
                               <!-- File icon based on type -->
                               <div class="flex-shrink-0 mr-2">
                                 {#if file.type === 'presentation' || file.name.endsWith('.pptx') || file.name.endsWith('.ppt')}
@@ -984,7 +984,7 @@
     </div>
     
     <!-- Meeting Schedule -->
-    <div class="bg-white shadow overflow-hidden rounded-lg">
+    <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg">
       <button 
         class="w-full px-4 py-5 sm:px-6 bg-primary-100 text-primary-900 text-left hover:bg-primary-200 transition-colors"
         on:click={toggleScheduleSection}
@@ -1024,7 +1024,7 @@
               </th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="bg-[rgb(var(--color-bg-primary))] divide-y divide-gray-200">
             <!-- Welcome/Introduction -->
             <tr>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

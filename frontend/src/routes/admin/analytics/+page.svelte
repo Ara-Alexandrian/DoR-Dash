@@ -167,7 +167,7 @@
   {:else}
     <!-- Key Metrics -->
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-      <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="bg-[rgb(var(--color-bg-primary))] overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
           <div class="flex items-center">
             <div class="flex-shrink-0 bg-primary-100 rounded-md p-3">
@@ -194,7 +194,7 @@
         </div>
       </div>
       
-      <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="bg-[rgb(var(--color-bg-primary))] overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
           <div class="flex items-center">
             <div class="flex-shrink-0 bg-secondary-100 rounded-md p-3">
@@ -221,7 +221,7 @@
         </div>
       </div>
       
-      <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="bg-[rgb(var(--color-bg-primary))] overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
           <div class="flex items-center">
             <div class="flex-shrink-0 bg-gold-100 rounded-md p-3">
@@ -248,7 +248,7 @@
         </div>
       </div>
       
-      <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="bg-[rgb(var(--color-bg-primary))] overflow-hidden shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
           <div class="flex items-center">
             <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
@@ -277,7 +277,7 @@
     </div>
     
     <!-- Updates by Month Chart -->
-    <div class="bg-white overflow-hidden shadow rounded-lg mb-8">
+    <div class="bg-[rgb(var(--color-bg-primary))] overflow-hidden shadow rounded-lg mb-8">
       <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
         <h3 class="text-lg leading-6 font-medium text-gray-900">Updates by Month</h3>
       </div>
@@ -294,11 +294,11 @@
     </div>
     
     <!-- Active Students List -->
-    <div class="bg-white overflow-hidden shadow rounded-lg">
+    <div class="bg-[rgb(var(--color-bg-primary))] overflow-hidden shadow rounded-lg">
       <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
         <h3 class="text-lg leading-6 font-medium text-gray-900">Top Active Students</h3>
       </div>
-      <div class="bg-white overflow-hidden">
+      <div class="bg-[rgb(var(--color-bg-primary))] overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
@@ -313,7 +313,7 @@
               </th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="bg-[rgb(var(--color-bg-primary))] divide-y divide-gray-200">
             {#each topActiveStudents as student}
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">

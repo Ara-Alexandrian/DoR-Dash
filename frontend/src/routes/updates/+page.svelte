@@ -229,7 +229,7 @@
   {:else}
     <div class="space-y-6">
       {#each updates as update}
-        <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <div class="bg-[rgb(var(--color-bg-primary))] dark:bg-gray-800 shadow rounded-lg p-6">
           {#if editingUpdate && editingUpdate.id === update.id}
             <!-- Inline Edit Mode -->
             <div class="space-y-4">
@@ -259,7 +259,7 @@
                   <button
                     on:click={cancelEdit}
                     disabled={isSaving}
-                    class="inline-flex items-center px-3 py-1.5 bg-gray-500 text-white text-xs font-medium rounded-md hover:bg-gray-600 disabled:opacity-50"
+                    class="inline-flex items-center px-3 py-1.5 bg-[rgb(var(--color-bg-secondary))]0 text-white text-xs font-medium rounded-md hover:bg-gray-600 disabled:opacity-50"
                   >
                     <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -369,7 +369,7 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Existing files (click × to remove)</p>
                     <div class="space-y-2">
                       {#each existingFiles as file}
-                        <div class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600">
+                        <div class="flex items-center justify-between p-2 bg-[rgb(var(--color-bg-secondary))] dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600">
                           <div class="flex items-center gap-2 text-sm">
                             <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -433,7 +433,7 @@
                   />
                   <label
                     for="file-upload-{editingUpdate.id}"
-                    class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer"
+                    class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-[rgb(var(--color-bg-primary))] dark:bg-gray-700 hover:bg-[rgb(var(--color-bg-secondary))] dark:hover:bg-gray-600 cursor-pointer"
                   >
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />

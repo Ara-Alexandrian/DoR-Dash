@@ -104,7 +104,7 @@
   </div>
 
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-    <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+    <div class="bg-[rgb(var(--color-bg-primary))] py-8 px-4 shadow sm:rounded-lg sm:px-10">
       
       {#if success}
         <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
@@ -326,7 +326,7 @@
             <div class="w-full border-t border-gray-300" />
           </div>
           <div class="relative flex justify-center text-sm">
-            <span class="px-2 bg-white text-gray-500">Registration Process</span>
+            <span class="px-2 bg-[rgb(var(--color-bg-primary))] text-gray-500">Registration Process</span>
           </div>
         </div>
 

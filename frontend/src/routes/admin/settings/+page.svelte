@@ -105,7 +105,7 @@
     </div>
   {/if}
   
-  <div class="bg-white shadow overflow-hidden rounded-lg">
+  <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg">
     <div class="px-4 py-5 sm:p-6">
       <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
         <div class="sm:col-span-4">
@@ -210,7 +210,7 @@
     </div>
   </div>
   
-  <div class="mt-6 bg-white shadow overflow-hidden rounded-lg">
+  <div class="mt-6 bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg">
     <div class="px-4 py-5 sm:p-6">
       <h3 class="text-lg leading-6 font-medium text-gray-900">System Information</h3>
       <div class="mt-5 border-t border-gray-200">

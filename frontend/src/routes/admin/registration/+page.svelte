@@ -205,7 +205,7 @@
       <p class="text-gray-500 dark:text-gray-400">No registration requests found for "{selectedFilter || 'all'}" status.</p>
     </div>
   {:else}
-    <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md">
+    <div class="bg-[rgb(var(--color-bg-primary))] dark:bg-gray-800 shadow overflow-hidden sm:rounded-md">
       <ul class="divide-y divide-gray-200 dark:divide-gray-700">
         {#each registrationRequests as request}
           <li class="px-6 py-4">
@@ -288,7 +288,7 @@
                 {/if}
                 <button
                   on:click={() => deleteRequest(request.id)}
-                  class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm leading-4 font-medium rounded-md text-gray-700 bg-[rgb(var(--color-bg-primary))] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                 >
                   Delete
                 </button>
@@ -304,7 +304,7 @@
 <!-- Review Modal -->
 {#if reviewingRequest}
   <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-[rgb(var(--color-bg-primary))] dark:bg-gray-800">
       <div class="mt-3">
         <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">
           {reviewAction === 'approved' ? 'Approve' : 'Reject'} Registration Request

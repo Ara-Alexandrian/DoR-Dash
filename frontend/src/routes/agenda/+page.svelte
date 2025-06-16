@@ -149,19 +149,19 @@
       <div class="flex rounded-md shadow-sm">
         <a 
           href="/agenda"
-          class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-l-md border border-gray-300 {!showPastOnly && !showUpcomingOnly ? 'bg-primary-600 text-white border-primary-600' : 'bg-white text-gray-700 hover:bg-gray-50'}"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-l-md border border-gray-300 {!showPastOnly && !showUpcomingOnly ? 'bg-primary-600 text-white border-primary-600' : 'bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-tertiary))]'}"
         >
           Current
         </a>
         <a 
           href="/agenda?filter=upcoming"
-          class="inline-flex items-center px-3 py-2 text-sm font-medium border-t border-b border-gray-300 {showUpcomingOnly ? 'bg-gold-600 text-white border-gold-600' : 'bg-white text-gray-700 hover:bg-gray-50'}"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium border-t border-b border-gray-300 {showUpcomingOnly ? 'bg-gold-600 text-white border-gold-600' : 'bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-tertiary))]'}"
         >
           Upcoming
         </a>
         <a 
           href="/agenda?filter=past"
-          class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-r-md border border-gray-300 {showPastOnly ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-700 hover:bg-gray-50'}"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-r-md border border-gray-300 {showPastOnly ? 'bg-green-600 text-white border-green-600' : 'bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-tertiary))]'}"
         >
           Past
         </a>

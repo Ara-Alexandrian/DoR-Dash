@@ -122,7 +122,7 @@
       <p class="mt-2 text-gray-500">Loading presentation details...</p>
     </div>
   {:else if presentation}
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+    <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden sm:rounded-lg mb-6">
       <div class="px-4 py-5 sm:px-6 bg-primary-50">
         <h3 class="text-lg leading-6 font-medium text-primary-900">Presentation Details</h3>
       </div>
@@ -144,7 +144,7 @@
       </div>
     </div>
     
-    <div class="bg-white shadow sm:rounded-lg">
+    <div class="bg-[rgb(var(--color-bg-primary))] shadow sm:rounded-lg">
       <div class="px-4 py-5 sm:p-6">
         <h3 class="text-lg leading-6 font-medium text-gray-900">Upload File</h3>
         <div class="mt-2 max-w-xl text-sm text-gray-500">
@@ -200,7 +200,7 @@
       </div>
     </div>
   {:else}
-    <div class="bg-white p-6 rounded-lg shadow-sm text-center">
+    <div class="bg-[rgb(var(--color-bg-primary))] p-6 rounded-lg shadow-sm text-center">
       <p class="text-gray-500">Presentation not found or you don't have permission to access it.</p>
       <a href="/agenda" class="mt-4 inline-block text-primary-600 hover:text-primary-500">
         Return to Agenda

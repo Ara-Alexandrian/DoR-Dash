@@ -1230,7 +1230,7 @@
         
         <!-- Show selected files -->
         {#if facultyFiles && facultyFiles.length > 0}
-          <div class="mt-3 p-3 bg-gray-50 rounded-md">
+          <div class="mt-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-md">
             <h4 class="text-sm font-medium text-gray-700 mb-2">Selected Files ({facultyFiles.length}):</h4>
             <ul class="text-xs text-gray-600 space-y-1">
               {#each facultyFiles as file}
@@ -1457,7 +1457,7 @@
         
         <!-- Show selected files -->
         {#if files && files.length > 0}
-          <div class="mt-3 p-3 bg-gray-50 rounded-md">
+          <div class="mt-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-md">
             <h4 class="text-sm font-medium text-gray-700 mb-2">Selected Files ({files.length}):</h4>
             <ul class="text-xs text-gray-600 space-y-1">
               {#each files as file}
@@ -1474,7 +1474,7 @@
     
     
     <!-- Optional Star Rating Feedback Section -->
-    <div class="mt-6 p-3 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
+    <div class="mt-6 p-3 bg-[rgb(var(--color-bg-secondary))] dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
       <h4 class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Help improve AI text refinement (optional)</h4>
       
       <div class="space-y-2">
@@ -1586,7 +1586,7 @@
 <!-- Floating AI Refinement Widget -->
 {#if refinementResult}
   <div 
-    class="fixed z-50 w-96 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-600"
+    class="fixed z-50 w-96 p-4 bg-[rgb(var(--color-bg-primary))] dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-600"
     style="left: {Math.max(10, Math.min(refinementPosition.x, window.innerWidth - 400))}px; top: {Math.max(10, Math.min(refinementPosition.y, window.innerHeight - 600))}px; max-width: calc(100vw - 20px); max-height: calc(100vh - 20px); overflow-y: auto;"
   >
     <!-- Hint for editing -->
@@ -1651,7 +1651,7 @@
         <div class="space-y-2">
           <textarea
             bind:value={editedRefinedText}
-            class="w-full text-sm text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700 p-3 rounded border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+            class="w-full text-sm text-gray-800 dark:text-gray-200 bg-[rgb(var(--color-bg-primary))] dark:bg-gray-700 p-3 rounded border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
             rows="4"
             placeholder="Edit the refined text..."
           ></textarea>
@@ -1673,7 +1673,7 @@
           </div>
         </div>
       {:else}
-        <div class="text-sm text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 p-3 rounded border text-wrap leading-relaxed">
+        <div class="text-sm text-gray-800 dark:text-gray-200 bg-[rgb(var(--color-bg-secondary))] dark:bg-gray-700 p-3 rounded border text-wrap leading-relaxed">
           {refinementResult.refined_text || refinementResult.refined || 'No corrections needed'}
         </div>
       {/if}
@@ -1747,7 +1747,7 @@
 <!-- Feedback Modal -->
 {#if showFeedbackBox}
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" on:click={() => showFeedbackBox = false}>
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4" on:click|stopPropagation>
+    <div class="bg-[rgb(var(--color-bg-primary))] dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4" on:click|stopPropagation>
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-medium text-gray-900 dark:text-white">Refinement Feedback</h3>
         <button 
@@ -1809,7 +1809,7 @@
           </button>
           <button 
             on:click={() => showFeedbackBox = false}
-            class="px-4 py-2 bg-gray-200 text-gray-800 text-sm font-medium rounded-md hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+            class="px-4 py-2 bg-gray-200 text-gray-800 text-sm font-medium rounded-md hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-[rgb(var(--color-bg-secondary))]0"
           >
             Cancel
           </button>

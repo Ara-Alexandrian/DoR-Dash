@@ -150,7 +150,7 @@
     </div>
   {:else}
     <!-- Search and filters -->
-    <div class="mb-6 bg-white p-4 shadow rounded-lg">
+    <div class="mb-6 bg-[rgb(var(--color-bg-primary))] p-4 shadow rounded-lg">
       <div class="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
         <!-- Search input -->
         <div class="flex-1">
@@ -193,7 +193,7 @@
         <!-- View mode toggle -->
         <button 
           type="button"
-          class="inline-flex items-center p-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          class="inline-flex items-center p-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-[rgb(var(--color-bg-primary))] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
           on:click={toggleViewMode}
           aria-label={viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'}
         >
@@ -225,14 +225,14 @@
     </div>
     
     {#if filteredUsers.length === 0}
-      <div class="bg-white p-8 text-center rounded-lg shadow">
+      <div class="bg-[rgb(var(--color-bg-primary))] p-8 text-center rounded-lg shadow">
         <p class="text-gray-500">No users found matching your criteria.</p>
       </div>
     {:else if viewMode === 'grid'}
       <!-- Grid view -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {#each filteredUsers as user}
-          <div class="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200">
+          <div class="bg-[rgb(var(--color-bg-primary))] overflow-hidden shadow rounded-lg divide-y divide-gray-200">
             <div class="px-4 py-5 sm:px-6 flex justify-between items-start">
               <div>
                 <h3 class="text-lg font-medium text-gray-900">{user.full_name || user.username}</h3>
@@ -284,7 +284,7 @@
                 <div class="flex justify-end space-x-2">
                   <a
                     href={`/admin/users/${user.id}`}
-                    class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                    class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-[rgb(var(--color-bg-primary))] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
                   >
                     Edit
                   </a>
@@ -298,7 +298,7 @@
       </div>
     {:else}
       <!-- List view -->
-      <div class="bg-white shadow overflow-hidden sm:rounded-md">
+      <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden sm:rounded-md">
         <table class="min-w-full divide-y divide-gray-200">
           <thead>
             <tr class="bg-gray-50">
@@ -318,7 +318,7 @@
               {/if}
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="bg-[rgb(var(--color-bg-primary))] divide-y divide-gray-200">
             {#each filteredUsers as user}
               <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap">

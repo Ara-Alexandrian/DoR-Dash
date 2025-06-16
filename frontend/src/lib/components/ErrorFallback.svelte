@@ -18,7 +18,7 @@
   }
 </script>
 
-<div class="min-h-screen bg-white px-4 py-16 sm:px-6 sm:py-24 md:grid md:place-items-center lg:px-8">
+<div class="min-h-screen bg-[rgb(var(--color-bg-primary))] px-4 py-16 sm:px-6 sm:py-24 md:grid md:place-items-center lg:px-8">
   <div class="max-w-max mx-auto">
     <main class="sm:flex">
       <p class="text-4xl font-extrabold text-primary-900 sm:text-5xl">{errorCode}</p>
@@ -45,7 +45,7 @@
     </main>
     
     {#if showDetails && error}
-      <div class="mt-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
+      <div class="mt-8 bg-[rgb(var(--color-bg-secondary))] p-6 rounded-lg border border-gray-200">
         <h2 class="text-lg font-medium text-gray-900 mb-2">Error Details</h2>
         <pre class="text-sm text-gray-700 overflow-auto">{JSON.stringify(error, null, 2)}</pre>
       </div>

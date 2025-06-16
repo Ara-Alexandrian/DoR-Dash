@@ -411,7 +411,7 @@
   </div>
   
   <!-- Calendar grid -->
-  <div class="bg-white rounded-lg shadow overflow-hidden">
+  <div class="bg-[rgb(var(--color-bg-primary))] rounded-lg shadow overflow-hidden">
     <!-- Day headers -->
     <div class="grid grid-cols-7 gap-px bg-gray-200">
       {#each ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as day}
@@ -431,13 +431,13 @@
       <div class="grid grid-cols-7 gap-px bg-gray-200">
         <!-- Empty cells for days before month starts -->
         {#each Array(firstDayOfMonth) as _, i}
-          <div class="bg-white p-2 h-32 sm:h-40"></div>
+          <div class="bg-[rgb(var(--color-bg-primary))] p-2 h-32 sm:h-40"></div>
         {/each}
         
         <!-- Actual days -->
         {#each days as day}
           <div 
-            class="bg-white p-2 h-32 sm:h-40 hover:bg-gray-50 overflow-y-auto relative group transition-colors {dragOverDay === day ? 'bg-blue-100 border-2 border-blue-400' : ''}"
+            class="bg-[rgb(var(--color-bg-primary))] p-2 h-32 sm:h-40 hover:bg-gray-50 overflow-y-auto relative group transition-colors {dragOverDay === day ? 'bg-blue-100 border-2 border-blue-400' : ''}"
             on:dragover={(e) => handleDragOver(e, day)}
             on:dragleave={handleDragLeave}
             on:drop={(e) => handleDrop(e, day)}
@@ -525,7 +525,7 @@
     <div class="fixed inset-0 bg-black bg-opacity-10 z-40" on:click={closeForm}></div>
     
     <div 
-      class="fixed z-50 bg-white rounded-lg shadow-xl border border-gray-200 p-6 w-96 popup-widget"
+      class="fixed z-50 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-xl border border-gray-200 p-6 w-96 popup-widget"
       style="left: {Math.min(popupPosition.x, window.innerWidth - 400)}px; top: {Math.min(popupPosition.y, window.innerHeight - 500)}px;"
     >
       <h3 class="text-lg font-semibold text-gray-900 mb-4">
