@@ -176,12 +176,12 @@ async def refine_text(
         
         prompt = enhanced_prompt
         
-        # Call Ollama API with Gemma 4B for more conservative formatting
+        # Call Ollama API with Gemma 3 4B for more conservative formatting
         async with httpx.AsyncClient(timeout=httpx.Timeout(60.0)) as client:
             response = await client.post(
                 settings.OLLAMA_API_URL,
                 json={
-                    "model": "gemma2:2b",  # Use Gemma 2B for faster, more conservative responses
+                    "model": "gemma3:4b",  # Use Gemma 3 4B for better, more conservative responses
                     "prompt": prompt,
                     "stream": False,
                     "options": {
@@ -317,7 +317,7 @@ async def check_ai_service():
             response = await client.post(
                 settings.OLLAMA_API_URL,
                 json={
-                    "model": "gemma2:2b",
+                    "model": "gemma3:4b",
                     "prompt": "Test",
                     "stream": False,
                     "options": {
@@ -331,7 +331,7 @@ async def check_ai_service():
             if response.status_code == 200:
                 return {
                     "status": "healthy", 
-                    "model": "gemma2:2b",
+                    "model": "gemma3:4b",
                     "endpoint": settings.OLLAMA_API_URL,
                     "cpu_optimized": True,
                     "purpose": "markdown_formatting"
