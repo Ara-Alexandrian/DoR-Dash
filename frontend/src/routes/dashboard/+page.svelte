@@ -197,8 +197,8 @@
 
         <button 
           class="card group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-700 w-full text-left cursor-pointer hover:bg-gradient-to-br hover:from-green-100 hover:to-green-200"
-          on:click={() => { console.log('Clicking completed presentations tile'); window.location.href = '/agenda'; }}
-          title="View completed presentations and meeting agendas"
+          on:click={() => { console.log('Clicking completed presentations tile'); window.location.href = '/agenda?filter=past'; }}
+          title="View completed meetings and past agendas"
         >
           <div class="p-6">
             <div class="flex items-center justify-between">

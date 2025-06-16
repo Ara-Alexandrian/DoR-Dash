@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { page } from '$app/stores';
   import { meetingsApi } from '$lib/api';
   import { auth } from '$lib/stores/auth';
   
@@ -11,6 +12,7 @@
   let currentDate = new Date();
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
+  let showPastOnly = false;
   
   // Function to load meetings
   async function loadMeetings() {
@@ -39,12 +41,23 @@
     }
   }
   
-  // Filter meetings for current month
+  // Filter meetings for current month or by past filter
   function filterMeetingsByMonth() {
-    currentMonthMeetings = meetings.filter(meeting => {
-      const date = new Date(meeting.start_time);
-      return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
-    }).sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+    if (showPastOnly) {
+      // Show only past meetings (before today)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Start of today
+      currentMonthMeetings = meetings.filter(meeting => {
+        const date = new Date(meeting.start_time);
+        return date < today;
+      }).sort((a, b) => new Date(b.start_time) - new Date(a.start_time)); // Newest first for past meetings
+    } else {
+      // Show current month meetings
+      currentMonthMeetings = meetings.filter(meeting => {
+        const date = new Date(meeting.start_time);
+        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+      }).sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+    }
   }
   
   // Navigate to previous month
@@ -96,21 +109,60 @@
   const isAdmin = $auth.user && $auth.user.role === 'admin';
   
   // Load meetings on mount
-  onMount(loadMeetings);
+  onMount(async () => {
+    // Check for filter parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('filter') === 'past') {
+      showPastOnly = true;
+    }
+    
+    await loadMeetings();
+  });
 </script>
 
 <div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
   <div class="mb-8 flex justify-between items-center">
-    <h1 class="text-3xl font-bold text-gray-900">Research Meeting Agenda</h1>
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">
+        {showPastOnly ? 'Past Meeting Agendas' : 'Research Meeting Agenda'}
+      </h1>
+      {#if showPastOnly}
+        <p class="text-gray-600 mt-2">Browse completed meetings and their agendas</p>
+      {/if}
+    </div>
     
-    {#if isAdmin}
-      <a 
-        href="/calendar"
-        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-      >
-        Manage Meetings
-      </a>
-    {/if}
+    <div class="flex items-center gap-3">
+      {#if showPastOnly}
+        <a 
+          href="/agenda"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          Current Meetings
+        </a>
+      {:else}
+        <a 
+          href="/agenda?filter=past"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Past Meetings
+        </a>
+      {/if}
+      
+      {#if isAdmin}
+        <a 
+          href="/calendar"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+        >
+          Manage Meetings
+        </a>
+      {/if}
+    </div>
   </div>
   
   {#if loading}
@@ -123,7 +175,8 @@
       <p class="text-red-700">{error}</p>
     </div>
   {:else}
-    <!-- Month navigation -->
+    <!-- Month navigation (hide for past meetings view) -->
+    {#if !showPastOnly}
     <div class="flex justify-between items-center mb-6 bg-gray-50 p-4 rounded-lg">
       <button 
         class="flex items-center text-gray-600 hover:text-primary-600"
@@ -149,6 +202,7 @@
         </svg>
       </button>
     </div>
+    {/if}
     
     <!-- Calendar view -->
     <div class="bg-white shadow overflow-hidden rounded-lg">
