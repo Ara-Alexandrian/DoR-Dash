@@ -460,11 +460,8 @@ async def download_file_from_agenda_item(
             detail=f"File with ID {file_id} not found for this agenda item"
         )
     
-    # Check permissions - anyone authenticated can download files from agenda items they can view
-    if current_user.role not in ["admin", "faculty"] and item.user_id != current_user.id:
-        # Allow viewing if user has general meeting access
-        # This could be enhanced with more granular permissions
-        pass
+    # Skip permission check for file downloads - allow public access
+    # Files in meeting agendas should be accessible to all participants
     
     # Check if file exists on disk - try multiple possible locations
     file_path = file_upload.filepath
@@ -485,9 +482,18 @@ async def download_file_from_agenda_item(
     
     if not actual_file_path:
         # If no file found, show error with debugging info
+        import json
+        error_detail = {
+            "error": "File not found on disk",
+            "filename": file_upload.filename,
+            "database_path": file_upload.filepath,
+            "tried_paths": possible_paths,
+            "file_id": file_id,
+            "agenda_item_id": item_id
+        }
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"File {file_upload.filename} not found. Tried paths: {possible_paths}"
+            detail=json.dumps(error_detail)
         )
     
     # Return file for download
