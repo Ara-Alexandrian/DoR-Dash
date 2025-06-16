@@ -446,11 +446,26 @@ async def download_file(
     
     # Check if the actual file exists on disk
     file_path = file_upload.file_path
-    if not file_path or not os.path.exists(file_path):
-        # If no file_path or file doesn't exist, show error
+    
+    # Try multiple possible file locations
+    possible_paths = [
+        file_path,  # Original path from database
+        os.path.basename(file_path),  # Just filename in current directory
+        os.path.join("/app/uploads", os.path.basename(file_path)),  # Container upload directory
+        os.path.join("/uploads", os.path.basename(file_path)),  # Root upload directory
+    ]
+    
+    actual_file_path = None
+    for path in possible_paths:
+        if path and os.path.exists(path):
+            actual_file_path = path
+            break
+    
+    if not actual_file_path:
+        # If no file found, show error with debugging info
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"File {file_upload.filename} not found on disk. This may be an older upload before file storage was implemented."
+            detail=f"File {file_upload.filename} not found. Tried paths: {possible_paths}"
         )
     
     # Determine the correct media type based on file extension
@@ -492,7 +507,7 @@ async def download_file(
     
     # Return the actual file
     return FileResponse(
-        path=file_path,
+        path=actual_file_path,
         filename=file_upload.filename,
         media_type=media_type,
         headers={

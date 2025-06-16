@@ -466,16 +466,33 @@ async def download_file_from_agenda_item(
         # This could be enhanced with more granular permissions
         pass
     
-    # Check if file exists on disk
-    if not os.path.exists(file_upload.filepath):
+    # Check if file exists on disk - try multiple possible locations
+    file_path = file_upload.filepath
+    
+    # Try multiple possible file locations
+    possible_paths = [
+        file_path,  # Original path from database
+        os.path.basename(file_path),  # Just filename in current directory
+        os.path.join("/app/uploads", os.path.basename(file_path)),  # Container upload directory
+        os.path.join("/uploads", os.path.basename(file_path)),  # Root upload directory
+    ]
+    
+    actual_file_path = None
+    for path in possible_paths:
+        if path and os.path.exists(path):
+            actual_file_path = path
+            break
+    
+    if not actual_file_path:
+        # If no file found, show error with debugging info
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="File not found on disk. It may have been moved or deleted."
+            detail=f"File {file_upload.filename} not found. Tried paths: {possible_paths}"
         )
     
     # Return file for download
     return FileResponse(
-        path=file_upload.filepath,
+        path=actual_file_path,
         filename=file_upload.filename,
         media_type=file_upload.file_type
     )
