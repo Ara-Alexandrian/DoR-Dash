@@ -401,7 +401,7 @@
             {#each agenda.faculty_updates as announcement}
               <div class="border-b border-gray-200">
                 <button 
-                  class="w-full p-4 text-left hover:bg-gray-50 transition-colors"
+                  class="w-full p-4 text-left hover:bg-gray-100 dark:hover:bg-gray-600 mbp:hover:bg-red-950/30 lsu:hover:bg-purple-950/30 transition-colors"
                   on:click={() => toggleFaculty(announcement.id)}
                 >
                   <div class="flex items-center justify-between">
@@ -728,7 +728,7 @@
             {#each agenda.student_updates as update}
               <div class="border-b border-gray-200">
                 <button 
-                  class="w-full p-4 text-left hover:bg-gray-50 transition-colors"
+                  class="w-full p-4 text-left hover:bg-gray-100 dark:hover:bg-gray-600 mbp:hover:bg-red-950/30 lsu:hover:bg-purple-950/30 transition-colors"
                   on:click={() => toggleStudent(update.id)}
                 >
                   <div class="flex items-center justify-between">
@@ -1066,7 +1066,7 @@
             <!-- Student Research Updates/Presentations -->
             {#if agenda.student_updates && agenda.student_updates.length > 0}
               {#each agenda.student_updates as update, index}
-                <tr class={$auth.user?.id === update.user_id ? 'bg-primary-50' : ''}>
+                <tr class={$auth.user?.id === update.user_id ? 'bg-primary-100 dark:bg-primary-900/20 mbp:bg-red-950/20 lsu:bg-purple-950/20' : ''}>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {formatTime(new Date(meeting.start_time.getTime() + (15 + index * 20) * 60 * 1000))}
                   </td>

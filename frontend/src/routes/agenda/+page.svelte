@@ -218,25 +218,25 @@
     {/if}
     
     <!-- Calendar view -->
-    <div class="bg-white shadow overflow-hidden rounded-lg">
+    <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg border border-[rgb(var(--color-border))]">
       {#if currentMonthMeetings.length > 0}
-        <ul class="divide-y divide-gray-200">
+        <ul class="divide-y divide-[rgb(var(--color-border))]">
           {#each currentMonthMeetings as meeting}
-            <li class={`p-4 ${isCreator(meeting) ? 'bg-primary-50' : ''}`}>
-              <div class="mb-6 pb-4 border-b border-gray-200">
+            <li class={`p-4 ${isCreator(meeting) ? 'bg-primary-100/20 dark:bg-primary-900/20 mbp:bg-red-950/20 lsu:bg-purple-950/20' : ''}`}>
+              <div class="mb-6 pb-4 border-b border-[rgb(var(--color-border))]">
                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start">
                   <div class="mb-2 sm:mb-0">
-                    <h2 class="text-xl font-bold text-primary-900">
+                    <h2 class="text-xl font-bold text-[rgb(var(--color-text-primary))]">
                       {meeting.title} - {formatDate(meeting.start_time)}
                     </h2>
-                    <p class="text-sm text-gray-500 mt-1">
+                    <p class="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
                       Location: Mary Bird Perkins Cancer Center, Conference Room A
                     </p>
-                    <p class="text-sm text-gray-500">
+                    <p class="text-sm text-[rgb(var(--color-text-secondary))]">
                       Time: {new Date(meeting.start_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - 
                       {new Date(meeting.end_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                     </p>
-                    <div class="mt-2 text-sm text-gray-600 flex items-center">
+                    <div class="mt-2 text-sm text-[rgb(var(--color-text-secondary))] flex items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-primary-600" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                       </svg>
@@ -276,11 +276,11 @@
                   </div>
                 </div>
                 
-                <div class="mt-4 bg-primary-50 p-3 rounded-md border border-primary-100">
+                <div class="mt-4 bg-[rgb(var(--color-bg-secondary))] p-3 rounded-md border border-[rgb(var(--color-border))]">
                   <div class="flex justify-between items-start">
                     <div>
-                      <h4 class="text-sm font-medium text-primary-800">Meeting Description:</h4>
-                      <p class="text-sm text-gray-600 mt-1">
+                      <h4 class="text-sm font-medium text-[rgb(var(--color-text-primary))]">Meeting Description:</h4>
+                      <p class="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
                         {meeting.description || 'This meeting will focus on recent research developments in cancer treatment methodologies.'}
                       </p>
                     </div>
@@ -299,7 +299,7 @@
               
               <!-- Meeting Actions -->
               <div class="mt-4 flex justify-end">
-                <div class="text-sm text-gray-500">
+                <div class="text-sm text-[rgb(var(--color-text-tertiary))]">
                   Click "View Full Agenda" to see submitted updates and materials for this meeting.
                 </div>
               </div>
@@ -308,7 +308,7 @@
         </ul>
       {:else}
         <div class="p-8 text-center">
-          <p class="text-gray-500">
+          <p class="text-[rgb(var(--color-text-secondary))]">
             {#if showPastOnly}
               No past meetings found.
             {:else if showUpcomingOnly}

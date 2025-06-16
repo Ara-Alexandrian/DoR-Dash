@@ -299,19 +299,6 @@
         <div class="flex items-center gap-4">
           <!-- Theme toggle -->
           <ThemeToggle />
-          
-          <!-- Institution branding with enhanced logos -->
-          <div class="hidden sm:flex items-center gap-3 text-sm">
-            <div class="flex items-center gap-2">
-              <img src="/images/mbp.png" alt="Mary Bird Perkins Logo" class="institution-logo"/>
-              <span class="font-semibold text-[rgb(var(--color-text-primary))]">Mary Bird Perkins</span>
-            </div>
-            <span class="text-[rgb(var(--color-text-secondary))]">×</span>
-            <div class="flex items-center gap-2">
-              <img src="/images/lsu.png" alt="LSU Logo" class="institution-logo"/>
-              <span class="font-semibold text-secondary-700">LSU</span>
-            </div>
-          </div>
         </div>
       </header>
       
