@@ -30,13 +30,8 @@ async def get_dashboard_stats(
         AgendaItem.item_type.in_([AgendaItemType.STUDENT_UPDATE, AgendaItemType.FACULTY_UPDATE])
     )
     
-    # Apply role-based filtering
-    if current_user.role in ["admin", "faculty"]:
-        # Admin/Faculty see all updates
-        query = base_query
-    else:
-        # Students see only their own updates
-        query = base_query.filter(AgendaItem.user_id == current_user.id)
+    # All users see only their own updates (user-centric design)
+    query = base_query.filter(AgendaItem.user_id == current_user.id)
     
     # Get total updates count
     total_updates = query.count()
@@ -99,9 +94,8 @@ async def get_recent_updates(
         AgendaItem.item_type.in_([AgendaItemType.STUDENT_UPDATE, AgendaItemType.FACULTY_UPDATE])
     )
     
-    # Apply role-based filtering
-    if current_user.role not in ["admin", "faculty"]:
-        query = query.filter(AgendaItem.user_id == current_user.id)
+    # All users see only their own updates (user-centric design)
+    query = query.filter(AgendaItem.user_id == current_user.id)
     
     # Get recent updates, ordered by creation date
     recent_items = query.order_by(AgendaItem.created_at.desc()).limit(limit).all()
@@ -161,9 +155,8 @@ async def get_activity_summary(
         AgendaItem.created_at >= start_date
     )
     
-    # Apply role-based filtering
-    if current_user.role not in ["admin", "faculty"]:
-        query = query.filter(AgendaItem.user_id == current_user.id)
+    # All users see only their own updates (user-centric design)
+    query = query.filter(AgendaItem.user_id == current_user.id)
     
     # Group by date
     daily_counts = query.group_by(func.date(AgendaItem.created_at)).all()

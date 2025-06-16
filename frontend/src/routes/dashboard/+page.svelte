@@ -11,61 +11,46 @@
   
   onMount(async () => {
     try {
-      // Fetch dashboard stats from new endpoint
+      // Fetch user's own updates and calculate stats
       try {
-        const statsResponse = await fetch('/api/v1/dashboard/stats', {
-          headers: {
-            'Authorization': `Bearer ${$auth.token}`
-          }
-        });
-        
-        if (statsResponse.ok) {
-          const statsData = await statsResponse.json();
-          // Update stats directly from API response
-          stats = {
-            totalUpdates: statsData.totalUpdates,
-            recentUpdates: statsData.recentUpdates,
-            upcomingPresentations: statsData.upcomingPresentations,
-            completedPresentations: statsData.completedPresentations
-          };
-        } else {
-          throw new Error('Failed to fetch dashboard stats');
-        }
-      } catch (err) {
-        console.error('Failed to load dashboard stats:', err);
-        // Fallback to original method if new endpoint fails
         const updatesResponse = await updateApi.getUpdates();
         updates = updatesResponse.items || updatesResponse || [];
-      }
-      
-      // Fetch recent updates for display
-      try {
-        const recentResponse = await fetch('/api/v1/dashboard/recent-updates?limit=3', {
-          headers: {
-            'Authorization': `Bearer ${$auth.token}`
-          }
+        
+        // Calculate stats from user's own updates
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        const recentUpdates = updates.filter(u => {
+          const updateDate = new Date(u.submission_date);
+          return updateDate > thirtyDaysAgo;
         });
         
-        if (recentResponse.ok) {
-          const recentData = await recentResponse.json();
-          updates = recentData.items || [];
-        }
+        stats = {
+          totalUpdates: updates.length,
+          recentUpdates: recentUpdates.length,
+          upcomingPresentations: 0, // Will be calculated from presentations
+          completedPresentations: 0 // Will be calculated from presentations
+        };
+        
+        // Keep only 3 most recent for display
+        updates = updates.slice(0, 3);
       } catch (err) {
-        console.error('Failed to load recent updates:', err);
+        console.error('Failed to load updates:', err);
+        updates = [];
       }
       
-      // Fetch presentations (keep existing logic)
+      // Fetch presentations (user's own only)
       try {
         const presentationsResponse = await presentationApi.getPresentations();
         
-        // Filter presentations for the current user unless admin/faculty
-        if ($auth.user?.role === 'admin' || $auth.user?.role === 'faculty') {
-          presentations = presentationsResponse.sort((a, b) => new Date(a.meeting_date) - new Date(b.meeting_date));
-        } else {
-          presentations = presentationsResponse.filter(
-            p => p.user_id === $auth.user?.id
-          ).sort((a, b) => new Date(a.meeting_date) - new Date(b.meeting_date));
-        }
+        // Filter presentations for the current user only
+        presentations = presentationsResponse.filter(
+          p => p.user_id === $auth.user?.id
+        ).sort((a, b) => new Date(a.meeting_date) - new Date(b.meeting_date));
+        
+        // Update presentation stats
+        stats.upcomingPresentations = presentations.filter(p => p.status === 'scheduled').length;
+        stats.completedPresentations = presentations.filter(p => p.status === 'completed').length;
       } catch (err) {
         console.error('Failed to load presentations:', err);
         presentations = [];

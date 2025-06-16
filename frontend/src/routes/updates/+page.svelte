@@ -34,6 +34,7 @@
   
   onMount(async () => {
     try {
+      // All users should only see their own updates
       const response = await updateApi.getUpdates();
       updates = response.items || [];
     } catch (err) {
