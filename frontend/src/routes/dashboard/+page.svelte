@@ -155,8 +155,8 @@
 
         <button 
           class="card group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900/20 dark:to-secondary-800/20 border-secondary-200 dark:border-secondary-700 w-full text-left cursor-pointer hover:bg-gradient-to-br hover:from-secondary-100 hover:to-secondary-200"
-          on:click={() => { console.log('Clicking recent updates tile'); window.location.href = '/submit-update'; }}
-          title="Submit a new update"
+          on:click={() => { console.log('Clicking recent updates tile'); window.location.href = '/updates'; }}
+          title="View your recent updates from the last 30 days"
         >
           <div class="p-6">
             <div class="flex items-center justify-between">
@@ -399,12 +399,26 @@
                           <p class="text-xs font-medium text-[rgb(var(--color-text-tertiary))] uppercase tracking-wider">Progress Summary:</p>
                           <p class="mt-1 text-sm text-[rgb(var(--color-text-secondary))] line-clamp-3">{update.progress_text}</p>
                         </div>
-                        <a href="/updates" class="mt-3 inline-flex items-center text-sm font-medium text-secondary-600 dark:text-secondary-400 hover:text-secondary-700 dark:hover:text-secondary-300 group">
-                          View all updates
-                          <svg class="ml-1 h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                          </svg>
-                        </a>
+                        <div class="mt-3 flex justify-between items-center">
+                          <a href="/updates" class="inline-flex items-center text-sm font-medium text-secondary-600 dark:text-secondary-400 hover:text-secondary-700 dark:hover:text-secondary-300 group">
+                            View all updates
+                            <svg class="ml-1 h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                          </a>
+                          
+                          <!-- Quick edit button -->
+                          <button
+                            on:click={() => window.location.href = `/submit-update?edit=${update.id}&type=${update.is_faculty ? 'faculty' : 'student'}`}
+                            class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 dark:text-blue-400 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 rounded-lg transition-colors group"
+                            title="Edit this update"
+                          >
+                            <svg class="h-3 w-3 mr-1 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.414 10.5H9v-1.5z" />
+                            </svg>
+                            Edit
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

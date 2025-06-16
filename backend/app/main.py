@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.api.api import api_router
 # Import the relationship setup function
 from app.db.setup import setup_relationships
+from app.services.scheduler import start_background_tasks, stop_background_tasks
 
 app = FastAPI(
     title="DoR-Dash API",
@@ -84,3 +85,20 @@ async def health_check():
 async def health_check_v1():
     """Health check endpoint under API v1 prefix"""
     return {"status": "healthy", "message": "DoR-Dash API is running"}
+
+# Startup and shutdown events for background tasks
+@app.on_event("startup")
+async def startup_event():
+    """Initialize background tasks when the application starts"""
+    try:
+        await start_background_tasks()
+    except Exception as e:
+        print(f"Warning: Failed to start background tasks: {e}")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Clean up background tasks when the application shuts down"""
+    try:
+        await stop_background_tasks()
+    except Exception as e:
+        print(f"Warning: Failed to stop background tasks: {e}")

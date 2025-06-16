@@ -229,11 +229,11 @@ export const updateApi = {
     });
   },
   
-  // Refine text using Ollama
-  refineText: async (text: string) => {
+  // Refine text using Ollama with enhanced context
+  refineText: async (text: string, context?: string) => {
     return await apiFetch('/text/refine-text', {
       method: 'POST',
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ text, context })
     });
   }
 };

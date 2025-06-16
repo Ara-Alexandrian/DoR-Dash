@@ -98,6 +98,18 @@
             <p class="text-sm text-gray-500">View all program participants</p>
           </div>
         </a>
+
+        <!-- AI Knowledge Base -->
+        <a href="/admin/knowledge" 
+           class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 mr-3" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <span class="font-medium text-gray-900">AI Knowledge Base</span>
+            <p class="text-sm text-gray-500">Manage learned terminology and AI suggestions</p>
+          </div>
+        </a>
       </div>
     </div>
   </div>

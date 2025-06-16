@@ -72,10 +72,28 @@
 
 <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900">Request Support</h1>
+    <div class="flex items-center space-x-3 mb-4">
+      <h1 class="text-3xl font-bold text-gray-900">Request Support</h1>
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+        <svg class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        Beta
+      </span>
+    </div>
     <p class="mt-2 text-gray-600">
       Request assistance from faculty members or advisors with your research, technical issues, or academic writing.
     </p>
+    <div class="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-md">
+      <div class="flex">
+        <svg class="h-5 w-5 text-orange-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        </svg>
+        <div class="text-sm text-orange-800">
+          <p><strong>Beta Feature:</strong> Support request functionality is currently under development. Submissions may not be processed at this time. Please contact your advisor directly for immediate assistance.</p>
+        </div>
+      </div>
+    </div>
   </div>
   
   {#if error}

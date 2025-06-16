@@ -1,11 +1,12 @@
 from fastapi import APIRouter
 
-from app.api.endpoints import text, auth, updates, faculty_updates, meetings, users, roster, presentations, registration, agenda_items
+from app.api.endpoints import text, auth, updates, faculty_updates, meetings, users, roster, presentations, registration, agenda_items, knowledge_base
 
 api_router = APIRouter()
 
 # Include individual routers
 api_router.include_router(text.router, prefix="/text", tags=["text"])
+api_router.include_router(knowledge_base.router, prefix="/knowledge", tags=["knowledge"])
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 
 # NEW: Unified agenda items endpoint

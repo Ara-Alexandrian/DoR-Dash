@@ -51,6 +51,8 @@
   let refinementResult = null;
   let refinementPosition = { x: 0, y: 0 };
   let refinementTarget = null;
+  let isEditingRefinement = false;
+  let editedRefinedText = '';
   
   // Function to populate form fields from loaded update
   async function populateForm(update) {
@@ -197,13 +199,41 @@
     refinementResult = null;
     
     try {
-      // Call text refinement API
-      const response = await updateApi.refineText(textToRefine);
+      // Determine context based on field type
+      let context = '';
+      switch(field) {
+        case 'progress':
+          context = 'research_progress';
+          break;
+        case 'challenges':
+          context = 'challenges';
+          break;
+        case 'goals':
+          context = 'goals';
+          break;
+        case 'announcements':
+          context = 'announcements';
+          break;
+        case 'projects':
+        case 'projectStatus':
+          context = 'research_progress';
+          break;
+        case 'meetingNotes':
+        case 'facultyQuestions':
+        default:
+          context = 'general';
+          break;
+      }
+      
+      // Call enhanced text refinement API with context
+      const response = await updateApi.refineText(textToRefine, context);
       refinementResult = response;
       
-      // Show brief success message
-      success = 'Text refinement complete';
-      setTimeout(() => success = '', 2000);
+      // Show brief success message with word count improvement
+      const wordDiff = response.word_count_refined - response.word_count_original;
+      const diffText = wordDiff > 0 ? `+${wordDiff} words` : wordDiff < 0 ? `${wordDiff} words` : 'same length';
+      success = `Text refinement complete (${diffText})`;
+      setTimeout(() => success = '', 3000);
     } catch (err) {
       error = err.message || 'Failed to refine text. Please try again.';
     } finally {
@@ -211,42 +241,68 @@
     }
   }
   
+  // Function to start editing the refined text
+  function startEditingRefinement() {
+    isEditingRefinement = true;
+    editedRefinedText = refinementResult.refined_text || refinementResult.refined || '';
+  }
+  
+  // Function to save the edited refined text
+  function saveEditedRefinement() {
+    if (refinementResult) {
+      refinementResult.refined_text = editedRefinedText;
+      refinementResult.refined = editedRefinedText; // Fallback
+    }
+    isEditingRefinement = false;
+  }
+  
+  // Function to cancel editing
+  function cancelEditingRefinement() {
+    isEditingRefinement = false;
+    editedRefinedText = '';
+  }
+  
   // Function to apply refined text
   function applyRefinedText() {
     if (!refinementResult) return;
     
+    // Use the edited text if available, otherwise use the original refined text
+    const textToApply = isEditingRefinement ? editedRefinedText : (refinementResult.refined_text || refinementResult.refined);
+    
     switch(currentField) {
       // Student fields
       case 'progress':
-        progressText = refinementResult.refined || refinementResult.refined_text;
+        progressText = textToApply;
         break;
       case 'challenges':
-        challengesText = refinementResult.refined || refinementResult.refined_text;
+        challengesText = textToApply;
         break;
       case 'goals':
-        goalsText = refinementResult.refined || refinementResult.refined_text;
+        goalsText = textToApply;
         break;
       case 'meetingNotes':
-        meetingNotes = refinementResult.refined || refinementResult.refined_text;
+        meetingNotes = textToApply;
         break;
       
       // Faculty fields
       case 'announcements':
-        announcementsText = refinementResult.refined || refinementResult.refined_text;
+        announcementsText = textToApply;
         break;
       case 'projects':
-        projectsText = refinementResult.refined || refinementResult.refined_text;
+        projectsText = textToApply;
         break;
       case 'projectStatus':
-        projectStatusText = refinementResult.refined || refinementResult.refined_text;
+        projectStatusText = textToApply;
         break;
       case 'facultyQuestions':
-        facultyQuestions = refinementResult.refined || refinementResult.refined_text;
+        facultyQuestions = textToApply;
         break;
     }
     
     // Clear refinement result after applying
     refinementResult = null;
+    isEditingRefinement = false;
+    editedRefinedText = '';
   }
   
   // Handle form submission
@@ -604,13 +660,33 @@
     </h1>
     <p class="mt-2 text-gray-600">
       {#if isFaculty}
-        Share announcements, project updates, and meeting plans. Use the "Refine & Proofread" 
+        Share announcements, project updates, and meeting plans. Use the AI-powered "Refine & Proofread" 
         button to improve the clarity and quality of your text.
       {:else}
-        Share your research progress, challenges, and upcoming goals. Use the "Refine & Proofread" 
+        Share your research progress, challenges, and upcoming goals. Use the AI-powered "Refine & Proofread" 
         button to improve the clarity and quality of your text.
       {/if}
     </p>
+    <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+      <div class="flex">
+        <svg class="h-5 w-5 text-blue-600 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div class="text-sm text-blue-800">
+          <p><strong>Required fields are marked with *</strong></p>
+          <p class="mt-1">
+            {#if isFaculty}
+              • At least one content section (announcements OR projects) • Meeting selection
+            {:else}
+              • At least one content section (progress OR challenges OR goals) • Meeting selection
+            {/if}
+            {#if isPresenting || facultyIsPresenting}
+              • File attachments (required for presentations)
+            {/if}
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
   
   {#if error}
@@ -639,22 +715,26 @@
       <div class="space-y-2">
         <div class="flex justify-between items-center">
           <label for="announcements" class="block text-sm font-medium text-gray-700">
-            Group Announcements
+            Group Announcements <span class="text-gray-400">(at least one section required *)</span>
           </label>
           <button 
             type="button"
-            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg shadow-sm hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             on:click={(e) => refineText('announcements', e)}
             disabled={isRefining || isSubmitting}
+            title="AI-powered text enhancement using domain-specific knowledge"
           >
             {#if isRefining && currentField === 'announcements'}
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Refining...
+              AI Refining...
             {:else}
-              Refine & Proofread
+              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.414 10.5H9v-1.5z" />
+              </svg>
+              ✨ Refine & Proofread
             {/if}
           </button>
         </div>
@@ -716,18 +796,22 @@
           </label>
           <button 
             type="button"
-            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg shadow-sm hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            title="AI-powered text enhancement using domain-specific knowledge"
             on:click={(e) => refineText('projects', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'projects'}
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Refining...
+              AI Refining...
             {:else}
-              Refine & Proofread
+              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.414 10.5H9v-1.5z" />
+              </svg>
+              ✨ Refine & Proofread
             {/if}
           </button>
         </div>
@@ -749,18 +833,22 @@
           </label>
           <button 
             type="button"
-            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg shadow-sm hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            title="AI-powered text enhancement using domain-specific knowledge"
             on:click={(e) => refineText('projectStatus', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'projectStatus'}
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Refining...
+              AI Refining...
             {:else}
-              Refine & Proofread
+              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.414 10.5H9v-1.5z" />
+              </svg>
+              ✨ Refine & Proofread
             {/if}
           </button>
         </div>
@@ -782,18 +870,22 @@
           </label>
           <button 
             type="button"
-            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg shadow-sm hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            title="AI-powered text enhancement using domain-specific knowledge"
             on:click={(e) => refineText('facultyQuestions', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'facultyQuestions'}
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Refining...
+              AI Refining...
             {:else}
-              Refine & Proofread
+              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.414 10.5H9v-1.5z" />
+              </svg>
+              ✨ Refine & Proofread
             {/if}
           </button>
         </div>
@@ -890,22 +982,26 @@
       <div class="space-y-2">
         <div class="flex justify-between items-center">
           <label for="progress" class="block text-sm font-medium text-gray-700">
-            Research Progress <span class="text-red-500">*</span>
+            Research Progress <span class="text-gray-400">(at least one section required *)</span>
           </label>
           <button 
             type="button"
-            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg shadow-sm hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            title="AI-powered text enhancement using domain-specific knowledge"
             on:click={(e) => refineText('progress', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'progress'}
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Refining...
+              AI Refining...
             {:else}
-              Refine & Proofread
+              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.414 10.5H9v-1.5z" />
+              </svg>
+              ✨ Refine & Proofread
             {/if}
           </button>
         </div>
@@ -923,22 +1019,26 @@
       <div class="space-y-2">
         <div class="flex justify-between items-center">
           <label for="challenges" class="block text-sm font-medium text-gray-700">
-            Challenges & Obstacles
+            Challenges & Obstacles <span class="text-gray-400">(at least one section required *)</span>
           </label>
           <button 
             type="button"
-            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg shadow-sm hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            title="AI-powered text enhancement using domain-specific knowledge"
             on:click={(e) => refineText('challenges', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'challenges'}
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Refining...
+              AI Refining...
             {:else}
-              Refine & Proofread
+              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.414 10.5H9v-1.5z" />
+              </svg>
+              ✨ Refine & Proofread
             {/if}
           </button>
         </div>
@@ -956,22 +1056,26 @@
       <div class="space-y-2">
         <div class="flex justify-between items-center">
           <label for="goals" class="block text-sm font-medium text-gray-700">
-            Upcoming Goals
+            Upcoming Goals <span class="text-gray-400">(at least one section required *)</span>
           </label>
           <button 
             type="button"
-            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg shadow-sm hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            title="AI-powered text enhancement using domain-specific knowledge"
             on:click={(e) => refineText('goals', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'goals'}
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Refining...
+              AI Refining...
             {:else}
-              Refine & Proofread
+              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.414 10.5H9v-1.5z" />
+              </svg>
+              ✨ Refine & Proofread
             {/if}
           </button>
         </div>
@@ -993,18 +1097,22 @@
           </label>
           <button 
             type="button"
-            class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg shadow-sm hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            title="AI-powered text enhancement using domain-specific knowledge"
             on:click={(e) => refineText('meetingNotes', e)}
             disabled={isRefining || isSubmitting}
           >
             {#if isRefining && currentField === 'meetingNotes'}
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-primary-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Refining...
+              AI Refining...
             {:else}
-              Refine & Proofread
+              <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.414 10.5H9v-1.5z" />
+              </svg>
+              ✨ Refine & Proofread
             {/if}
           </button>
         </div>
@@ -1122,15 +1230,37 @@
 <!-- Floating AI Refinement Widget -->
 {#if refinementResult}
   <div 
-    class="fixed z-50 w-80 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-600"
+    class="fixed z-50 w-96 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-600"
     style="left: {refinementPosition.x}px; top: {refinementPosition.y}px; max-width: calc(100vw - 20px);"
   >
+    <!-- Hint for editing -->
+    <div class="mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800">
+      <p class="text-xs text-blue-700 dark:text-blue-300 flex items-center">
+        <svg class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        💡 Tip: You can edit the AI suggestions before applying them!
+      </p>
+    </div>
+    
     <div class="flex justify-between items-start mb-3">
       <div class="flex items-center space-x-2">
         <svg class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.414 10.5H9v-1.5z" />
         </svg>
-        <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200">Grammar Check</h3>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-200">AI Academic Assistant</h3>
+          {#if refinementResult.word_count_original && refinementResult.word_count_refined}
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {refinementResult.word_count_original} → {refinementResult.word_count_refined} words
+              {#if refinementResult.word_count_refined !== refinementResult.word_count_original}
+                <span class="text-blue-600 dark:text-blue-400">
+                  ({refinementResult.word_count_refined > refinementResult.word_count_original ? '+' : ''}{refinementResult.word_count_refined - refinementResult.word_count_original})
+                </span>
+              {/if}
+            </p>
+          {/if}
+        </div>
       </div>
       <button 
         type="button" 
@@ -1143,22 +1273,83 @@
       </button>
     </div>
     
-    <!-- Refined text display -->
+    <!-- Refined text display/edit -->
     <div class="mb-3">
-      <h4 class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Corrected Text:</h4>
-      <div class="text-sm text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 p-3 rounded border text-wrap leading-relaxed">
-        {refinementResult.refined_text || refinementResult.refined || 'No corrections needed'}
+      <div class="flex justify-between items-center mb-1">
+        <h4 class="text-xs font-medium text-gray-600 dark:text-gray-400">Refined Text:</h4>
+        {#if !isEditingRefinement}
+          <button 
+            type="button"
+            class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 flex items-center"
+            on:click={startEditingRefinement}
+          >
+            <svg class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.414 10.5H9v-1.5z" />
+            </svg>
+            Edit
+          </button>
+        {/if}
       </div>
+      
+      {#if isEditingRefinement}
+        <div class="space-y-2">
+          <textarea
+            bind:value={editedRefinedText}
+            class="w-full text-sm text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-700 p-3 rounded border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+            rows="4"
+            placeholder="Edit the refined text..."
+          ></textarea>
+          <div class="flex justify-end space-x-2">
+            <button
+              type="button"
+              class="px-3 py-1 text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 rounded"
+              on:click={cancelEditingRefinement}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded"
+              on:click={saveEditedRefinement}
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      {:else}
+        <div class="text-sm text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-700 p-3 rounded border text-wrap leading-relaxed">
+          {refinementResult.refined_text || refinementResult.refined || 'No corrections needed'}
+        </div>
+      {/if}
     </div>
     
+    <!-- Improvements Made Section -->
+    {#if refinementResult.improvements_made && refinementResult.improvements_made.length > 0}
+      <div class="mb-3">
+        <h4 class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Improvements Made:</h4>
+        <div class="bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-200 dark:border-green-800">
+          <ul class="space-y-1">
+            {#each refinementResult.improvements_made as improvement}
+              <li class="flex items-start text-xs text-green-700 dark:text-green-300">
+                <svg class="h-3 w-3 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span class="leading-relaxed">{improvement}</span>
+              </li>
+            {/each}
+          </ul>
+        </div>
+      </div>
+    {/if}
+
     <!-- Suggestions display -->
     {#if refinementResult.suggestions && refinementResult.suggestions.length > 0 && !refinementResult.suggestions.some(s => s.includes('Could not parse') || s.includes('Error processing'))}
       <div class="mb-3">
-        <h4 class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Grammar Tips:</h4>
-        <div class="bg-gray-50 dark:bg-gray-700 p-2 rounded border max-h-32 overflow-y-auto">
+        <h4 class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Writing Tips:</h4>
+        <div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded border border-blue-200 dark:border-blue-800 max-h-32 overflow-y-auto">
           <ul class="space-y-1">
             {#each refinementResult.suggestions as suggestion}
-              <li class="flex items-start text-xs text-gray-700 dark:text-gray-300">
+              <li class="flex items-start text-xs text-blue-700 dark:text-blue-300">
                 <span class="w-1 h-1 bg-blue-400 rounded-full mt-1.5 mr-2 flex-shrink-0"></span>
                 <span class="leading-relaxed">{suggestion}</span>
               </li>
@@ -1177,7 +1368,7 @@
       <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
       </svg>
-      Apply Corrections
+      Apply Enhanced Text
     </button>
   </div>
 {/if}

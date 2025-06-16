@@ -49,7 +49,8 @@
   const nav = [
     { title: 'Dashboard', path: '/dashboard', icon: 'home' },
     { title: 'Submit Update', path: '/submit-update', icon: 'document-text' },
-    { title: 'Support Request', path: '/requests/support', icon: 'support' },
+    { title: 'Your Updates', path: '/updates', icon: 'document-duplicate' },
+    { title: 'Support Request (Beta)', path: '/requests/support', icon: 'support' },
     { title: 'Calendar', path: '/calendar', icon: 'calendar' },
     { title: 'Agenda', path: '/agenda', icon: 'calendar-days' },
     { title: 'Roster', path: '/roster', icon: 'users' }
@@ -156,6 +157,10 @@
                 <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
               {:else if item.icon === 'document-text'}
                 <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+              {:else if item.icon === 'document-duplicate'}
+                <path d="M7 5a3 3 0 016 0v4a3 3 0 01-6 0V5z"/>
+                <path d="M5 4a1 1 0 00-1 1v2a1 1 0 001 1h1V6a4 4 0 118 0v2h1a1 1 0 001-1V5a1 1 0 00-1-1H5z"/>
+                <path d="M3 9a1 1 0 001 1h12a1 1 0 001-1v7a1 1 0 01-1 1H4a1 1 0 01-1-1V9z"/>
               {:else if item.icon === 'support'}
                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-2 0c0 .993-.241 1.929-.668 2.754l-1.524-1.525a3.997 3.997 0 00.078-2.183l1.562-1.562C15.802 8.249 16 9.1 16 10zm-5.165 3.913l1.58 1.58A5.98 5.98 0 0110 16a5.976 5.976 0 01-2.516-.552l1.562-1.562a4.006 4.006 0 001.789.027zm-4.677-2.796a4.002 4.002 0 01-.041-2.08l-.08.08-1.53-1.533A5.98 5.98 0 004 10c0 .954.223 1.856.619 2.657l1.54-1.54zm1.088-6.45A5.974 5.974 0 0110 4c.954 0 1.856.223 2.657.619l-1.54 1.54a4.002 4.002 0 00-2.346.033L7.246 4.668zM12 10a2 2 0 11-4 0 2 2 0 014 0z" clip-rule="evenodd" />
               {:else if item.icon === 'academic-cap'}
