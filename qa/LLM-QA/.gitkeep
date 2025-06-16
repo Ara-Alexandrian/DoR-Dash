@@ -1,0 +1,7 @@
+# LLM-QA Reports Directory
+
+This directory will contain automatically generated LLM text refinement QA reports.
+
+Reports are generated when running: `/api/v1/text-testing/run-tests`
+
+Naming convention: `llm_qa_report_YYYYMMDD_HHMMSS.md`

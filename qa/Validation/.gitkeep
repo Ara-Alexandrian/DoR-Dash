@@ -1,0 +1,16 @@
+# Validation Reports Directory
+
+This directory contains general system validation and QA reports.
+
+## Types of reports stored here:
+- Manual QA validation reports
+- System functionality validation
+- Performance testing results
+- Integration testing reports
+- Deployment validation
+
+## Naming convention:
+`QA_Validation_[description]_YYYY-MM-DD_HH-MM-SS_UTC.md`
+
+## Example:
+- QA_VALIDATION_REPORT_2025-06-15_16-44-49_UTC.md
