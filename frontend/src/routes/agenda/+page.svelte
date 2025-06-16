@@ -13,6 +13,7 @@
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
   let showPastOnly = false;
+  let showUpcomingOnly = false;
   
   // Function to load meetings
   async function loadMeetings() {
@@ -41,16 +42,23 @@
     }
   }
   
-  // Filter meetings for current month or by past filter
+  // Filter meetings for current month, past, or upcoming
   function filterMeetingsByMonth() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Start of today
+    
     if (showPastOnly) {
       // Show only past meetings (before today)
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // Start of today
       currentMonthMeetings = meetings.filter(meeting => {
         const date = new Date(meeting.start_time);
         return date < today;
       }).sort((a, b) => new Date(b.start_time) - new Date(a.start_time)); // Newest first for past meetings
+    } else if (showUpcomingOnly) {
+      // Show only upcoming meetings (today and future)
+      currentMonthMeetings = meetings.filter(meeting => {
+        const date = new Date(meeting.start_time);
+        return date >= today;
+      }).sort((a, b) => new Date(a.start_time) - new Date(b.start_time)); // Earliest first for upcoming meetings
     } else {
       // Show current month meetings
       currentMonthMeetings = meetings.filter(meeting => {
@@ -112,8 +120,11 @@
   onMount(async () => {
     // Check for filter parameter
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('filter') === 'past') {
+    const filter = urlParams.get('filter');
+    if (filter === 'past') {
       showPastOnly = true;
+    } else if (filter === 'upcoming') {
+      showUpcomingOnly = true;
     }
     
     await loadMeetings();
@@ -124,35 +135,37 @@
   <div class="mb-8 flex justify-between items-center">
     <div>
       <h1 class="text-3xl font-bold text-gray-900">
-        {showPastOnly ? 'Past Meeting Agendas' : 'Research Meeting Agenda'}
+        {showPastOnly ? 'Past Meeting Agendas' : showUpcomingOnly ? 'Upcoming Meeting Agendas' : 'Research Meeting Agenda'}
       </h1>
       {#if showPastOnly}
         <p class="text-gray-600 mt-2">Browse completed meetings and their agendas</p>
+      {:else if showUpcomingOnly}
+        <p class="text-gray-600 mt-2">View upcoming meetings and prepare for presentations</p>
       {/if}
     </div>
     
     <div class="flex items-center gap-3">
-      {#if showPastOnly}
+      <!-- View toggle buttons -->
+      <div class="flex rounded-md shadow-sm">
         <a 
           href="/agenda"
-          class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-l-md border border-gray-300 {!showPastOnly && !showUpcomingOnly ? 'bg-primary-600 text-white border-primary-600' : 'bg-white text-gray-700 hover:bg-gray-50'}"
         >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          Current Meetings
+          Current
         </a>
-      {:else}
+        <a 
+          href="/agenda?filter=upcoming"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium border-t border-b border-gray-300 {showUpcomingOnly ? 'bg-gold-600 text-white border-gold-600' : 'bg-white text-gray-700 hover:bg-gray-50'}"
+        >
+          Upcoming
+        </a>
         <a 
           href="/agenda?filter=past"
-          class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-r-md border border-gray-300 {showPastOnly ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-700 hover:bg-gray-50'}"
         >
-          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Past Meetings
+          Past
         </a>
-      {/if}
+      </div>
       
       {#if isAdmin}
         <a 
@@ -175,8 +188,8 @@
       <p class="text-red-700">{error}</p>
     </div>
   {:else}
-    <!-- Month navigation (hide for past meetings view) -->
-    {#if !showPastOnly}
+    <!-- Month navigation (hide for past/upcoming meetings view) -->
+    {#if !showPastOnly && !showUpcomingOnly}
     <div class="flex justify-between items-center mb-6 bg-gray-50 p-4 rounded-lg">
       <button 
         class="flex items-center text-gray-600 hover:text-primary-600"
@@ -295,7 +308,15 @@
         </ul>
       {:else}
         <div class="p-8 text-center">
-          <p class="text-gray-500">No meetings scheduled for {getMonthName(currentMonth)} {currentYear}.</p>
+          <p class="text-gray-500">
+            {#if showPastOnly}
+              No past meetings found.
+            {:else if showUpcomingOnly}
+              No upcoming meetings scheduled. Check back soon!
+            {:else}
+              No meetings scheduled for {getMonthName(currentMonth)} {currentYear}.
+            {/if}
+          </p>
           
           {#if isAdmin}
             <a

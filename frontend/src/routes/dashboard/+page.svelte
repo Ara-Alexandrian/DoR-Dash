@@ -176,8 +176,8 @@
 
         <button 
           class="card group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-gold-50 to-gold-100 dark:from-gold-900/20 dark:to-gold-800/20 border-gold-200 dark:border-gold-700 w-full text-left cursor-pointer hover:bg-gradient-to-br hover:from-gold-100 hover:to-gold-200"
-          on:click={() => { console.log('Clicking upcoming presentations tile'); window.location.href = '/calendar'; }}
-          title="View upcoming meetings and presentations"
+          on:click={() => { console.log('Clicking upcoming presentations tile'); window.location.href = '/agenda?filter=upcoming'; }}
+          title="View upcoming meetings and agendas"
         >
           <div class="p-6">
             <div class="flex items-center justify-between">
