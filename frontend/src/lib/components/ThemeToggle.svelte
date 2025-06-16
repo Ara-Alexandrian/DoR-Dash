@@ -7,8 +7,8 @@
     { value: 'light', label: 'Light', icon: '☀️' },
     { value: 'dark', label: 'Dark', icon: '🌙' },
     { value: 'dracula', label: 'Sweet Dracula', icon: '🦇' },
-    { value: 'mbp', label: 'Mary Bird Perkins', icon: '🩺' },
-    { value: 'lsu', label: 'LSU Tigers', icon: '🐅' }
+    { value: 'mbp', label: 'MBP Dark Fire', icon: '🔥' },
+    { value: 'lsu', label: 'LSU Dark Storm', icon: '⚡' }
   ];
   
   function selectTheme(themeValue) {

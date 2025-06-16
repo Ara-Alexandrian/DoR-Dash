@@ -136,7 +136,10 @@
       <div class="h-20 px-6 bg-primary-950 dark:bg-slate-900 dracula:bg-gray-900 mbp:bg-red-950 lsu:bg-purple-950 border-b border-primary-800 dark:border-slate-700 dracula:border-gray-700 mbp:border-red-800 lsu:border-purple-800 flex flex-col justify-center">
         <div class="flex items-center justify-between">
           <div class="flex items-center">
-            <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-10 w-auto mr-3 drop-shadow-md"/>
+            <div class="logo-container mr-3">
+              <div class="logo-disk"></div>
+              <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="logo-enhanced"/>
+            </div>
             <h1 class="text-2xl font-bold text-white tracking-tight">DoR-Dash</h1>
           </div>
         </div>
@@ -297,11 +300,17 @@
           <!-- Theme toggle -->
           <ThemeToggle />
           
-          <!-- Institution branding -->
-          <div class="hidden sm:flex items-center gap-2 text-sm">
-            <span class="font-semibold text-[rgb(var(--color-text-primary))]">Mary Bird Perkins</span>
+          <!-- Institution branding with enhanced logos -->
+          <div class="hidden sm:flex items-center gap-3 text-sm">
+            <div class="flex items-center gap-2">
+              <img src="/images/mbp.png" alt="Mary Bird Perkins Logo" class="institution-logo"/>
+              <span class="font-semibold text-[rgb(var(--color-text-primary))]">Mary Bird Perkins</span>
+            </div>
             <span class="text-[rgb(var(--color-text-secondary))]">×</span>
-            <span class="font-semibold text-secondary-700">LSU</span>
+            <div class="flex items-center gap-2">
+              <img src="/images/lsu.png" alt="LSU Logo" class="institution-logo"/>
+              <span class="font-semibold text-secondary-700">LSU</span>
+            </div>
           </div>
         </div>
       </header>

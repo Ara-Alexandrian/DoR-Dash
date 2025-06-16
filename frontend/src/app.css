@@ -39,28 +39,28 @@
     --color-border-secondary: 98 114 164;
   }
 
-  /* Mary Bird Perkins Cancer Center theme - Darker burgundy and cream */
+  /* Mary Bird Perkins Cancer Center theme - Dark with glowing red accents */
   .mbp {
-    --color-bg-primary: 240 235 225;
-    --color-bg-secondary: 230 220 205;
-    --color-bg-tertiary: 220 205 190;
-    --color-text-primary: 55 20 18;
-    --color-text-secondary: 90 35 33;
-    --color-text-tertiary: 120 55 53;
-    --color-border: 180 150 135;
-    --color-border-secondary: 160 130 115;
+    --color-bg-primary: 18 18 20;
+    --color-bg-secondary: 25 25 28;
+    --color-bg-tertiary: 35 35 38;
+    --color-text-primary: 245 245 247;
+    --color-text-secondary: 205 205 210;
+    --color-text-tertiary: 161 161 170;
+    --color-border: 68 68 75;
+    --color-border-secondary: 82 82 91;
   }
 
-  /* LSU Tigers theme - Darker purple and gold */
+  /* LSU Tigers theme - Dark with glowing purple and gold accents */
   .lsu {
-    --color-bg-primary: 245 240 220;
-    --color-bg-secondary: 235 230 200;
-    --color-bg-tertiary: 225 220 180;
-    --color-text-primary: 55 22 95;
-    --color-text-secondary: 70 28 120;
-    --color-text-tertiary: 85 35 140;
-    --color-border: 190 175 130;
-    --color-border-secondary: 170 155 110;
+    --color-bg-primary: 15 10 25;
+    --color-bg-secondary: 22 15 35;
+    --color-bg-tertiary: 30 20 45;
+    --color-text-primary: 248 245 255;
+    --color-text-secondary: 215 205 230;
+    --color-text-tertiary: 180 165 200;
+    --color-border: 65 55 85;
+    --color-border-secondary: 85 70 110;
   }
 
   html {
@@ -114,11 +114,13 @@
   }
 
   .mbp .card {
-    @apply shadow-xl shadow-red-500/20 border-red-300/40;
+    @apply shadow-xl shadow-red-500/30 border-red-500/30;
+    box-shadow: 0 25px 50px -12px rgba(239, 68, 68, 0.3), 0 0 20px rgba(239, 68, 68, 0.1);
   }
 
   .lsu .card {
-    @apply shadow-xl shadow-purple-500/20 border-purple-300/40;
+    @apply shadow-xl shadow-purple-500/30 border-purple-500/30;
+    box-shadow: 0 25px 50px -12px rgba(168, 85, 247, 0.3), 0 0 20px rgba(168, 85, 247, 0.1);
   }
 
   /* Enhanced contrast for input fields in dark themes */
@@ -138,22 +140,26 @@
     @apply border-cyan-300 ring-cyan-300/50 bg-gray-700;
   }
 
-  /* MBP theme input styling */
+  /* MBP theme input styling - Dark with red glow */
   .mbp input, .mbp textarea, .mbp select {
-    @apply bg-red-50/50 border-red-300/60 text-red-900 placeholder-red-400/70;
+    @apply bg-gray-900/80 border-red-500/40 text-red-50 placeholder-red-300/60;
+    backdrop-filter: blur(8px);
   }
   
   .mbp input:focus, .mbp textarea:focus, .mbp select:focus {
-    @apply border-red-500 ring-red-500/50 bg-red-50/50;
+    @apply border-red-400 ring-red-400/50 bg-gray-900/90;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 0 0 4px rgba(239, 68, 68, 0.1);
   }
 
-  /* LSU theme input styling */
+  /* LSU theme input styling - Dark with purple/gold glow */
   .lsu input, .lsu textarea, .lsu select {
-    @apply bg-purple-50/50 border-purple-300/60 text-purple-900 placeholder-purple-400/70;
+    @apply bg-purple-950/80 border-purple-400/40 text-purple-50 placeholder-purple-300/60;
+    backdrop-filter: blur(8px);
   }
   
   .lsu input:focus, .lsu textarea:focus, .lsu select:focus {
-    @apply border-purple-500 ring-purple-500/50 bg-purple-50/50;
+    @apply border-yellow-400 ring-yellow-400/50 bg-purple-950/90;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3), 0 0 0 4px rgba(168, 85, 247, 0.1);
   }
 
   /* Better button contrast for dark themes */
@@ -166,11 +172,25 @@
   }
 
   .mbp .btn-primary {
-    @apply bg-red-700 hover:bg-red-800 text-white shadow-lg shadow-red-500/25;
+    @apply bg-red-600 hover:bg-red-500 text-white shadow-lg;
+    box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4), 0 0 15px rgba(239, 68, 68, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .mbp .btn-primary:hover {
+    box-shadow: 0 15px 35px -5px rgba(239, 68, 68, 0.6), 0 0 25px rgba(239, 68, 68, 0.3);
+    transform: translateY(-2px);
   }
 
   .lsu .btn-primary {
-    @apply bg-purple-700 hover:bg-purple-800 text-white shadow-lg shadow-purple-500/25;
+    @apply bg-purple-600 hover:bg-purple-500 text-white shadow-lg;
+    box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.4), 0 0 15px rgba(168, 85, 247, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .lsu .btn-primary:hover {
+    box-shadow: 0 15px 35px -5px rgba(168, 85, 247, 0.6), 0 0 25px rgba(251, 191, 36, 0.3);
+    transform: translateY(-2px);
   }
 
   /* Enhanced text readability */
@@ -183,11 +203,13 @@
   }
 
   .mbp h1, .mbp h2, .mbp h3, .mbp h4, .mbp h5, .mbp h6 {
-    @apply text-red-900;
+    @apply text-red-100;
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
   }
 
   .lsu h1, .lsu h2, .lsu h3, .lsu h4, .lsu h5, .lsu h6 {
-    @apply text-purple-900;
+    @apply text-purple-100;
+    text-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
   }
   
   .card-header {
@@ -232,5 +254,122 @@
   
   .badge-danger {
     @apply badge bg-red-100 text-red-800;
+  }
+
+  /* Enhanced logo styling with fixed sizes and beveled disks */
+  .logo-container {
+    @apply relative inline-block;
+  }
+  
+  .logo-enhanced {
+    @apply relative z-10 transition-all duration-300;
+    width: 40px !important;
+    height: 40px !important;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  }
+  
+  .logo-disk {
+    @apply absolute inset-0 rounded-full;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.1));
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+      inset 0 1px 2px rgba(255, 255, 255, 0.3),
+      inset 0 -1px 2px rgba(0, 0, 0, 0.3),
+      0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Theme-specific logo disk styling */
+  .mbp .logo-disk {
+    background: linear-gradient(145deg, rgba(239, 68, 68, 0.2), rgba(0, 0, 0, 0.3));
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    box-shadow: 
+      inset 0 1px 2px rgba(239, 68, 68, 0.4),
+      inset 0 -1px 2px rgba(0, 0, 0, 0.4),
+      0 0 20px rgba(239, 68, 68, 0.3),
+      0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .lsu .logo-disk {
+    background: linear-gradient(145deg, rgba(168, 85, 247, 0.2), rgba(251, 191, 36, 0.1));
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    box-shadow: 
+      inset 0 1px 2px rgba(251, 191, 36, 0.4),
+      inset 0 -1px 2px rgba(168, 85, 247, 0.4),
+      0 0 20px rgba(168, 85, 247, 0.3),
+      0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .dark .logo-disk {
+    background: linear-gradient(145deg, rgba(71, 85, 105, 0.3), rgba(0, 0, 0, 0.4));
+    border: 1px solid rgba(71, 85, 105, 0.4);
+    box-shadow: 
+      inset 0 1px 2px rgba(148, 163, 184, 0.3),
+      inset 0 -1px 2px rgba(0, 0, 0, 0.5),
+      0 0 15px rgba(71, 85, 105, 0.4),
+      0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+  
+  .dracula .logo-disk {
+    background: linear-gradient(145deg, rgba(189, 147, 249, 0.2), rgba(139, 233, 253, 0.1));
+    border: 1px solid rgba(189, 147, 249, 0.3);
+    box-shadow: 
+      inset 0 1px 2px rgba(139, 233, 253, 0.4),
+      inset 0 -1px 2px rgba(189, 147, 249, 0.4),
+      0 0 20px rgba(189, 147, 249, 0.3),
+      0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Logo hover effects */
+  .logo-container:hover .logo-enhanced {
+    transform: scale(1.05);
+  }
+  
+  .mbp .logo-container:hover .logo-disk {
+    box-shadow: 
+      inset 0 1px 2px rgba(239, 68, 68, 0.6),
+      inset 0 -1px 2px rgba(0, 0, 0, 0.6),
+      0 0 30px rgba(239, 68, 68, 0.5),
+      0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+  
+  .lsu .logo-container:hover .logo-disk {
+    box-shadow: 
+      inset 0 1px 2px rgba(251, 191, 36, 0.6),
+      inset 0 -1px 2px rgba(168, 85, 247, 0.6),
+      0 0 30px rgba(168, 85, 247, 0.5),
+      0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Institution logos in header */
+  .institution-logo {
+    width: 28px !important;
+    height: 28px !important;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    transition: all 0.3s ease;
+  }
+  
+  .institution-logo:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  }
+
+  /* Enhanced sidebar glowing effects */
+  .mbp .sidebar {
+    background: linear-gradient(180deg, #1f1f23 0%, #2d1114 100%);
+    border-right: 1px solid rgba(239, 68, 68, 0.2);
+    box-shadow: 
+      4px 0 20px rgba(239, 68, 68, 0.1),
+      inset -1px 0 0 rgba(239, 68, 68, 0.2);
+  }
+  
+  .lsu .sidebar {
+    background: linear-gradient(180deg, #0f0a19 0%, #1e1030 100%);
+    border-right: 1px solid rgba(168, 85, 247, 0.2);
+    box-shadow: 
+      4px 0 20px rgba(168, 85, 247, 0.1),
+      inset -1px 0 0 rgba(168, 85, 247, 0.2);
   }
 }
