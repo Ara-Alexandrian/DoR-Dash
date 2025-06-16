@@ -1455,13 +1455,14 @@
       <!-- Feedback button -->
       <button 
         type="button" 
-        class="px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded transition-colors duration-200"
+        class="px-3 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded transition-colors duration-200 flex items-center"
         on:click={() => showFeedbackBox = true}
         title="Report an issue with this refinement"
       >
-        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.959 8.959 0 01-2.73-.416L5 21l1.584-5.27A8.959 8.959 0 013 12a8 8 0 018-8 8 8 0 018 8z" />
+        <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.959 8.959 0 01-2.73-.416L5 21l1.584-5.27A8.959 8.959 0 073 12a8 8 0 018-8 8 8 0 018 8z" />
         </svg>
+        Feedback
       </button>
     </div>
   </div>
