@@ -31,77 +31,78 @@ class TextRefinementResponse(BaseModel):
     word_count_refined: int
     improvements_made: List[str] = []
 
-# Conservative formatting prompt templates - focus on markdown formatting and organization
+# Minimal formatting prompt templates - focus on basic cleanup and organization only
 ACADEMIC_PROMPTS = {
-    "research_progress": """Format this research progress text with proper markdown formatting and organization. Add appropriate bullet points, emojis for visual appeal, and improve readability WITHOUT changing the core meaning or content.
+    "research_progress": """Clean up this text with minimal formatting. Only fix obvious issues and add basic structure. Do NOT expand or rewrite content.
 
-Guidelines:
-- Use bullet points (•) to organize key points
-- Add relevant emojis sparingly (🔬 for experiments, 📊 for data, etc.)
-- Use **bold** for important terms
-- Keep original meaning unchanged
-- Improve structure and readability only
-
-TEXT: {text}
-
-Respond with JSON:
-{{"refined_text": "formatted version with markdown", "suggestions": ["formatting tip1", "organization tip2", "readability tip3"]}}""",
-
-    "challenges": """Format this challenges text with proper markdown formatting. Organize into bullet points, add emojis for visual appeal, but preserve the original meaning and tone.
-
-Guidelines:
-- Use bullet points (•) for each challenge
-- Add relevant emojis (⚠️ for issues, 🤔 for questions, etc.)
-- Use **bold** for key challenges
-- Keep original content and meaning
-- Only improve organization and readability
+Rules:
+- Fix grammar/spelling errors only
+- Add bullet points ONLY if there are clearly separate items
+- Use **bold** sparingly for key terms only
+- Keep text shorter or same length as original
+- Do NOT add emojis or fancy formatting
+- Do NOT change wording or add new content
 
 TEXT: {text}
 
 Respond with JSON:
-{{"refined_text": "formatted version with markdown", "suggestions": ["formatting tip1", "organization tip2", "readability tip3"]}}""",
+{{"refined_text": "cleaned version", "suggestions": ["grammar fix", "structure tip", "clarity note"]}}""",
 
-    "goals": """Format these goals/next steps with markdown formatting. Create organized bullet points and add visual appeal with emojis while preserving original content.
+    "challenges": """Clean up this challenges text with minimal formatting. Fix basic issues only, do NOT expand content.
 
-Guidelines:
-- Use bullet points (•) or numbered lists for steps
-- Add relevant emojis (🎯 for goals, 📅 for timelines, etc.)
-- Use **bold** for important objectives
-- Keep original meaning and content
-- Only improve structure and visual appeal
-
-TEXT: {text}
-
-Respond with JSON:
-{{"refined_text": "formatted version with markdown", "suggestions": ["formatting tip1", "organization tip2", "visual tip3"]}}""",
-
-    "announcements": """Format this announcement with proper markdown structure. Add emojis for visual appeal and organize content with bullet points while keeping the original message intact.
-
-Guidelines:
-- Use bullet points (•) for key items
-- Add relevant emojis (📢 for announcements, ⚠️ for important, etc.)
-- Use **bold** for critical information
-- Keep original tone and content
-- Only improve formatting and readability
+Rules:
+- Fix grammar/spelling errors only
+- Add bullet points ONLY if there are clearly separate challenges
+- Keep text shorter or same length as original
+- Do NOT add emojis or fancy formatting
+- Do NOT change wording or add explanations
 
 TEXT: {text}
 
 Respond with JSON:
-{{"refined_text": "formatted version with markdown", "suggestions": ["formatting tip1", "organization tip2", "visual tip3"]}}""",
+{{"refined_text": "cleaned version", "suggestions": ["grammar fix", "structure tip", "clarity note"]}}""",
 
-    "general": """Format this text with markdown formatting for better readability. Add bullet points, emojis, and structure while preserving the original content and meaning.
+    "goals": """Clean up these goals/steps with minimal formatting. Fix basic issues only, do NOT expand content.
 
-Guidelines:
-- Use bullet points (•) to organize thoughts
-- Add appropriate emojis for visual appeal
-- Use **bold** for emphasis
-- Keep original content and meaning unchanged
-- Only improve formatting and structure
+Rules:
+- Fix grammar/spelling errors only
+- Add numbered list ONLY if there are clearly separate steps
+- Keep text shorter or same length as original
+- Do NOT add emojis or fancy formatting
+- Do NOT change wording or add details
 
 TEXT: {text}
 
 Respond with JSON:
-{{"refined_text": "formatted version with markdown", "suggestions": ["formatting tip1", "organization tip2", "readability tip3"]}}"""
+{{"refined_text": "cleaned version", "suggestions": ["grammar fix", "structure tip", "clarity note"]}}""",
+
+    "announcements": """Clean up this announcement with minimal formatting. Fix basic issues only, do NOT expand content.
+
+Rules:
+- Fix grammar/spelling errors only
+- Add bullet points ONLY if there are clearly separate items
+- Keep text shorter or same length as original
+- Do NOT add emojis or fancy formatting
+- Do NOT change wording or add emphasis
+
+TEXT: {text}
+
+Respond with JSON:
+{{"refined_text": "cleaned version", "suggestions": ["grammar fix", "structure tip", "clarity note"]}}""",
+
+    "general": """Clean up this text with minimal formatting. Fix basic issues only, do NOT expand content.
+
+Rules:
+- Fix grammar/spelling errors only
+- Add basic structure ONLY if clearly needed
+- Keep text shorter or same length as original
+- Do NOT add emojis or fancy formatting
+- Do NOT change wording or add content
+
+TEXT: {text}
+
+Respond with JSON:
+{{"refined_text": "cleaned version", "suggestions": ["grammar fix", "structure tip", "clarity note"]}}"""
 }
 
 def determine_context(text: str) -> str:
@@ -185,12 +186,12 @@ async def refine_text(
                     "prompt": prompt,
                     "stream": False,
                     "options": {
-                        "temperature": 0.1,      # Very low temperature for consistent formatting only
-                        "top_p": 0.8,
-                        "top_k": 20,
-                        "num_ctx": 1024,         # Smaller context for efficiency
-                        "num_predict": 400,      # Shorter responses for formatting
-                        "repeat_penalty": 1.05,  # Lower repeat penalty
+                        "temperature": 0.2,      # Slightly higher for more natural minimal fixes
+                        "top_p": 0.7,
+                        "top_k": 15,
+                        "num_ctx": 512,          # Even smaller context to limit elaboration
+                        "num_predict": 200,      # Much shorter responses to prevent expansion
+                        "repeat_penalty": 1.1,
                         "num_thread": 4,         # Optimize CPU thread usage
                         "num_gpu": 0            # Force CPU-only processing
                     }
@@ -247,10 +248,17 @@ async def refine_text(
                     refined_text = json_data.get("refined_text", request.text)
                     suggestions = json_data.get("suggestions", [])
                     
-                    # Ensure suggestions is a list and limit to 5
+                    # STRICT: If refined text is significantly longer than original, reject it
+                    original_length = len(request.text)
+                    refined_length = len(refined_text)
+                    if refined_length > original_length * 1.3:  # Allow max 30% expansion
+                        refined_text = request.text  # Use original if too much expansion
+                        suggestions = ["AI response was too verbose - kept original text"]
+                    
+                    # Ensure suggestions is a list and limit to 3
                     if not isinstance(suggestions, list):
                         suggestions = [str(suggestions)] if suggestions else []
-                    suggestions = suggestions[:5]
+                    suggestions = suggestions[:3]  # Reduced from 5 to 3
                     
                     # Analyze improvements made
                     improvements = analyze_improvements(request.text, refined_text)
