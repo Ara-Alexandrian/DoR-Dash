@@ -7,7 +7,15 @@ import re
 import asyncio
 from app.core.config import settings
 from app.api.endpoints.auth import User, get_current_user
-from app.services.knowledge_base import knowledge_service
+
+# Safe import of knowledge base service
+try:
+    from app.services.knowledge_base import knowledge_service
+    KNOWLEDGE_BASE_AVAILABLE = True
+except Exception as e:
+    print(f"⚠️  Warning: Knowledge base service not available in text endpoint: {e}")
+    KNOWLEDGE_BASE_AVAILABLE = False
+    knowledge_service = None
 
 router = APIRouter()
 
@@ -128,12 +136,17 @@ async def refine_text(
         context = request.context or determine_context(request.text)
         prompt_template = ACADEMIC_PROMPTS.get(context, ACADEMIC_PROMPTS["general"])
         
-        # Get enhanced domain context from knowledge base
-        enhanced_context = knowledge_service.get_enhanced_prompt_context(context)
+        # Get enhanced domain context from knowledge base (if available)
+        enhanced_context = ""
+        if KNOWLEDGE_BASE_AVAILABLE and knowledge_service:
+            try:
+                enhanced_context = knowledge_service.get_enhanced_prompt_context(context)
+            except Exception as e:
+                print(f"⚠️  Warning: Could not get enhanced context: {e}")
         
         # Enhance the prompt with learned domain vocabulary
         enhanced_prompt = prompt_template.format(text=request.text)
-        if enhanced_context.strip():
+        if enhanced_context and enhanced_context.strip():
             enhanced_prompt += enhanced_context + "\n\nPlease use this domain knowledge to provide more accurate and contextually appropriate suggestions."
         
         prompt = enhanced_prompt

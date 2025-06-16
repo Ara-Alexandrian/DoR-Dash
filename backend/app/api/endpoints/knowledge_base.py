@@ -8,7 +8,21 @@ from pydantic import BaseModel, Field
 from typing import List, Dict, Optional, Any
 from datetime import datetime
 from app.api.endpoints.auth import User, get_current_user, get_admin_user
-from app.services.knowledge_base import knowledge_service, KnowledgeSnapshot, TerminologyEntry
+
+# Safe import of knowledge base service
+try:
+    from app.services.knowledge_base import knowledge_service, KnowledgeSnapshot, TerminologyEntry
+    KNOWLEDGE_BASE_AVAILABLE = True
+except Exception as e:
+    print(f"⚠️  Warning: Knowledge base service not available: {e}")
+    KNOWLEDGE_BASE_AVAILABLE = False
+    
+    # Create dummy classes to prevent import errors
+    class KnowledgeSnapshot:
+        pass
+    class TerminologyEntry:
+        pass
+    knowledge_service = None
 
 router = APIRouter()
 
@@ -50,6 +64,12 @@ async def create_knowledge_snapshot(
     Create a snapshot of all submissions to update the knowledge base
     Only admin users can trigger this
     """
+    if not KNOWLEDGE_BASE_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="Knowledge base service is not available"
+        )
+    
     try:
         # Run snapshot in background for better performance
         snapshot = await knowledge_service.snapshot_submissions()
