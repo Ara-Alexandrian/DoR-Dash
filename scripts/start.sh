@@ -49,7 +49,7 @@ OLLAMA_API_URL=http://172.30.98.14:11434/api/generate
 
 # Application Configuration
 BACKEND_HOST=172.30.98.21
-BACKEND_PORT=8000
+BACKEND_PORT=8001
 FRONTEND_HOST=172.30.98.21
 FRONTEND_PORT=7117
 VITE_API_URL=""
@@ -80,13 +80,13 @@ echo -e "${BLUE}Starting backend...${NC}"
 cd backend
 # Export PYTHONPATH to ensure imports work properly
 export PYTHONPATH=$PYTHONPATH:$(pwd)
-python -m uvicorn app.main:app --host 172.30.98.21 --port 8000 --reload > ../logs/backend.log 2>&1 &
+python -m uvicorn app.main:app --host 172.30.98.21 --port 8001 --reload > ../logs/backend.log 2>&1 &
 BACKEND_PID=$!
 cd ..
 echo $BACKEND_PID > ./logs/backend.pid
 echo -e "${GREEN}Backend started with PID $BACKEND_PID${NC}"
 echo -e "${GREEN}Backend API is accessible at:${NC}"
-echo -e "${GREEN}- http://172.30.98.21:8000${NC}"
+echo -e "${GREEN}- http://172.30.98.21:8001${NC}"
 echo -e "${YELLOW}Backend logs: ./logs/backend.log${NC}"
 
 # Apply migrations (with better error handling)

@@ -31,52 +31,77 @@ class TextRefinementResponse(BaseModel):
     word_count_refined: int
     improvements_made: List[str] = []
 
-# Enhanced academic prompt templates
+# Conservative formatting prompt templates - focus on markdown formatting and organization
 ACADEMIC_PROMPTS = {
-    "research_progress": """You are an expert academic writing assistant specializing in research documentation. Refine this research progress text for clarity and professionalism.
+    "research_progress": """Format this research progress text with proper markdown formatting and organization. Add appropriate bullet points, emojis for visual appeal, and improve readability WITHOUT changing the core meaning or content.
 
-Focus on: clear methodology, accurate terminology, logical flow, professional tone.
-
-TEXT: {text}
-
-Respond with JSON:
-{{"refined_text": "refined version", "suggestions": ["tip1", "tip2", "tip3"]}}""",
-
-    "challenges": """You are an expert academic writing assistant. Refine this text about research challenges to be professional and solution-oriented.
-
-Focus on: clear problem identification, constructive framing, academic tone.
+Guidelines:
+- Use bullet points (•) to organize key points
+- Add relevant emojis sparingly (🔬 for experiments, 📊 for data, etc.)
+- Use **bold** for important terms
+- Keep original meaning unchanged
+- Improve structure and readability only
 
 TEXT: {text}
 
 Respond with JSON:
-{{"refined_text": "refined version", "suggestions": ["tip1", "tip2", "tip3"]}}""",
+{{"refined_text": "formatted version with markdown", "suggestions": ["formatting tip1", "organization tip2", "readability tip3"]}}""",
 
-    "goals": """You are an expert academic writing assistant. Refine these research goals/next steps to be specific and professionally presented.
+    "challenges": """Format this challenges text with proper markdown formatting. Organize into bullet points, add emojis for visual appeal, but preserve the original meaning and tone.
 
-Focus on: specific objectives, clear timelines, professional language, logical sequencing.
-
-TEXT: {text}
-
-Respond with JSON:
-{{"refined_text": "refined version", "suggestions": ["tip1", "tip2", "tip3"]}}""",
-
-    "announcements": """You are an expert academic communication assistant. Refine this faculty announcement for clarity and professionalism.
-
-Focus on: clear communication, professional tone, important information highlighted.
+Guidelines:
+- Use bullet points (•) for each challenge
+- Add relevant emojis (⚠️ for issues, 🤔 for questions, etc.)
+- Use **bold** for key challenges
+- Keep original content and meaning
+- Only improve organization and readability
 
 TEXT: {text}
 
 Respond with JSON:
-{{"refined_text": "refined version", "suggestions": ["tip1", "tip2", "tip3"]}}""",
+{{"refined_text": "formatted version with markdown", "suggestions": ["formatting tip1", "organization tip2", "readability tip3"]}}""",
 
-    "general": """You are an expert academic writing assistant. Refine this text for grammar, clarity, and professional academic style.
+    "goals": """Format these goals/next steps with markdown formatting. Create organized bullet points and add visual appeal with emojis while preserving original content.
 
-Focus on: grammar corrections, clear language, professional tone, logical flow.
+Guidelines:
+- Use bullet points (•) or numbered lists for steps
+- Add relevant emojis (🎯 for goals, 📅 for timelines, etc.)
+- Use **bold** for important objectives
+- Keep original meaning and content
+- Only improve structure and visual appeal
 
 TEXT: {text}
 
 Respond with JSON:
-{{"refined_text": "refined version", "suggestions": ["tip1", "tip2", "tip3"]}}"""
+{{"refined_text": "formatted version with markdown", "suggestions": ["formatting tip1", "organization tip2", "visual tip3"]}}""",
+
+    "announcements": """Format this announcement with proper markdown structure. Add emojis for visual appeal and organize content with bullet points while keeping the original message intact.
+
+Guidelines:
+- Use bullet points (•) for key items
+- Add relevant emojis (📢 for announcements, ⚠️ for important, etc.)
+- Use **bold** for critical information
+- Keep original tone and content
+- Only improve formatting and readability
+
+TEXT: {text}
+
+Respond with JSON:
+{{"refined_text": "formatted version with markdown", "suggestions": ["formatting tip1", "organization tip2", "visual tip3"]}}""",
+
+    "general": """Format this text with markdown formatting for better readability. Add bullet points, emojis, and structure while preserving the original content and meaning.
+
+Guidelines:
+- Use bullet points (•) to organize thoughts
+- Add appropriate emojis for visual appeal
+- Use **bold** for emphasis
+- Keep original content and meaning unchanged
+- Only improve formatting and structure
+
+TEXT: {text}
+
+Respond with JSON:
+{{"refined_text": "formatted version with markdown", "suggestions": ["formatting tip1", "organization tip2", "readability tip3"]}}"""
 }
 
 def determine_context(text: str) -> str:
@@ -151,21 +176,21 @@ async def refine_text(
         
         prompt = enhanced_prompt
         
-        # Call Ollama API with CPU optimizations
-        async with httpx.AsyncClient(timeout=httpx.Timeout(90.0)) as client:
+        # Call Ollama API with Gemma 4B for more conservative formatting
+        async with httpx.AsyncClient(timeout=httpx.Timeout(60.0)) as client:
             response = await client.post(
                 settings.OLLAMA_API_URL,
                 json={
-                    "model": "mistral:7b",  # Specify 7B variant for CPU efficiency
+                    "model": "gemma2:2b",  # Use Gemma 2B for faster, more conservative responses
                     "prompt": prompt,
                     "stream": False,
                     "options": {
-                        "temperature": 0.3,      # Lower temperature for consistent academic writing
-                        "top_p": 0.9,
-                        "top_k": 40,
-                        "num_ctx": 2048,         # Optimized context window for CPU
-                        "num_predict": 600,      # Reasonable token limit
-                        "repeat_penalty": 1.1,
+                        "temperature": 0.1,      # Very low temperature for consistent formatting only
+                        "top_p": 0.8,
+                        "top_k": 20,
+                        "num_ctx": 1024,         # Smaller context for efficiency
+                        "num_predict": 400,      # Shorter responses for formatting
+                        "repeat_penalty": 1.05,  # Lower repeat penalty
                         "num_thread": 4,         # Optimize CPU thread usage
                         "num_gpu": 0            # Force CPU-only processing
                     }
@@ -292,11 +317,11 @@ async def check_ai_service():
             response = await client.post(
                 settings.OLLAMA_API_URL,
                 json={
-                    "model": "mistral:7b",
+                    "model": "gemma2:2b",
                     "prompt": "Test",
                     "stream": False,
                     "options": {
-                        "num_predict": 5,
+                        "num_predict": 3,
                         "num_thread": 2,
                         "num_gpu": 0
                     }
@@ -306,9 +331,10 @@ async def check_ai_service():
             if response.status_code == 200:
                 return {
                     "status": "healthy", 
-                    "model": "mistral:7b",
+                    "model": "gemma2:2b",
                     "endpoint": settings.OLLAMA_API_URL,
-                    "cpu_optimized": True
+                    "cpu_optimized": True,
+                    "purpose": "markdown_formatting"
                 }
             else:
                 return {

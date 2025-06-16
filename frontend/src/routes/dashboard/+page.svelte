@@ -11,24 +11,61 @@
   
   onMount(async () => {
     try {
-      // Always fetch real data from API
-      // Fetch user's updates
+      // Fetch dashboard stats from new endpoint
       try {
+        const statsResponse = await fetch('/api/v1/dashboard/stats', {
+          headers: {
+            'Authorization': `Bearer ${$auth.token}`
+          }
+        });
+        
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          // Update stats directly from API response
+          stats = {
+            totalUpdates: statsData.totalUpdates,
+            recentUpdates: statsData.recentUpdates,
+            upcomingPresentations: statsData.upcomingPresentations,
+            completedPresentations: statsData.completedPresentations
+          };
+        } else {
+          throw new Error('Failed to fetch dashboard stats');
+        }
+      } catch (err) {
+        console.error('Failed to load dashboard stats:', err);
+        // Fallback to original method if new endpoint fails
         const updatesResponse = await updateApi.getUpdates();
         updates = updatesResponse.items || updatesResponse || [];
-      } catch (err) {
-        console.error('Failed to load updates:', err);
-        updates = [];
       }
       
-      // Fetch presentations
+      // Fetch recent updates for display
+      try {
+        const recentResponse = await fetch('/api/v1/dashboard/recent-updates?limit=3', {
+          headers: {
+            'Authorization': `Bearer ${$auth.token}`
+          }
+        });
+        
+        if (recentResponse.ok) {
+          const recentData = await recentResponse.json();
+          updates = recentData.items || [];
+        }
+      } catch (err) {
+        console.error('Failed to load recent updates:', err);
+      }
+      
+      // Fetch presentations (keep existing logic)
       try {
         const presentationsResponse = await presentationApi.getPresentations();
         
-        // Filter presentations for the current user
-        presentations = presentationsResponse.filter(
-          p => p.user_id === $auth.user?.id
-        ).sort((a, b) => new Date(a.meeting_date) - new Date(b.meeting_date));
+        // Filter presentations for the current user unless admin/faculty
+        if ($auth.user?.role === 'admin' || $auth.user?.role === 'faculty') {
+          presentations = presentationsResponse.sort((a, b) => new Date(a.meeting_date) - new Date(b.meeting_date));
+        } else {
+          presentations = presentationsResponse.filter(
+            p => p.user_id === $auth.user?.id
+          ).sort((a, b) => new Date(a.meeting_date) - new Date(b.meeting_date));
+        }
       } catch (err) {
         console.error('Failed to load presentations:', err);
         presentations = [];
@@ -59,17 +96,12 @@
     return 'Good evening';
   }
 
-  // Get statistics
-  $: stats = {
-    totalUpdates: updates.length,
-    recentUpdates: updates.filter(u => {
-      const updateDate = new Date(u.submission_date);
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      return updateDate > thirtyDaysAgo;
-    }).length,
-    upcomingPresentations: presentations.filter(p => p.status === 'scheduled').length,
-    completedPresentations: presentations.filter(p => p.status === 'completed').length
+  // Initialize stats - will be populated from API
+  let stats = {
+    totalUpdates: 0,
+    recentUpdates: 0,
+    upcomingPresentations: 0,
+    completedPresentations: 0
   };
 </script>
 

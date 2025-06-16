@@ -112,11 +112,9 @@ class KnowledgeBaseService:
                 )
             ''')
             
-            conn.execute('''
-                CREATE INDEX IF NOT EXISTS idx_term ON terminology(term);
-                CREATE INDEX IF NOT EXISTS idx_category ON terminology(category);
-                CREATE INDEX IF NOT EXISTS idx_frequency ON terminology(frequency DESC);
-            ''')
+            conn.execute('CREATE INDEX IF NOT EXISTS idx_term ON terminology(term)')
+            conn.execute('CREATE INDEX IF NOT EXISTS idx_category ON terminology(category)')
+            conn.execute('CREATE INDEX IF NOT EXISTS idx_frequency ON terminology(frequency DESC)')
     
     def extract_terminology(self, text: str) -> Dict[str, List[str]]:
         """Extract domain-specific terminology from text"""

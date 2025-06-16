@@ -26,6 +26,12 @@
     is_presenting: false
   };
   
+  // File management state
+  let existingFiles = [];
+  let filesToRemove = [];
+  let newFiles = [];
+  let fileInput;
+  
   onMount(async () => {
     try {
       const response = await updateApi.getUpdates();
@@ -71,12 +77,21 @@
         will_present: update.will_present || false
       };
     }
+    
+    // Initialize file management
+    existingFiles = update.files ? [...update.files] : [];
+    filesToRemove = [];
+    newFiles = [];
   }
   
   function cancelEdit() {
     editingUpdate = null;
     isEditing = false;
     editFormData = {};
+    existingFiles = [];
+    filesToRemove = [];
+    newFiles = [];
+    if (fileInput) fileInput.value = '';
   }
   
   async function saveEdit() {
@@ -94,12 +109,47 @@
         updatedUpdate = await updateApi.updateUpdate(editingUpdate.id, editFormData);
       }
       
-      // Update the local updates array
-      const index = updates.findIndex(u => u.id === editingUpdate.id);
-      if (index !== -1) {
-        updates[index] = { ...updates[index], ...updatedUpdate };
-        updates = updates; // Trigger reactivity
+      // Handle file removals
+      for (const fileId of filesToRemove) {
+        try {
+          await fetch(`/api/v1/agenda-items/${editingUpdate.id}/files/${fileId}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${$auth.token}`
+            }
+          });
+        } catch (err) {
+          console.error('Failed to remove file:', err);
+        }
       }
+      
+      // Handle new file uploads
+      if (newFiles.length > 0) {
+        const formData = new FormData();
+        for (const file of newFiles) {
+          formData.append('files', file);
+        }
+        
+        try {
+          const response = await fetch(`/api/v1/agenda-items/${editingUpdate.id}/files`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${$auth.token}`
+            },
+            body: formData
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to upload files');
+          }
+        } catch (err) {
+          console.error('Failed to upload files:', err);
+        }
+      }
+      
+      // Reload the update to get the latest file list
+      const response = await updateApi.getUpdates();
+      updates = response.items || [];
       
       cancelEdit();
     } catch (err) {
@@ -115,6 +165,32 @@
     } else {
       window.location.href = '/agenda';
     }
+  }
+  
+  // File management functions
+  function removeExistingFile(fileId) {
+    existingFiles = existingFiles.filter(f => f.id !== fileId);
+    filesToRemove.push(fileId);
+  }
+  
+  function handleFileSelect(event) {
+    const selectedFiles = Array.from(event.target.files);
+    newFiles = [...newFiles, ...selectedFiles];
+  }
+  
+  function removeNewFile(index) {
+    newFiles = newFiles.filter((_, i) => i !== index);
+    if (fileInput && newFiles.length === 0) {
+      fileInput.value = '';
+    }
+  }
+  
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 </script>
 
@@ -281,6 +357,91 @@
                   </div>
                 </div>
               {/if}
+              
+              <!-- File Management Section -->
+              <div class="mt-6 border-t pt-4">
+                <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Files</h4>
+                
+                <!-- Existing Files -->
+                {#if existingFiles.length > 0}
+                  <div class="mb-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">Existing files (click × to remove)</p>
+                    <div class="space-y-2">
+                      {#each existingFiles as file}
+                        <div class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600">
+                          <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">{file.name || file.filename}</span>
+                            <span class="text-xs text-gray-500">({formatFileSize(file.size || file.file_size || 0)})</span>
+                          </div>
+                          <button
+                            on:click={() => removeExistingFile(file.id)}
+                            class="text-red-500 hover:text-red-700 p-1"
+                            title="Remove this file"
+                          >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      {/each}
+                    </div>
+                  </div>
+                {/if}
+                
+                <!-- New Files -->
+                {#if newFiles.length > 0}
+                  <div class="mb-4">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">New files to upload</p>
+                    <div class="space-y-2">
+                      {#each newFiles as file, index}
+                        <div class="flex items-center justify-between p-2 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800">
+                          <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <span class="text-gray-700 dark:text-gray-300">{file.name}</span>
+                            <span class="text-xs text-gray-500">({formatFileSize(file.size)})</span>
+                          </div>
+                          <button
+                            on:click={() => removeNewFile(index)}
+                            class="text-red-500 hover:text-red-700 p-1"
+                            title="Remove this file"
+                          >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      {/each}
+                    </div>
+                  </div>
+                {/if}
+                
+                <!-- File Upload Button -->
+                <div>
+                  <input
+                    bind:this={fileInput}
+                    type="file"
+                    multiple
+                    on:change={handleFileSelect}
+                    class="hidden"
+                    id="file-upload-{editingUpdate.id}"
+                  />
+                  <label
+                    for="file-upload-{editingUpdate.id}"
+                    class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer"
+                  >
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Files
+                  </label>
+                  <span class="ml-2 text-xs text-gray-500">Max 50MB per file</span>
+                </div>
+              </div>
             </div>
           {:else}
             <!-- View Mode -->
@@ -378,6 +539,29 @@
                     <p class="text-sm text-gray-600 dark:text-gray-400">{update.meeting_notes}</p>
                   </div>
                 {/if}
+              {/if}
+              
+              <!-- Files Display in View Mode -->
+              {#if update.files && update.files.length > 0}
+                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Attached Files</h4>
+                  <div class="space-y-1">
+                    {#each update.files as file}
+                      <a 
+                        href={`/api/v1/agenda-items/${update.id}/files/${file.id}/download`}
+                        download={file.name || file.filename}
+                        class="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                        target="_blank"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        <span>{file.name || file.filename}</span>
+                        <span class="text-xs text-gray-500">({formatFileSize(file.size || file.file_size || 0)})</span>
+                      </a>
+                    {/each}
+                  </div>
+                </div>
               {/if}
             </div>
           {/if}
