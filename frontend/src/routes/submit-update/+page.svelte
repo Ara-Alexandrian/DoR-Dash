@@ -1587,7 +1587,7 @@
 {#if refinementResult}
   <div 
     class="fixed z-50 w-96 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-600"
-    style="left: {refinementPosition.x}px; top: {refinementPosition.y}px; max-width: calc(100vw - 20px);"
+    style="left: {Math.max(10, Math.min(refinementPosition.x, window.innerWidth - 400))}px; top: {Math.max(10, Math.min(refinementPosition.y, window.innerHeight - 600))}px; max-width: calc(100vw - 20px); max-height: calc(100vh - 20px); overflow-y: auto;"
   >
     <!-- Hint for editing -->
     <div class="mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800">
