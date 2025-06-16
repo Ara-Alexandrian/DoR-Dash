@@ -62,6 +62,13 @@
   let feedbackSuccess = false;
   let lastRefinementId = null;
   
+  // General feedback state
+  let showGeneralFeedback = false;
+  let generalFeedbackType = '';
+  let generalFeedbackText = '';
+  let isSubmittingGeneralFeedback = false;
+  let generalFeedbackSuccess = false;
+  
   // Function to populate form fields from loaded update
   async function populateForm(update) {
     console.log('Populating form with update data:', update);
@@ -339,6 +346,60 @@
       error = err.message || 'Failed to submit feedback. Please try again.';
     } finally {
       isSubmittingFeedback = false;
+    }
+  }
+  
+  // General feedback submission function
+  async function submitGeneralFeedback() {
+    if (!generalFeedbackType) {
+      error = 'Please select your experience level';
+      return;
+    }
+    
+    isSubmittingGeneralFeedback = true;
+    error = '';
+    
+    try {
+      const feedbackData = {
+        feedback_text: generalFeedbackText.trim(),
+        feedback_type: generalFeedbackType,
+        context: {
+          field: 'general_experience',
+          feedback_category: 'general_ai_refinement',
+          usage_context: 'submission_form'
+        },
+        timestamp: new Date().toISOString(),
+        user_context: {
+          is_faculty: isFaculty,
+          user_role: $auth.user?.role || 'student'
+        }
+      };
+      
+      // Submit general feedback
+      const response = await fetch('/api/v1/text/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${$auth.token}`
+        },
+        body: JSON.stringify(feedbackData)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to submit feedback');
+      }
+      
+      generalFeedbackSuccess = true;
+      setTimeout(() => {
+        generalFeedbackSuccess = false;
+        generalFeedbackText = '';
+        generalFeedbackType = '';
+      }, 3000);
+      
+    } catch (err) {
+      error = err.message || 'Failed to submit feedback. Please try again.';
+    } finally {
+      isSubmittingGeneralFeedback = false;
     }
   }
   
@@ -1285,6 +1346,72 @@
     {/if}
     
     
+    <!-- Optional Feedback Section -->
+    <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <h3 class="text-sm font-medium text-gray-900 dark:text-white">Help improve our AI text refinement (optional)</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Share your experience with the refine & proofread feature to help us make it better</p>
+        </div>
+        <button 
+          type="button"
+          on:click={() => showGeneralFeedback = !showGeneralFeedback}
+          class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+        >
+          {showGeneralFeedback ? 'Hide' : 'Give Feedback'}
+        </button>
+      </div>
+      
+      {#if showGeneralFeedback}
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">How was the text refinement feature?</label>
+            <select bind:value={generalFeedbackType} class="w-full text-sm border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <option value="">Select your experience...</option>
+              <option value="excellent">Excellent - Really helpful</option>
+              <option value="good">Good - Made useful improvements</option>
+              <option value="mixed">Mixed - Some parts good, some not</option>
+              <option value="poor">Poor - Didn't help much</option>
+              <option value="not_used">Didn't use the feature</option>
+            </select>
+          </div>
+          
+          {#if generalFeedbackType && generalFeedbackType !== 'not_used'}
+            <div>
+              <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Comments (optional)</label>
+              <textarea 
+                bind:value={generalFeedbackText}
+                rows="2"
+                class="w-full text-sm border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                placeholder="What worked well? What could be improved? Any suggestions?"
+              ></textarea>
+            </div>
+            
+            <button 
+              type="button"
+              on:click={submitGeneralFeedback}
+              disabled={isSubmittingGeneralFeedback}
+              class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {#if isSubmittingGeneralFeedback}
+                <svg class="animate-spin -ml-1 mr-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Submitting...
+              {:else}
+                Submit Feedback
+              {/if}
+            </button>
+            
+            {#if generalFeedbackSuccess}
+              <span class="ml-2 text-xs text-green-600">✓ Thank you for your feedback!</span>
+            {/if}
+          {/if}
+        </div>
+      {/if}
+    </div>
+
     <!-- Submit button -->
     <div class="flex justify-end">
       <button
@@ -1486,8 +1613,10 @@
       
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">What went wrong with the refinement?</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">How was this specific refinement?</label>
           <select bind:value={feedbackType} class="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <option value="excellent">Excellent - Perfect improvement</option>
+            <option value="good">Good - Helpful changes</option>
             <option value="improvement">Could be improved</option>
             <option value="error">Introduced errors</option>
             <option value="too_verbose">Too verbose/expanded</option>
