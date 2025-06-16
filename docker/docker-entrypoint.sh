@@ -230,7 +230,7 @@ log "Branch: $BRANCH"
 log "Auto-update interval: ${UPDATE_CHECK_INTERVAL}s"
 
 # Create necessary directories
-mkdir -p /app/logs /app/uploads
+mkdir -p /app/logs /app/uploads /app/data
 
 # Set default environment variables if not provided
 export POSTGRES_SERVER="${POSTGRES_SERVER:-172.30.98.213}"

@@ -108,8 +108,8 @@ COPY --from=frontend-builder /app/frontend/server.js /app/frontend/
 COPY --from=frontend-builder /app/frontend/package*.json /app/frontend/
 COPY --from=frontend-builder /app/frontend/node_modules /app/frontend/node_modules
 
-# Create uploads and logs directories
-RUN mkdir -p /app/uploads /app/logs
+# Create uploads, logs, and data directories
+RUN mkdir -p /app/uploads /app/logs /app/data
 
 # Create startup script with auto-update functionality
 COPY docker/docker-entrypoint.sh /app/
