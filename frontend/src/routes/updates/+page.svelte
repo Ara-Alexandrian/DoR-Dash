@@ -34,11 +34,30 @@
   
   onMount(async () => {
     try {
-      // All users should only see their own updates
-      const response = await updateApi.getUpdates();
-      updates = response.items || [];
+      // Get both student updates and faculty updates for the current user
+      const [studentUpdatesResponse, facultyUpdatesResponse] = await Promise.all([
+        updateApi.getUpdates().catch(() => ({ items: [] })),
+        facultyUpdateApi.getUpdates().catch(() => ({ items: [] }))
+      ]);
+      
+      const studentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
+      const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
+      
+      // Combine and sort all updates by submission date (newest first)
+      const allUpdates = [...studentUpdates, ...facultyUpdates];
+      allUpdates.forEach(update => {
+        // Add a submission_date field for consistent sorting
+        if (!update.submission_date) {
+          update.submission_date = update.submitted_at || update.created_at || new Date().toISOString();
+        }
+      });
+      
+      updates = allUpdates.sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
+      
+      console.log('Loaded updates:', updates.length, 'total updates');
     } catch (err) {
       error = err.message || 'Failed to load updates';
+      console.error('Error loading updates:', err);
     } finally {
       loading = false;
     }
