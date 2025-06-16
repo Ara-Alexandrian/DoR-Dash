@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 from typing import List, Optional
+from datetime import datetime
 import httpx
 import json
 import re
@@ -357,3 +358,68 @@ async def check_ai_service():
             "error": str(e),
             "endpoint": settings.OLLAMA_API_URL
         }
+
+@router.post("/feedback")
+async def submit_feedback(
+    feedback_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Submit feedback about text refinement results to improve the knowledge base
+    """
+    try:
+        # Validate required fields
+        if not feedback_data.get("feedback_type"):
+            raise HTTPException(status_code=400, detail="Feedback type is required")
+        
+        # Prepare feedback entry for knowledge base
+        feedback_entry = {
+            "timestamp": feedback_data.get("timestamp", datetime.now().isoformat()),
+            "user_id": current_user.id,
+            "user_role": current_user.role,
+            "feedback_type": feedback_data.get("feedback_type"),
+            "feedback_text": feedback_data.get("feedback_text", ""),
+            "context": feedback_data.get("context", {}),
+            "user_context": feedback_data.get("user_context", {})
+        }
+        
+        # Try to store feedback in knowledge base if available
+        try:
+            from app.services.knowledge_base import get_knowledge_base_service
+            kb_service = get_knowledge_base_service()
+            
+            # Store feedback for future training/improvement
+            await kb_service.store_feedback(feedback_entry)
+            
+        except Exception as kb_error:
+            # Continue even if knowledge base storage fails
+            print(f"Warning: Could not store feedback in knowledge base: {kb_error}")
+        
+        # Always log feedback to a file for manual review
+        import os
+        import json
+        
+        # Ensure feedback directory exists
+        feedback_dir = "/app/data/feedback"
+        os.makedirs(feedback_dir, exist_ok=True)
+        
+        # Write feedback to timestamped file
+        feedback_filename = f"feedback_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{current_user.id}.json"
+        feedback_path = os.path.join(feedback_dir, feedback_filename)
+        
+        with open(feedback_path, 'w') as f:
+            json.dump(feedback_entry, f, indent=2)
+        
+        return {
+            "success": True,
+            "message": "Feedback submitted successfully",
+            "feedback_id": feedback_filename
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error submitting feedback: {str(e)}"
+        )

@@ -361,6 +361,50 @@ class KnowledgeBaseService:
         with sqlite3.connect(self.db_path) as conn:
             result = conn.execute('DELETE FROM terminology WHERE term = ?', (term,))
             return result.rowcount > 0
+    
+    async def store_feedback(self, feedback_entry: dict) -> bool:
+        """Store user feedback about text refinement for future improvements"""
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                # Create feedback table if it doesn't exist
+                conn.execute('''
+                    CREATE TABLE IF NOT EXISTS feedback (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        timestamp TEXT,
+                        user_id INTEGER,
+                        user_role TEXT,
+                        feedback_type TEXT,
+                        feedback_text TEXT,
+                        context TEXT,
+                        user_context TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                ''')
+                
+                # Insert feedback entry
+                conn.execute('''
+                    INSERT INTO feedback 
+                    (timestamp, user_id, user_role, feedback_type, feedback_text, context, user_context)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    feedback_entry.get('timestamp'),
+                    feedback_entry.get('user_id'),
+                    feedback_entry.get('user_role'),
+                    feedback_entry.get('feedback_type'),
+                    feedback_entry.get('feedback_text', ''),
+                    json.dumps(feedback_entry.get('context', {})),
+                    json.dumps(feedback_entry.get('user_context', {}))
+                ))
+                
+                return True
+                
+        except Exception as e:
+            print(f"Warning: Could not store feedback in knowledge base: {e}")
+            return False
 
 # Global instance
 knowledge_service = KnowledgeBaseService()
+
+def get_knowledge_base_service():
+    """Get the global knowledge base service instance"""
+    return knowledge_service
