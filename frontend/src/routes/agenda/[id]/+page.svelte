@@ -348,15 +348,15 @@
         <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
           <div class="sm:col-span-1">
             <dt class="text-sm font-medium text-gray-500">Time</dt>
-            <dd class="mt-1 text-sm text-gray-900">{formatTime(meeting.start_time)} - {formatTime(meeting.end_time)}</dd>
+            <dd class="mt-1 text-sm text-[rgb(var(--color-text-primary))]">{formatTime(meeting.start_time)} - {formatTime(meeting.end_time)}</dd>
           </div>
           <div class="sm:col-span-1">
             <dt class="text-sm font-medium text-gray-500">Location</dt>
-            <dd class="mt-1 text-sm text-gray-900">{meeting.location}</dd>
+            <dd class="mt-1 text-sm text-[rgb(var(--color-text-primary))]">{meeting.location}</dd>
           </div>
           <div class="sm:col-span-2">
             <dt class="text-sm font-medium text-gray-500">Description</dt>
-            <dd class="mt-1 text-sm text-gray-900">{meeting.description}</dd>
+            <dd class="mt-1 text-sm text-[rgb(var(--color-text-primary))]">{meeting.description}</dd>
           </div>
         </dl>
       </div>

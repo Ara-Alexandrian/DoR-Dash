@@ -248,7 +248,7 @@
               <dl class="grid grid-cols-1 gap-x-4 gap-y-4">
                 <div>
                   <dt class="text-sm font-medium text-gray-500">Email</dt>
-                  <dd class="mt-1 text-sm text-gray-900">
+                  <dd class="mt-1 text-sm text-[rgb(var(--color-text-primary))]">
                     <a href="mailto:{user.email}" class="text-primary-700 hover:text-primary-900">
                       {user.email}
                     </a>
@@ -258,7 +258,7 @@
                 {#if user.preferred_email}
                   <div>
                     <dt class="text-sm font-medium text-gray-500">Preferred Email</dt>
-                    <dd class="mt-1 text-sm text-gray-900">
+                    <dd class="mt-1 text-sm text-[rgb(var(--color-text-primary))]">
                       <a href="mailto:{user.preferred_email}" class="text-primary-700 hover:text-primary-900">
                         {user.preferred_email}
                       </a>
@@ -269,7 +269,7 @@
                 {#if user.phone}
                   <div>
                     <dt class="text-sm font-medium text-gray-500">Phone</dt>
-                    <dd class="mt-1 text-sm text-gray-900">
+                    <dd class="mt-1 text-sm text-[rgb(var(--color-text-primary))]">
                       <a href="tel:{user.phone}" class="text-primary-700 hover:text-primary-900">
                         {user.phone}
                       </a>
