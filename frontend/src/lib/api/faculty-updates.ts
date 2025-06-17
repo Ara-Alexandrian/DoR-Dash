@@ -10,6 +10,11 @@ export const facultyUpdateApi = {
     return await apiFetch('/faculty-updates/');
   },
   
+  // Get faculty updates for current user
+  getUpdatesByUser: async (userId: number | string): Promise<FacultyUpdate[]> => {
+    return await apiFetch(`/faculty-updates?user_id=${userId}`);
+  },
+  
   // Get faculty update by ID
   getUpdate: async (id: number | string): Promise<FacultyUpdate> => {
     return await apiFetch(`/faculty-updates/${id}`);

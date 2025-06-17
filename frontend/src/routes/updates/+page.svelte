@@ -35,9 +35,10 @@
   onMount(async () => {
     try {
       // Get both student updates and faculty updates for the current user
+      const currentUserId = $auth.user?.id;
       const [studentUpdatesResponse, facultyUpdatesResponse] = await Promise.all([
         updateApi.getUpdates().catch(() => ({ items: [] })),
-        facultyUpdateApi.getUpdates().catch(() => ({ items: [] }))
+        currentUserId ? facultyUpdateApi.getUpdatesByUser(currentUserId).catch(() => ({ items: [] })) : Promise.resolve({ items: [] })
       ]);
       
       const studentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
