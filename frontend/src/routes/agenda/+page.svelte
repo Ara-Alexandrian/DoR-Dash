@@ -179,13 +179,13 @@
 <div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
   <div class="mb-8 flex justify-between items-center">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900">
+      <h1 class="text-3xl font-bold text-[rgb(var(--color-text-primary))]">
         {showPastOnly ? 'Past Meeting Agendas' : showUpcomingOnly ? 'Upcoming Meeting Agendas' : 'Research Meeting Agenda'}
       </h1>
       {#if showPastOnly}
-        <p class="text-gray-600 mt-2">Browse completed meetings and their agendas</p>
+        <p class="text-[rgb(var(--color-text-secondary))] mt-2">Browse completed meetings and their agendas</p>
       {:else if showUpcomingOnly}
-        <p class="text-gray-600 mt-2">View upcoming meetings and prepare for presentations</p>
+        <p class="text-[rgb(var(--color-text-secondary))] mt-2">View upcoming meetings and prepare for presentations</p>
       {/if}
     </div>
     
@@ -226,7 +226,7 @@
   {#if loading}
     <div class="text-center py-10">
       <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
-      <p class="mt-2 text-gray-500">Loading agenda...</p>
+      <p class="mt-2 text-[rgb(var(--color-text-secondary))]">Loading agenda...</p>
     </div>
   {:else if error}
     <div class="bg-red-50 p-4 rounded-md">
@@ -235,9 +235,9 @@
   {:else}
     <!-- Month navigation (hide for past/upcoming meetings view) -->
     {#if !showPastOnly && !showUpcomingOnly}
-    <div class="flex justify-between items-center mb-6 bg-gray-50 p-4 rounded-lg">
+    <div class="flex justify-between items-center mb-6 bg-[rgb(var(--color-bg-secondary))] p-4 rounded-lg">
       <button 
-        class="flex items-center text-gray-600 hover:text-primary-600"
+        class="flex items-center text-[rgb(var(--color-text-secondary))] hover:text-primary-600"
         on:click={previousMonth}
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -246,12 +246,12 @@
         Previous
       </button>
       
-      <h2 class="text-xl font-medium text-gray-900">
+      <h2 class="text-xl font-medium text-[rgb(var(--color-text-primary))]">
         {getMonthName(currentMonth)} {currentYear}
       </h2>
       
       <button 
-        class="flex items-center text-gray-600 hover:text-primary-600"
+        class="flex items-center text-[rgb(var(--color-text-secondary))] hover:text-primary-600"
         on:click={nextMonth}
       >
         Next
