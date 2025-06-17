@@ -105,7 +105,7 @@
     isEditing = true;
     
     // Populate edit form with current data
-    if (update.is_faculty) {
+    if (update.is_faculty || update.announcements_text || update.projects_text || update.project_status_text) {
       editFormData = {
         announcements_text: update.announcements_text || '',
         projects_text: update.projects_text || '',
@@ -147,7 +147,7 @@
     try {
       let updatedUpdate;
       
-      if (editingUpdate.is_faculty) {
+      if (editingUpdate.is_faculty || editingUpdate.announcements_text || editingUpdate.projects_text || editingUpdate.project_status_text) {
         // Update faculty update
         updatedUpdate = await facultyUpdateApi.updateUpdate(editingUpdate.id, editFormData);
       } else {
@@ -314,7 +314,7 @@
                 </div>
               </div>
 
-              {#if update.is_faculty}
+              {#if update.is_faculty || update.announcements_text || update.projects_text || update.project_status_text}
                 <!-- Faculty Edit Form -->
                 <div class="space-y-4">
                   <div>
@@ -345,7 +345,7 @@
                     ></textarea>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Questions/Discussion</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Questions for Students</label>
                     <textarea
                       bind:value={editFormData.faculty_questions}
                       rows="2"
@@ -532,7 +532,7 @@
             </div>
             
             <div class="space-y-4">
-              {#if update.is_faculty}
+              {#if update.is_faculty || update.announcements_text || update.projects_text || update.project_status_text}
                 <!-- Faculty Update Display -->
                 {#if update.announcements_text}
                   <div>
@@ -554,7 +554,7 @@
                 {/if}
                 {#if update.faculty_questions}
                   <div>
-                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Questions/Discussion</h4>
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Questions for Students</h4>
                     <p class="text-sm text-gray-600 dark:text-gray-400">{update.faculty_questions}</p>
                   </div>
                 {/if}
