@@ -52,7 +52,7 @@
     {/if}
     
     <div class="mt-10 flex justify-center">
-      <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU Partnership" class="h-12 w-auto" />
+      <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU Partnership" class="h-20 w-auto" />
     </div>
   </div>
 </div>

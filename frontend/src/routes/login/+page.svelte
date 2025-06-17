@@ -99,7 +99,7 @@
       <!-- Logo and title -->
       <div class="text-center">
         <div class="flex justify-center mb-4">
-          <img src="/images/MBPCC-LSU.png" alt="Mary Bird Perkins Cancer Center LSU" class="h-24 w-auto" />
+          <img src="/images/MBPCC-LSU.png" alt="Mary Bird Perkins Cancer Center LSU" class="h-32 w-auto" />
         </div>
         <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-900 to-primary-800 dark:from-primary-400 dark:to-primary-300 dracula:from-cyan-200 dracula:to-purple-200 mbp:from-red-300 mbp:to-red-100 lsu:from-purple-300 lsu:to-purple-100 bg-clip-text text-transparent">
           DoR-Dash

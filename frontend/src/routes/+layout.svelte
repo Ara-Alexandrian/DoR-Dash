@@ -141,8 +141,8 @@
       <div class="h-20 px-6 bg-primary-950 dark:bg-slate-900 dracula:bg-gray-900 mbp:bg-red-950 lsu:bg-purple-950 border-b border-primary-800 dark:border-slate-700 dracula:border-gray-700 mbp:border-red-800 lsu:border-purple-800 flex flex-col justify-center">
         <div class="flex items-center justify-between">
           <div class="flex items-center">
-            <div class="w-10 h-10 mr-3 flex-shrink-0">
-              <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU" class="w-10 h-10 object-contain"/>
+            <div class="w-16 h-16 mr-3 flex-shrink-0">
+              <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU" class="w-16 h-16 object-contain"/>
             </div>
             <h1 class="text-2xl font-bold text-white tracking-tight">DoR-Dash</h1>
           </div>

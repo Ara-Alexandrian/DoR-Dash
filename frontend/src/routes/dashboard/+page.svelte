@@ -489,7 +489,7 @@
       <div class="mt-12 pt-8 border-t border-[rgb(var(--color-border))]" in:fade={{duration: 300, delay: 400}}>
         <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
           <div class="flex items-center">
-            <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU Partnership" class="h-10 w-auto"/>
+            <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU Partnership" class="h-16 w-auto"/>
           </div>
           <div class="text-xs text-[rgb(var(--color-text-tertiary))] text-center sm:text-right">
             <p>Dose of Reality Research Program</p>
