@@ -64,14 +64,14 @@
       
       updates = allUpdates.sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
       
-      console.log('Current user ID:', currentUserId);
-      console.log('Student updates response:', studentUpdatesResponse);
-      console.log('Faculty updates response:', facultyUpdatesResponse);
-      console.log('Student updates:', studentUpdates);
-      console.log('Faculty updates:', facultyUpdates);
-      console.log('Combined updates:', allUpdates);
-      console.log('Final sorted updates:', updates);
-      console.log('Loaded updates:', updates.length, 'total updates');
+      console.log('ADMIN DEBUG - Current user ID:', currentUserId, 'Is Admin:', isAdmin);
+      console.log('ADMIN DEBUG - Student updates response:', studentUpdatesResponse);
+      console.log('ADMIN DEBUG - Faculty updates response:', facultyUpdatesResponse);
+      console.log('ADMIN DEBUG - All student updates before filtering:', allStudentUpdates.length);
+      console.log('ADMIN DEBUG - Student updates after filtering:', studentUpdates.length);
+      console.log('ADMIN DEBUG - Faculty updates:', facultyUpdates.length);
+      console.log('ADMIN DEBUG - Combined updates:', allUpdates.length);
+      console.log('ADMIN DEBUG - Final sorted updates:', updates.length);
       console.log('Updates details:', updates.map(u => ({
         id: u.id,
         type: u.is_faculty ? 'faculty' : 'student',

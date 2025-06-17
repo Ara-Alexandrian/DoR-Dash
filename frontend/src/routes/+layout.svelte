@@ -293,7 +293,6 @@
                 DoR-Dash
               {/if}
             </h1>
-            <p class="text-sm text-[rgb(var(--color-text-secondary))] mt-0.5">MBPCC-LSU Partnership</p>
           </div>
         </div>
         

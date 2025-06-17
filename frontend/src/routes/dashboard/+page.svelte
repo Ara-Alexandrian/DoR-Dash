@@ -56,8 +56,12 @@
           completedPresentations: 0 // Will be calculated from presentations
         };
         
-        console.log('Dashboard: Found', sortedUpdates.length, 'total updates for user', currentUserId);
-        console.log('Dashboard updates:', sortedUpdates.map(u => ({ id: u.id, type: u.is_faculty ? 'faculty' : 'student', date: u.submission_date })));
+        console.log('DASHBOARD ADMIN DEBUG - User:', currentUserId, 'Is Admin:', isAdmin);
+        console.log('DASHBOARD ADMIN DEBUG - All student updates before filtering:', allStudentUpdates.length);
+        console.log('DASHBOARD ADMIN DEBUG - Student updates after filtering:', studentUpdates.length);
+        console.log('DASHBOARD ADMIN DEBUG - Faculty updates:', facultyUpdates.length);
+        console.log('DASHBOARD ADMIN DEBUG - Combined updates:', allUpdates.length);
+        console.log('DASHBOARD ADMIN DEBUG - Final count:', sortedUpdates.length);
         
         // Keep only 3 most recent for display
         updates = sortedUpdates.slice(0, 3);
@@ -479,17 +483,6 @@
         </div>
       </div>
       
-      <!-- Footer with branding -->
-      <div class="mt-12 pt-8 border-t border-[rgb(var(--color-border))]" in:fade={{duration: 300, delay: 400}}>
-        <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-          <div class="flex items-center">
-            <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU Partnership" class="h-16 w-auto"/>
-          </div>
-          <div class="text-xs text-[rgb(var(--color-text-tertiary))] text-center sm:text-right">
-            <p>Dose of Reality Research Program</p>
-          </div>
-        </div>
-      </div>
     </div>
   {/if}
 </div>
