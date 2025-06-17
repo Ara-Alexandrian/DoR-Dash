@@ -11,13 +11,40 @@
 
 DoR-Dash streamlines academic research management with intelligent automation and intuitive design:
 
-- 🔐 **Secure Authentication** - Role-based access control for admins, faculty, and students
-- 🤖 **AI-Assisted Writing** - Intelligent text refinement and academic writing support
-- 📅 **Meeting Management** - Dynamic calendar with drag-and-drop scheduling
-- 📝 **Update Tracking** - Bi-monthly progress submissions with file attachments
-- 🗂️ **File Sharing** - Secure document upload and presentation management
-- 👥 **User Administration** - Comprehensive admin controls and user management
-- 📊 **Progress Analytics** - Meeting agendas and progress compilation
+### 🔐 Authentication & Security
+- **Role-Based Access Control** - Multi-tier permissions for admins, faculty, and students
+- **Registration Management** - Admin-approved user onboarding with request review system
+- **Secure Sessions** - JWT-based authentication with Redis session management
+
+### 🎨 Modern User Experience
+- **Multi-Theme System** - 5 distinct themes including institutional branding (MBP Dark Fire, LSU Tigers)
+- **Responsive Design** - Mobile-first responsive layout with glowing text effects
+- **Dark Mode Support** - Professional dark themes with theme persistence
+
+### 🤖 AI-Powered Features
+- **Intelligent Text Refinement** - Gemma 3 4B model integration for academic writing enhancement
+- **Quality Control** - Conservative prompts focused on grammar and clarity improvements
+- **User Feedback System** - Star ratings and feedback collection for continuous improvement
+
+### 📅 Meeting & Progress Management
+- **Dynamic Meeting Agendas** - Auto-generated agendas from student submissions
+- **Inline Editing** - Real-time update editing with file management capabilities
+- **Progress Tracking** - Bi-monthly submissions with comprehensive dashboard analytics
+
+### 📁 Advanced File Management
+- **Full File Lifecycle** - Add, remove, and replace files within submissions
+- **50MB Upload Limit** - Support for presentations, documents, and research files
+- **Secure Storage** - Organized file structure with persistent storage
+
+### 👥 Administration Tools
+- **User Management** - Comprehensive admin controls with role assignment
+- **Registration Oversight** - Review and approve new user requests
+- **Dashboard Analytics** - System-wide visibility for administrators
+
+### 📊 Faculty Features
+- **Faculty Announcements** - Dedicated announcement system for faculty updates
+- **Student Oversight** - Monitor student progress and meeting participation
+- **Roster Management** - Access to student rosters and contact information
 
 ## 🏗️ System Architecture
 
@@ -31,7 +58,7 @@ graph TB
         B --> C[FastAPI Backend<br/>REST API]
         C --> D[PostgreSQL Database<br/>User Management<br/>Meeting Data<br/>Updates Storage]
         C --> E[Redis Cache<br/>Session Management<br/>Performance Optimization]
-        C --> F[Ollama AI Service<br/>Mistral Model<br/>Text Refinement]
+        C --> F[Ollama AI Service<br/>Gemma 3 4B Model<br/>Text Refinement]
     end
     
     subgraph "Data Layer"
@@ -88,7 +115,7 @@ sequenceDiagram
 | **Frontend** | SvelteKit + Tailwind CSS | Modern, responsive UI |
 | **Database** | PostgreSQL | Reliable data persistence |
 | **Caching** | Redis | Session management & performance |
-| **AI Engine** | Ollama + Mistral | Text refinement & assistance |
+| **AI Engine** | Ollama + Gemma 3 4B | Text refinement & assistance |
 | **Deployment** | Docker + Docker Compose | Containerized deployment |
 
 ## 📁 Project Structure
@@ -133,7 +160,7 @@ Ensure you have the following installed:
 - Docker & Docker Compose
 - PostgreSQL database access
 - Redis server access
-- Ollama with Mistral model
+- Ollama with Gemma 3 4B model
 
 ### One-Command Setup
 
@@ -265,9 +292,10 @@ npm run test
 ## 📊 Key Features Deep Dive
 
 ### 🤖 AI-Powered Text Refinement
-- Integrates with Ollama running Mistral AI model
-- Enhances academic writing quality
-- Provides intelligent suggestions for research updates
+- Integrates with Ollama running Gemma 3 4B model for superior performance
+- Conservative prompts focused on grammar, spelling, and punctuation only
+- User feedback system with star ratings for continuous improvement
+- Quality assurance framework to prevent over-enhancement
 
 ### 📅 Meeting Management System
 - Interactive calendar with drag-and-drop functionality
@@ -279,10 +307,11 @@ npm run test
 - **Faculty**: Meeting oversight and student progress monitoring  
 - **Students**: Update submissions and file sharing
 
-### 🗂️ File Management
-- Secure file upload with 50MB limit
-- Support for presentations, documents, and research files
-- Persistent storage with organized file structure
+### 🗂️ Advanced File Management
+- **Inline File Editing**: Add, remove, and replace files directly within submissions
+- **File State Tracking**: Comprehensive management of existing, new, and removed files
+- **50MB Upload Limit**: Support for presentations, documents, and research files
+- **Secure Storage**: Organized file structure with persistent storage and validation
 
 ## 🔒 Security Features
 
@@ -320,6 +349,29 @@ python test_deployment.py
 - [Technical Notes](docs/technical-notes.md) - Detailed implementation notes
 - [API Documentation](docs/api/) - Comprehensive API reference
 - [Deployment Guide](docs/deployment/) - Production deployment instructions
+- [QA Reports](qa/) - Quality assurance reports and analysis
+- [CLAUDE.md](CLAUDE.md) - AI assistant guidance and project context
+
+## 🆕 Recent Updates
+
+### Version 2.0 Features (June 2025)
+- ✅ **Enhanced Theme System**: Added MBP Dark Fire and LSU Tigers institutional themes
+- ✅ **Advanced File Management**: Complete file lifecycle management within submissions
+- ✅ **AI Model Upgrade**: Migrated from Mistral 7B to Gemma 3 4B for better performance
+- ✅ **User Feedback System**: Star ratings and feedback collection for LLM improvements
+- ✅ **Registration System**: Admin-approved user onboarding with request management
+- ✅ **Faculty Announcements**: Dedicated system for faculty communications
+- ✅ **Inline Editing**: Real-time update editing with comprehensive state management
+- ✅ **Dashboard Consolidation**: Unified update tracking with role-based filtering
+- ✅ **Quality Assurance**: Automated QA framework with regular health monitoring
+
+### Bug Fixes & Improvements
+- 🔧 Fixed white card backgrounds interfering with dark theme glow effects
+- 🔧 Resolved user filtering issues ensuring proper data isolation
+- 🔧 Enhanced registration error handling and validation
+- 🔧 Improved role-based navigation permissions
+- 🔧 Fixed agenda "undefined" display issues
+- 🔧 Consolidated dashboard metrics for consistent user experience
 
 ## 🤝 Contributing
 
