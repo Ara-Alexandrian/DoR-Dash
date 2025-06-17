@@ -35,7 +35,7 @@
   <div class="w-full max-w-md backdrop-blur-sm rounded-lg shadow-2xl overflow-hidden" style="background-color: {currentTheme === 'mbp' ? 'rgb(17, 24, 39)' : currentTheme === 'lsu' ? 'rgb(88, 28, 135)' : 'rgba(249, 250, 251, 0.95)'}; border-color: {currentTheme === 'mbp' ? 'rgba(239, 68, 68, 0.5)' : currentTheme === 'lsu' ? 'rgba(147, 51, 234, 0.2)' : 'rgb(229, 231, 235)'};">"
     <div class="px-8 py-10">
       <div class="flex justify-center mb-6">
-        <img src="/images/MBPCC-LSU.png" alt="Mary Bird Perkins Cancer Center LSU" class="h-28 w-auto" />
+        <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="w-20 h-20 object-contain" />
       </div>
       
       <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-slate-100 dracula:text-slate-100 mbp:text-white lsu:text-white mb-6">

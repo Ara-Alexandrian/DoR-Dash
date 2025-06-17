@@ -140,8 +140,10 @@
         <div class="relative px-8 py-10">
           <div class="flex justify-between items-start">
             <div class="flex items-start space-x-6">
-              <div class="flex-shrink-0">
-                <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU Partnership" class="w-20 h-20 object-contain"/>
+              <div class="transform hover:scale-105 transition-transform duration-300">
+                <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-700/80 dracula:bg-gray-700/80 mbp:bg-gray-800/90 lsu:bg-purple-800/90 shadow-lg">
+                  <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="w-16 h-16 object-contain"/>
+                </div>
               </div>
               <div>
                 <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-800 to-primary-600 dark:from-primary-400 dark:to-primary-300 dracula:from-purple-300 dracula:to-cyan-200 mbp:from-red-800 mbp:to-red-600 lsu:from-purple-800 lsu:to-purple-600 bg-clip-text text-transparent">
@@ -151,16 +153,8 @@
                 <p class="mt-1 text-sm text-[rgb(var(--color-text-tertiary))]">Track your progress and manage your research journey</p>
               </div>
             </div>
-            <div class="flex items-center space-x-4 transform hover:scale-105 transition-transform duration-300">
-              <div class="p-3 rounded-lg bg-white/80 dark:bg-slate-700/80 dracula:bg-gray-700/80 mbp:bg-gray-800/90 lsu:bg-purple-800/90 shadow-md">
-                <img src="/images/mbp.png" alt="Mary Bird Perkins Logo" class="h-14 w-auto"/>
-              </div>
-              <div class="flex items-center">
-                <span class="text-xs text-[rgb(var(--color-text-tertiary))] mr-2 font-medium">with</span>
-                <div class="p-2 rounded-lg bg-white/80 dark:bg-slate-700/80 dracula:bg-gray-700/80 mbp:bg-gray-800/90 lsu:bg-purple-800/90 shadow-md">
-                  <img src="/images/lsu.png" alt="LSU Logo" class="h-8 w-auto"/>
-                </div>
-              </div>
+            <div class="flex items-center">
+              <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU" class="w-24 h-24 object-contain"/>
             </div>
           </div>
         </div>
