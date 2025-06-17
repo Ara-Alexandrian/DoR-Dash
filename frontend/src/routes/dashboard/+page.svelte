@@ -140,10 +140,8 @@
         <div class="relative px-8 py-10">
           <div class="flex justify-between items-start">
             <div class="flex items-start space-x-6">
-              <div class="transform hover:scale-105 transition-transform duration-300">
-                <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-700/80 dracula:bg-gray-700/80 mbp:bg-gray-800/90 lsu:bg-purple-800/90 shadow-lg">
-                  <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-16 w-auto"/>
-                </div>
+              <div class="flex-shrink-0">
+                <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU Partnership" class="w-20 h-20 object-contain"/>
               </div>
               <div>
                 <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-800 to-primary-600 dark:from-primary-400 dark:to-primary-300 dracula:from-purple-300 dracula:to-cyan-200 mbp:from-red-800 mbp:to-red-600 lsu:from-purple-800 lsu:to-purple-600 bg-clip-text text-transparent">
