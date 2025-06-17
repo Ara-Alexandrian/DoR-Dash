@@ -11,23 +11,30 @@
   
   onMount(async () => {
     try {
-      // Fetch user's own updates (both student and faculty) and calculate stats
+      // Simplified dashboard stats - let backend handle user filtering
       try {
         const currentUserId = $auth.user?.id;
+        const isAdmin = $auth.user?.role === 'admin';
+        
+        console.log('DASHBOARD DEBUG - User:', currentUserId, 'Role:', $auth.user?.role, 'Is Admin:', isAdmin);
+        
         const [studentUpdatesResponse, facultyUpdatesResponse] = await Promise.all([
-          updateApi.getUpdates().catch(() => ({ items: [] })),
-          currentUserId ? facultyUpdateApi.getUpdatesByUser(currentUserId).catch(() => ({ items: [] })) : Promise.resolve({ items: [] })
+          updateApi.getUpdates().catch(err => {
+            console.error('Dashboard student updates error:', err);
+            return { items: [] };
+          }),
+          facultyUpdateApi.getUpdates().catch(err => {
+            console.error('Dashboard faculty updates error:', err);
+            return { items: [] };
+          })
         ]);
         
-        // Filter student updates based on user role
-        const allStudentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
-        const isAdmin = $auth.user?.role === 'admin';
-        const studentUpdates = isAdmin ? allStudentUpdates : allStudentUpdates.filter(update => update.user_id === currentUserId);
+        // Extract updates (backend already filters by user for non-admins)
+        const studentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
+        const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
         
-        // For admins, get all faculty updates; for regular users, get only their own
-        const facultyUpdates = isAdmin ? 
-          (await facultyUpdateApi.getUpdates().catch(() => [])) :
-          facultyUpdatesResponse.items || facultyUpdatesResponse || [];
+        console.log('DASHBOARD DEBUG - Student updates:', studentUpdates.length);
+        console.log('DASHBOARD DEBUG - Faculty updates:', facultyUpdates.length);
         
         // Combine all updates
         const allUpdates = [...studentUpdates, ...facultyUpdates];
@@ -40,7 +47,7 @@
         // Sort by date (newest first)
         const sortedUpdates = allUpdates.sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
         
-        // Calculate stats from user's own updates
+        // Calculate stats
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         
@@ -56,12 +63,8 @@
           completedPresentations: 0 // Will be calculated from presentations
         };
         
-        console.log('DASHBOARD ADMIN DEBUG - User:', currentUserId, 'Is Admin:', isAdmin);
-        console.log('DASHBOARD ADMIN DEBUG - All student updates before filtering:', allStudentUpdates.length);
-        console.log('DASHBOARD ADMIN DEBUG - Student updates after filtering:', studentUpdates.length);
-        console.log('DASHBOARD ADMIN DEBUG - Faculty updates:', facultyUpdates.length);
-        console.log('DASHBOARD ADMIN DEBUG - Combined updates:', allUpdates.length);
-        console.log('DASHBOARD ADMIN DEBUG - Final count:', sortedUpdates.length);
+        console.log('DASHBOARD DEBUG - Total updates:', sortedUpdates.length);
+        console.log('DASHBOARD DEBUG - Recent updates:', recentUpdates.length);
         
         // Keep only 3 most recent for display
         updates = sortedUpdates.slice(0, 3);

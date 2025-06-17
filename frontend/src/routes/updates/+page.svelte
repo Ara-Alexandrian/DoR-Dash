@@ -34,65 +34,55 @@
   
   onMount(async () => {
     try {
-      // Get both student updates and faculty updates for the current user
       const currentUserId = $auth.user?.id;
+      const isAdmin = $auth.user?.role === 'admin';
+      
+      console.log('UPDATES DEBUG - User ID:', currentUserId, 'Role:', $auth.user?.role, 'Is Admin:', isAdmin);
+      
+      // Simplified approach: Let the backend handle user filtering
       const [studentUpdatesResponse, facultyUpdatesResponse] = await Promise.all([
-        updateApi.getUpdates().catch(() => ({ items: [] })),
-        currentUserId ? facultyUpdateApi.getUpdatesByUser(currentUserId).catch(() => ({ items: [] })) : Promise.resolve({ items: [] })
+        updateApi.getUpdates().catch(err => {
+          console.error('Student updates API error:', err);
+          return { items: [] };
+        }),
+        facultyUpdateApi.getUpdates().catch(err => {
+          console.error('Faculty updates API error:', err);
+          return { items: [] };
+        })
       ]);
       
-      // Filter student updates based on user role
-      const allStudentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
-      const isAdmin = $auth.user?.role === 'admin';
-      const studentUpdates = isAdmin ? allStudentUpdates : allStudentUpdates.filter(update => update.user_id === currentUserId);
+      // Extract updates from responses (handle both array and object formats)
+      const studentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
+      const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
       
-      // For admins, get all faculty updates; for regular users, get only their own
-      let facultyUpdates = [];
-      if (isAdmin) {
-        const facultyResponse = await facultyUpdateApi.getUpdates().catch(() => ({ items: [] }));
-        facultyUpdates = facultyResponse.items || [];
-      } else {
-        facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
-      }
+      console.log('UPDATES DEBUG - Student updates:', studentUpdates.length);
+      console.log('UPDATES DEBUG - Faculty updates:', facultyUpdates.length);
       
-      // Combine and sort all updates by submission date (newest first)
+      // Combine all updates
       const allUpdates = [...studentUpdates, ...facultyUpdates];
+      
+      // Add consistent submission_date and user info for debugging
       allUpdates.forEach(update => {
-        // Add a submission_date field for consistent sorting
         if (!update.submission_date) {
           update.submission_date = update.submitted_at || update.created_at || new Date().toISOString();
         }
-        // Debug log to see what data we're getting
-        console.log('Update data:', update);
+        console.log('UPDATES DEBUG - Update:', {
+          id: update.id,
+          user_id: update.user_id,
+          type: update.is_faculty ? 'faculty' : 'student',
+          date: update.submission_date,
+          title: update.announcements_text?.substring(0, 30) || update.progress_text?.substring(0, 30) || 'No content'
+        });
       });
       
+      // Sort by submission date (newest first)
       updates = allUpdates.sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
       
-      console.log('ADMIN DEBUG - Current user ID:', currentUserId, 'Is Admin:', isAdmin);
-      console.log('ADMIN DEBUG - Student updates response:', studentUpdatesResponse);
-      console.log('ADMIN DEBUG - Faculty updates response:', facultyUpdatesResponse);
-      console.log('ADMIN DEBUG - All student updates before filtering:', allStudentUpdates.length);
-      console.log('ADMIN DEBUG - Student updates after filtering:', studentUpdates.length);
-      console.log('ADMIN DEBUG - Faculty updates:', facultyUpdates.length);
-      console.log('ADMIN DEBUG - Combined updates:', allUpdates.length);
-      console.log('ADMIN DEBUG - Final sorted updates:', updates.length);
-      console.log('Updates details:', updates.map(u => ({
-        id: u.id,
-        type: u.is_faculty ? 'faculty' : 'student',
-        date: u.submission_date || u.submitted_at || u.created_at,
-        announcements_text: u.announcements_text,
-        projects_text: u.projects_text,
-        progress_text: u.progress_text,
-        title: u.announcements_text?.substring(0, 50) || u.progress_text?.substring(0, 50) || 'No title',
-        raw_update: u
-      })));
+      console.log('UPDATES DEBUG - Total updates after filtering:', updates.length);
       
-      // Also log the raw responses for debugging
-      console.log('Raw student updates:', studentUpdates.map(u => ({ id: u.id, ...u })));
-      console.log('Raw faculty updates:', facultyUpdates.map(u => ({ id: u.id, ...u })));
     } catch (err) {
       error = err.message || 'Failed to load updates';
-      console.error('Error loading updates:', err);
+      console.error('UPDATES ERROR:', err);
     } finally {
       loading = false;
     }
