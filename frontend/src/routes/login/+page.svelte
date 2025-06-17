@@ -9,11 +9,13 @@
   let password = '';
   let error = '';
   let loading = false;
+  let currentTheme = 'light';
   
   onMount(() => {
     // Ensure theme is applied
     if (browser) {
       const savedTheme = localStorage.getItem('theme') || 'light';
+      currentTheme = savedTheme;
       document.documentElement.classList.remove('light', 'dark', 'dracula', 'mbp', 'lsu');
       document.documentElement.classList.add(savedTheme);
       console.log('Login page - Applied theme:', savedTheme);
@@ -93,11 +95,11 @@
 <div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 via-primary-50 to-secondary-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dracula:from-gray-900 dracula:via-slate-900 dracula:to-gray-900 mbp:from-red-50 mbp:via-red-100/50 mbp:to-red-200/30 lsu:from-purple-50 lsu:via-purple-100/50 lsu:to-yellow-100/30 py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full">
     <!-- Main card -->
-    <div class="bg-gray-50/95 dark:bg-slate-800/95 dracula:bg-gray-800/95 mbp:bg-gray-900 lsu:bg-purple-900 backdrop-blur-sm p-10 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-600 dracula:border-purple-400/50 mbp:border-red-500/50 lsu:border-purple-200">
+    <div class="backdrop-blur-sm p-10 rounded-2xl shadow-2xl border" style="background-color: {currentTheme === 'mbp' ? 'rgb(17, 24, 39)' : currentTheme === 'lsu' ? 'rgb(88, 28, 135)' : 'rgba(249, 250, 251, 0.95)'}; border-color: {currentTheme === 'mbp' ? 'rgba(239, 68, 68, 0.5)' : currentTheme === 'lsu' ? 'rgba(147, 51, 234, 0.2)' : 'rgb(229, 231, 235)'};">
       <!-- Logo and title -->
       <div class="text-center">
         <div class="flex justify-center mb-4">
-          <div class="p-3 rounded-xl bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-800 lsu:bg-purple-800 shadow-lg">
+          <div class="p-3 rounded-xl shadow-lg" style="background-color: {currentTheme === 'mbp' ? 'rgb(31, 41, 55)' : currentTheme === 'lsu' ? 'rgb(107, 33, 168)' : 'rgba(243, 244, 246, 0.95)'};">
             <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-20 w-auto"/>
           </div>
         </div>
@@ -112,7 +114,7 @@
       <form class="mt-10 space-y-6" on:submit|preventDefault={handleLogin}>
         <div class="space-y-4">
           <div>
-            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-slate-300 dracula:text-slate-200 mbp:text-red-200 lsu:text-purple-200 mb-1">Username</label>
+            <label for="username" class="block text-sm font-medium mb-1" style="color: {currentTheme === 'mbp' ? 'rgb(254, 226, 226)' : currentTheme === 'lsu' ? 'rgb(243, 232, 255)' : 'rgb(55, 65, 81)'};" >Username</label>
             <input
               id="username"
               name="username"
@@ -125,7 +127,7 @@
             />
           </div>
           <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-slate-300 dracula:text-slate-200 mbp:text-red-200 lsu:text-purple-200 mb-1">Password</label>
+            <label for="password" class="block text-sm font-medium mb-1" style="color: {currentTheme === 'mbp' ? 'rgb(254, 226, 226)' : currentTheme === 'lsu' ? 'rgb(243, 232, 255)' : 'rgb(55, 65, 81)'};" >Password</label>
             <input
               id="password"
               name="password"
@@ -186,11 +188,11 @@
     
     <!-- Partner logos at bottom -->
     <div class="mt-8 flex items-center justify-center gap-4 text-xs text-gray-600 dark:text-slate-400 dracula:text-slate-200 mbp:text-red-200 lsu:text-purple-200">
-      <div class="p-3 rounded-lg bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-800 lsu:bg-purple-800 shadow-md">
+      <div class="p-3 rounded-lg shadow-md" style="background-color: {currentTheme === 'mbp' ? 'rgb(31, 41, 55)' : currentTheme === 'lsu' ? 'rgb(107, 33, 168)' : 'rgba(243, 244, 246, 0.95)'};">
         <img src="/images/mbp.png" alt="Mary Bird Perkins" class="h-12 opacity-90 hover:opacity-100 transition-opacity" />
       </div>
       <span class="font-medium px-2">in partnership with</span>
-      <div class="p-2 rounded-lg bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-800 lsu:bg-purple-800 shadow-md">
+      <div class="p-2 rounded-lg shadow-md" style="background-color: {currentTheme === 'mbp' ? 'rgb(31, 41, 55)' : currentTheme === 'lsu' ? 'rgb(107, 33, 168)' : 'rgba(243, 244, 246, 0.95)'};">
         <img src="/images/lsu.png" alt="LSU" class="h-8 opacity-90 hover:opacity-100 transition-opacity" />
       </div>
     </div>
