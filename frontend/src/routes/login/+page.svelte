@@ -85,7 +85,7 @@
       <!-- Logo and title -->
       <div class="text-center">
         <div class="flex justify-center mb-4">
-          <div class="p-3 rounded-xl bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-900/95 lsu:bg-purple-900/95 shadow-lg mbp:shadow-red-900/20 lsu:shadow-purple-900/20">
+          <div class="p-3 rounded-xl bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-black/60 lsu:bg-black/60 shadow-lg mbp:shadow-red-900/20 lsu:shadow-purple-900/20">
             <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-20 w-auto"/>
           </div>
         </div>
@@ -106,7 +106,7 @@
               name="username"
               type="text"
               required
-              class="appearance-none relative block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dracula:border-purple-400/60 mbp:border-red-500/60 lsu:border-purple-300/60 rounded-lg placeholder-gray-400 dark:placeholder-slate-400 dracula:placeholder-slate-300 mbp:placeholder-red-300/70 lsu:placeholder-purple-400/70 text-gray-900 dark:text-slate-100 dracula:text-slate-100 mbp:text-red-100 lsu:text-purple-100 bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-900/95 lsu:bg-purple-900/95 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-400 dracula:focus:ring-cyan-300 mbp:focus:ring-red-400 lsu:focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+              class="appearance-none relative block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dracula:border-purple-400/60 mbp:border-red-500/60 lsu:border-purple-300/60 rounded-lg placeholder-gray-400 dark:placeholder-slate-400 dracula:placeholder-slate-300 mbp:placeholder-red-300/70 lsu:placeholder-purple-400/70 text-gray-900 dark:text-slate-100 dracula:text-slate-100 mbp:text-red-100 lsu:text-purple-100 bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-black/40 lsu:bg-black/40 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-400 dracula:focus:ring-cyan-300 mbp:focus:ring-red-400 lsu:focus:ring-purple-500 focus:border-transparent transition-all duration-200"
               placeholder="Enter your username"
               bind:value={username}
               disabled={loading}
@@ -119,7 +119,7 @@
               name="password"
               type="password"
               required
-              class="appearance-none relative block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dracula:border-purple-400/60 mbp:border-red-500/60 lsu:border-purple-300/60 rounded-lg placeholder-gray-400 dark:placeholder-slate-400 dracula:placeholder-slate-300 mbp:placeholder-red-300/70 lsu:placeholder-purple-400/70 text-gray-900 dark:text-slate-100 dracula:text-slate-100 mbp:text-red-100 lsu:text-purple-100 bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-900/95 lsu:bg-purple-900/95 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-400 dracula:focus:ring-cyan-300 mbp:focus:ring-red-400 lsu:focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+              class="appearance-none relative block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dracula:border-purple-400/60 mbp:border-red-500/60 lsu:border-purple-300/60 rounded-lg placeholder-gray-400 dark:placeholder-slate-400 dracula:placeholder-slate-300 mbp:placeholder-red-300/70 lsu:placeholder-purple-400/70 text-gray-900 dark:text-slate-100 dracula:text-slate-100 mbp:text-red-100 lsu:text-purple-100 bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-black/40 lsu:bg-black/40 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-400 dracula:focus:ring-cyan-300 mbp:focus:ring-red-400 lsu:focus:ring-purple-500 focus:border-transparent transition-all duration-200"
               placeholder="Enter your password"
               bind:value={password}
               disabled={loading}
@@ -174,11 +174,11 @@
     
     <!-- Partner logos at bottom -->
     <div class="mt-8 flex items-center justify-center gap-4 text-xs text-gray-600 dark:text-slate-400 dracula:text-slate-200 mbp:text-red-200 lsu:text-purple-200">
-      <div class="p-3 rounded-lg bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-900/95 lsu:bg-purple-900/95 shadow-md">
+      <div class="p-3 rounded-lg bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-black/60 lsu:bg-black/60 shadow-md">
         <img src="/images/mbp.png" alt="Mary Bird Perkins" class="h-12 opacity-90 hover:opacity-100 transition-opacity" />
       </div>
       <span class="font-medium px-2">in partnership with</span>
-      <div class="p-2 rounded-lg bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-900/95 lsu:bg-purple-900/95 shadow-md">
+      <div class="p-2 rounded-lg bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-black/60 lsu:bg-black/60 shadow-md">
         <img src="/images/lsu.png" alt="LSU" class="h-8 opacity-90 hover:opacity-100 transition-opacity" />
       </div>
     </div>

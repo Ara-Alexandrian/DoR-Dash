@@ -52,7 +52,7 @@
       {/if}
     </div>
     
-    <div class="px-8 py-4 bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-900/95 lsu:bg-purple-900/95 border-t border-gray-200 dark:border-slate-600 dracula:border-purple-400/50 mbp:border-red-500/50 lsu:border-purple-200">
+    <div class="px-8 py-4 bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-black/60 lsu:bg-black/60 border-t border-gray-200 dark:border-slate-600 dracula:border-purple-400/50 mbp:border-red-500/50 lsu:border-purple-200">
       <div class="flex items-center justify-center space-x-6">
         <img src="/images/mbp.png" alt="Mary Bird Perkins" class="h-8" />
         <span class="text-gray-500 dark:text-slate-400 dracula:text-slate-300 mbp:text-red-300 lsu:text-purple-300 text-sm">with</span>
