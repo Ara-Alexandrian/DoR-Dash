@@ -54,6 +54,12 @@
       
       updates = allUpdates.sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
       
+      console.log('Student updates response:', studentUpdatesResponse);
+      console.log('Faculty updates response:', facultyUpdatesResponse);
+      console.log('Student updates:', studentUpdates);
+      console.log('Faculty updates:', facultyUpdates);
+      console.log('Combined updates:', allUpdates);
+      console.log('Final sorted updates:', updates);
       console.log('Loaded updates:', updates.length, 'total updates');
     } catch (err) {
       error = err.message || 'Failed to load updates';
