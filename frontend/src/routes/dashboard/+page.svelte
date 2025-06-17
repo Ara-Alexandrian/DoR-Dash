@@ -139,12 +139,7 @@
         <div class="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-secondary-500/5 dark:from-primary-800/10 dark:to-secondary-800/10 dracula:from-purple-500/5 dracula:to-cyan-500/5 mbp:from-red-500/5 mbp:to-red-600/5 lsu:from-purple-500/5 lsu:to-yellow-500/5"></div>
         <div class="relative px-8 py-10">
           <div class="flex justify-between items-start">
-            <div class="flex items-start space-x-6">
-              <div class="transform hover:scale-105 transition-transform duration-300">
-                <div class="p-3 rounded-xl bg-white/80 dark:bg-slate-700/80 dracula:bg-gray-700/80 mbp:bg-gray-800/90 lsu:bg-purple-800/90 shadow-lg">
-                  <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="w-16 h-16 object-contain"/>
-                </div>
-              </div>
+            <div>
               <div>
                 <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-800 to-primary-600 dark:from-primary-400 dark:to-primary-300 dracula:from-purple-300 dracula:to-cyan-200 mbp:from-red-800 mbp:to-red-600 lsu:from-purple-800 lsu:to-purple-600 bg-clip-text text-transparent">
                   {getGreeting()}, {$auth.user?.username || 'User'}
@@ -154,7 +149,7 @@
               </div>
             </div>
             <div class="flex items-center">
-              <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU" class="w-24 h-24 object-contain"/>
+              <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU" class="h-16" style="width: auto; max-width: 400px; object-fit: cover; object-position: center;"/>
             </div>
           </div>
         </div>
