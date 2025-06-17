@@ -39,24 +39,29 @@
       
       console.log('UPDATES DEBUG - User ID:', currentUserId, 'Role:', $auth.user?.role, 'Is Admin:', isAdmin);
       
-      // TEMPORARY WORKAROUND: Faculty updates API is broken (500 error)
-      // For now, only fetch student updates until we fix the faculty endpoint
-      console.log('UPDATES DEBUG - TEMPORARY: Only fetching student updates due to faculty API 500 error');
-      
-      const studentUpdatesResponse = await updateApi.getUpdates().catch(err => {
-        console.error('Student updates API error:', err);
-        return { items: [] };
-      });
+      // Simplified approach: Let the backend handle user filtering
+      const [studentUpdatesResponse, facultyUpdatesResponse] = await Promise.all([
+        updateApi.getUpdates().catch(err => {
+          console.error('Student updates API error:', err);
+          return { items: [] };
+        }),
+        facultyUpdateApi.getUpdates().catch(err => {
+          console.error('Faculty updates API error:', err);
+          return { items: [] };
+        })
+      ]);
       
       // Extract updates from responses (handle both array and object formats)
       const studentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
+      const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
       
       console.log('UPDATES DEBUG - Student updates:', studentUpdates.length);
+      console.log('UPDATES DEBUG - Faculty updates:', facultyUpdates.length);
       console.log('UPDATES DEBUG - Raw student response:', studentUpdatesResponse);
-      console.log('UPDATES DEBUG - SKIPPING faculty updates due to 500 error');
+      console.log('UPDATES DEBUG - Raw faculty response:', facultyUpdatesResponse);
       
-      // Use only student updates for now
-      const allUpdates = [...studentUpdates];
+      // Combine all updates
+      const allUpdates = [...studentUpdates, ...facultyUpdates];
       
       // Add consistent submission_date and user info for debugging
       allUpdates.forEach(update => {

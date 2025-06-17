@@ -18,22 +18,26 @@
         
         console.log('DASHBOARD DEBUG - User:', currentUserId, 'Role:', $auth.user?.role, 'Is Admin:', isAdmin);
         
-        // TEMPORARY WORKAROUND: Faculty updates API is broken (500 error)
-        console.log('DASHBOARD DEBUG - TEMPORARY: Only fetching student updates due to faculty API 500 error');
-        
-        const studentUpdatesResponse = await updateApi.getUpdates().catch(err => {
-          console.error('Dashboard student updates error:', err);
-          return { items: [] };
-        });
+        const [studentUpdatesResponse, facultyUpdatesResponse] = await Promise.all([
+          updateApi.getUpdates().catch(err => {
+            console.error('Dashboard student updates error:', err);
+            return { items: [] };
+          }),
+          facultyUpdateApi.getUpdates().catch(err => {
+            console.error('Dashboard faculty updates error:', err);
+            return { items: [] };
+          })
+        ]);
         
         // Extract updates (backend already filters by user for non-admins)
         const studentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
+        const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
         
         console.log('DASHBOARD DEBUG - Student updates:', studentUpdates.length);
-        console.log('DASHBOARD DEBUG - SKIPPING faculty updates due to 500 error');
+        console.log('DASHBOARD DEBUG - Faculty updates:', facultyUpdates.length);
         
-        // Use only student updates for now
-        const allUpdates = [...studentUpdates];
+        // Combine all updates
+        const allUpdates = [...studentUpdates, ...facultyUpdates];
         allUpdates.forEach(update => {
           if (!update.submission_date) {
             update.submission_date = update.submitted_at || update.created_at || new Date().toISOString();
