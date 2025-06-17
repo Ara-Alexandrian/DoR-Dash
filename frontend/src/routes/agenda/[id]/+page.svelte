@@ -131,7 +131,7 @@
       meeting.end_time = new Date(meeting.end_time);
       
       // Add additional meeting details
-      meeting.title = (meeting.title && meeting.title !== 'undefined') ? meeting.title : "Research Progress Meeting";
+      meeting.title = (meeting.title && meeting.title !== 'undefined' && meeting.title !== 'null' && meeting.title !== null && meeting.title.trim()) ? meeting.title : "Research Progress Meeting";
       meeting.location = "Mary Bird Perkins Cancer Center, Conference Room A";
       meeting.description = meeting.description || "This meeting will focus on recent research developments in cancer treatment methodologies. Each presenter will have 20 minutes for their presentation and 10 minutes for Q&A.";
       
@@ -337,7 +337,7 @@
     <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg mb-8">
       <div class="px-4 py-5 sm:px-6 bg-primary-700 text-white">
         <div class="flex justify-between">
-          <h2 class="text-xl font-semibold">{(meeting.title && meeting.title !== 'undefined') ? meeting.title : 'Research Progress Meeting'}</h2>
+          <h2 class="text-xl font-semibold">{(meeting.title && meeting.title !== 'undefined' && meeting.title !== 'null') ? meeting.title : 'DoR General Updates Only'}</h2>
           <span class="px-2 py-1 rounded text-xs uppercase font-bold bg-[rgb(var(--color-bg-primary))] text-primary-700">
             {meeting.status}
           </span>
