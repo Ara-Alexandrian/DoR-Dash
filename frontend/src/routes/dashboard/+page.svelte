@@ -19,7 +19,9 @@
           currentUserId ? facultyUpdateApi.getUpdatesByUser(currentUserId).catch(() => ({ items: [] })) : Promise.resolve({ items: [] })
         ]);
         
-        const studentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
+        // Filter student updates to only show current user's updates
+        const allStudentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
+        const studentUpdates = allStudentUpdates.filter(update => update.user_id === currentUserId);
         const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
         
         // Combine all updates
