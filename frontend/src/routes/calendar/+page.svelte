@@ -368,8 +368,8 @@
 
 <div class="max-w-6xl mx-auto px-4 py-8">
   <div class="mb-8">
-    <h1 class="text-2xl font-semibold text-gray-900">Meeting Calendar</h1>
-    <p class="text-gray-500 mt-1">View and manage scheduled student meetings</p>
+    <h1 class="text-2xl font-semibold text-[rgb(var(--color-text-primary))]">Meeting Calendar</h1>
+    <p class="text-[rgb(var(--color-text-secondary))] mt-1">View and manage scheduled student meetings</p>
   </div>
   
   {#if error}
@@ -413,9 +413,9 @@
   <!-- Calendar grid -->
   <div class="bg-[rgb(var(--color-bg-primary))] rounded-lg shadow overflow-hidden">
     <!-- Day headers -->
-    <div class="grid grid-cols-7 gap-px bg-gray-200">
+    <div class="grid grid-cols-7 gap-px bg-[rgb(var(--color-border))]">
       {#each ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as day}
-        <div class="bg-gray-50 py-2 text-center text-gray-700 font-semibold text-sm">
+        <div class="bg-[rgb(var(--color-bg-secondary))] py-2 text-center text-[rgb(var(--color-text-primary))] font-semibold text-sm">
           {day}
         </div>
       {/each}
@@ -424,11 +424,11 @@
     {#if isLoading}
       <div class="py-20 text-center">
         <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
-        <p class="mt-2 text-gray-500">Loading calendar...</p>
+        <p class="mt-2 text-[rgb(var(--color-text-secondary))]">Loading calendar...</p>
       </div>
     {:else}
       <!-- Calendar days -->
-      <div class="grid grid-cols-7 gap-px bg-gray-200">
+      <div class="grid grid-cols-7 gap-px bg-[rgb(var(--color-border))]">
         <!-- Empty cells for days before month starts -->
         {#each Array(firstDayOfMonth) as _, i}
           <div class="bg-[rgb(var(--color-bg-primary))] p-2 h-32 sm:h-40"></div>
@@ -437,19 +437,19 @@
         <!-- Actual days -->
         {#each days as day}
           <div 
-            class="bg-[rgb(var(--color-bg-primary))] p-2 h-32 sm:h-40 hover:bg-gray-50 overflow-y-auto relative group transition-colors {dragOverDay === day ? 'bg-blue-100 border-2 border-blue-400' : ''}"
+            class="bg-[rgb(var(--color-bg-primary))] p-2 h-32 sm:h-40 hover:bg-[rgb(var(--color-bg-secondary))] overflow-y-auto relative group transition-colors {dragOverDay === day ? 'bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-400 dark:border-blue-600' : ''}"
             on:dragover={(e) => handleDragOver(e, day)}
             on:dragleave={handleDragLeave}
             on:drop={(e) => handleDrop(e, day)}
           >
-            <div class="mb-1 font-semibold text-gray-800 flex justify-between items-center">
+            <div class="mb-1 font-semibold text-[rgb(var(--color-text-primary))] flex justify-between items-center">
               <span>{day}</span>
               {#if isAdmin || isFaculty}
                 <button 
-                  class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-gray-200 rounded"
+                  class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-[rgb(var(--color-bg-tertiary))] rounded"
                   on:click={(e) => createMeeting(day, e)}
                 >
-                  <svg class="w-4 h-4 text-gray-500 hover:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-[rgb(var(--color-text-secondary))] hover:text-[rgb(var(--color-text-primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                   </svg>
                 </button>
@@ -477,7 +477,7 @@
   {#if selectedMeeting && !isEditing}
     <div class="mt-8 card p-4">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold text-gray-900">{selectedMeeting.title}</h3>
+        <h3 class="text-lg font-semibold text-[rgb(var(--color-text-primary))]">{selectedMeeting.title}</h3>
         
         <div class="flex space-x-2">
           <a href={`/agenda/${selectedMeeting.id}`} class="btn-primary py-1 text-sm">
@@ -496,14 +496,14 @@
       
       <div class="space-y-3">
         <div>
-          <span class="text-sm font-medium text-gray-500">When:</span>
+          <span class="text-sm font-medium text-[rgb(var(--color-text-secondary))]">When:</span>
           <p class="mt-1">
             {formatDate(selectedMeeting.start_time)}, {formatTime(selectedMeeting.start_time)} - {formatTime(selectedMeeting.end_time)}
           </p>
         </div>
         
         <div>
-          <span class="text-sm font-medium text-gray-500">Type:</span>
+          <span class="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Type:</span>
           <p class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium {meetingTypeColors[selectedMeeting.meeting_type]} shadow-sm">
             {selectedMeeting.meeting_type === 'other' ? selectedMeeting.title : (meetingTypes.find(t => t.value === selectedMeeting.meeting_type)?.label || selectedMeeting.meeting_type)}
           </p>
@@ -511,8 +511,8 @@
         
         {#if selectedMeeting.description}
           <div>
-            <span class="text-sm font-medium text-gray-500">Description:</span>
-            <p class="mt-1 text-gray-700">{selectedMeeting.description}</p>
+            <span class="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Description:</span>
+            <p class="mt-1 text-[rgb(var(--color-text-primary))]">{selectedMeeting.description}</p>
           </div>
         {/if}
       </div>
@@ -528,13 +528,13 @@
       class="fixed z-50 bg-[rgb(var(--color-bg-primary))] rounded-lg shadow-xl border border-gray-200 p-6 w-96 popup-widget"
       style="left: {Math.min(popupPosition.x, window.innerWidth - 400)}px; top: {Math.min(popupPosition.y, window.innerHeight - 500)}px;"
     >
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">
+      <h3 class="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4">
         Add New Meeting
       </h3>
       
       <form on:submit|preventDefault={handleSubmit} class="space-y-4">
         <div>
-          <label for="meeting_type" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="meeting_type" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
             Meeting Type
           </label>
           <select id="meeting_type" class="input" bind:value={meetingForm.meeting_type} on:change={() => customMeetingType = ''}>
@@ -555,7 +555,7 @@
         </div>
         
         <div>
-          <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="start_time" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
             Start Time
           </label>
           <input 
@@ -568,7 +568,7 @@
         </div>
         
         <div>
-          <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="description" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
             Description/Notes (Optional)
           </label>
           <textarea 
@@ -602,13 +602,13 @@
   <!-- Edit meeting form (remains at bottom) -->
   {#if isEditing && !showPopup}
     <div class="mt-8 card p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">
+      <h3 class="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4">
         Edit Meeting
       </h3>
       
       <form on:submit|preventDefault={handleSubmit} class="space-y-4">
         <div>
-          <label for="meeting_type" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="meeting_type" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
             Meeting Type
           </label>
           <select id="meeting_type" class="input" bind:value={meetingForm.meeting_type} on:change={() => customMeetingType = ''}>
@@ -629,7 +629,7 @@
         </div>
         
         <div>
-          <label for="start_time" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="start_time" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
             Start Time
           </label>
           <input 
@@ -642,7 +642,7 @@
         </div>
         
         <div>
-          <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+          <label for="description" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
             Description/Notes (Optional)
           </label>
           <textarea 
