@@ -44,6 +44,9 @@
   
   // Filter meetings for current month, past, or upcoming
   function filterMeetingsByMonth() {
+    console.log('filterMeetingsByMonth called - showPastOnly:', showPastOnly, 'showUpcomingOnly:', showUpcomingOnly);
+    console.log('Total meetings:', meetings.length);
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Start of today
     
@@ -53,18 +56,21 @@
         const date = new Date(meeting.start_time);
         return date < today;
       }).sort((a, b) => new Date(b.start_time) - new Date(a.start_time)); // Newest first for past meetings
+      console.log('Past meetings found:', currentMonthMeetings.length);
     } else if (showUpcomingOnly) {
       // Show only upcoming meetings (today and future)
       currentMonthMeetings = meetings.filter(meeting => {
         const date = new Date(meeting.start_time);
         return date >= today;
       }).sort((a, b) => new Date(a.start_time) - new Date(b.start_time)); // Earliest first for upcoming meetings
+      console.log('Upcoming meetings found:', currentMonthMeetings.length);
     } else {
       // Show current month meetings
       currentMonthMeetings = meetings.filter(meeting => {
         const date = new Date(meeting.start_time);
         return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
       }).sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+      console.log('Current month meetings found:', currentMonthMeetings.length);
     }
   }
   
@@ -116,19 +122,58 @@
   // Check if user is admin
   const isAdmin = $auth.user && $auth.user.role === 'admin';
   
-  // Load meetings on mount
-  onMount(async () => {
-    // Check for filter parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const filter = urlParams.get('filter');
+  // Function to handle filter changes
+  function handleFilterChange(filter) {
+    // Reset all filters first
+    showPastOnly = false;
+    showUpcomingOnly = false;
+    
+    // Set the appropriate filter
     if (filter === 'past') {
       showPastOnly = true;
     } else if (filter === 'upcoming') {
       showUpcomingOnly = true;
     }
     
+    // Re-filter meetings
+    filterMeetingsByMonth();
+  }
+
+  // Load meetings on mount and handle filter parameter
+  onMount(async () => {
+    // Check for filter parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const filter = urlParams.get('filter');
+    
+    // Set filter state before loading meetings
+    if (filter === 'past') {
+      showPastOnly = true;
+      showUpcomingOnly = false;
+    } else if (filter === 'upcoming') {
+      showPastOnly = false;
+      showUpcomingOnly = true;
+    }
+    
     await loadMeetings();
   });
+  
+  // React to URL changes
+  $: if ($page.url && meetings.length >= 0) {
+    const filter = $page.url.searchParams.get('filter');
+    if (filter === 'past' && !showPastOnly) {
+      showPastOnly = true;
+      showUpcomingOnly = false;
+      if (meetings.length > 0) filterMeetingsByMonth();
+    } else if (filter === 'upcoming' && !showUpcomingOnly) {
+      showPastOnly = false;
+      showUpcomingOnly = true;
+      if (meetings.length > 0) filterMeetingsByMonth();
+    } else if (!filter && (showPastOnly || showUpcomingOnly)) {
+      showPastOnly = false;
+      showUpcomingOnly = false;
+      if (meetings.length > 0) filterMeetingsByMonth();
+    }
+  }
 </script>
 
 <div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
