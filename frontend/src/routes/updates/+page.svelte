@@ -57,6 +57,8 @@
       
       console.log('UPDATES DEBUG - Student updates:', studentUpdates.length);
       console.log('UPDATES DEBUG - Faculty updates:', facultyUpdates.length);
+      console.log('UPDATES DEBUG - Raw student response:', studentUpdatesResponse);
+      console.log('UPDATES DEBUG - Raw faculty response:', facultyUpdatesResponse);
       
       // Combine all updates
       const allUpdates = [...studentUpdates, ...facultyUpdates];
@@ -69,9 +71,12 @@
         console.log('UPDATES DEBUG - Update:', {
           id: update.id,
           user_id: update.user_id,
+          meeting_id: update.meeting_id,
           type: update.is_faculty ? 'faculty' : 'student',
           date: update.submission_date,
-          title: update.announcements_text?.substring(0, 30) || update.progress_text?.substring(0, 30) || 'No content'
+          title: update.announcements_text?.substring(0, 30) || update.progress_text?.substring(0, 30) || 'No content',
+          progress: update.progress_text?.substring(0, 50),
+          announcements: update.announcements_text?.substring(0, 50)
         });
       });
       
