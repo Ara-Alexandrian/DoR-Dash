@@ -89,7 +89,7 @@
             <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-20 w-auto"/>
           </div>
         </div>
-        <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-800 to-primary-600 dark:from-primary-400 dark:to-primary-300 dracula:from-cyan-200 dracula:to-purple-200 mbp:from-red-800 mbp:to-red-600 lsu:from-purple-800 lsu:to-purple-600 bg-clip-text text-transparent">
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-900 to-primary-800 dark:from-primary-400 dark:to-primary-300 dracula:from-cyan-200 dracula:to-purple-200 mbp:from-red-900 mbp:to-red-800 lsu:from-purple-900 lsu:to-purple-800 bg-clip-text text-transparent">
           DoR-Dash
         </h1>
         <p class="mt-3 text-sm text-gray-600 dark:text-slate-300 dracula:text-slate-200 mbp:text-red-200 lsu:text-purple-200 font-medium">
