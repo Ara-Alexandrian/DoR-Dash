@@ -47,9 +47,12 @@
   // Reactive admin status
   $: isAdmin = $auth?.user?.role === 'admin';
   
-  // Debug user role
+  // Debug user role and navigation
   $: if ($auth?.user) {
     console.log('Layout: Current user role:', $auth.user.role, 'isAdmin:', isAdmin);
+    console.log('Layout: Navigation items count:', nav.length);
+    console.log('Layout: Should show roster:', $auth?.user?.role === 'admin' || $auth?.user?.role === 'faculty');
+    console.log('Layout: Should show admin section:', $auth?.user?.role === 'admin');
   }
   
   // Base navigation items (for all users)
