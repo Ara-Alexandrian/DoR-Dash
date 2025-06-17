@@ -5,11 +5,13 @@
   import { browser } from '$app/environment';
   
   let loggingOut = true;
+  let currentTheme = 'light';
   
   onMount(() => {
     // Ensure theme is applied
     if (browser) {
       const savedTheme = localStorage.getItem('theme') || 'light';
+      currentTheme = savedTheme;
       document.documentElement.classList.remove('light', 'dark', 'dracula', 'mbp', 'lsu');
       document.documentElement.classList.add(savedTheme);
       console.log('Logout page - Applied theme:', savedTheme);
@@ -30,7 +32,7 @@
 </script>
 
 <div class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 via-primary-50 to-secondary-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dracula:from-gray-900 dracula:via-slate-900 dracula:to-gray-900 mbp:from-red-50 mbp:via-red-100/50 mbp:to-red-200/30 lsu:from-purple-50 lsu:via-purple-100/50 lsu:to-yellow-100/30 px-4">
-  <div class="w-full max-w-md bg-gray-50/95 dark:bg-slate-800/95 dracula:bg-gray-800/95 mbp:bg-gray-900 lsu:bg-purple-900 backdrop-blur-sm rounded-lg shadow-2xl border border-gray-100 dark:border-slate-600 dracula:border-purple-400/50 mbp:border-red-500/50 lsu:border-purple-200 overflow-hidden">
+  <div class="w-full max-w-md backdrop-blur-sm rounded-lg shadow-2xl overflow-hidden" style="background-color: {$currentTheme === 'mbp' ? 'rgb(17, 24, 39)' : $currentTheme === 'lsu' ? 'rgb(88, 28, 135)' : 'rgba(249, 250, 251, 0.95)'}; border-color: {$currentTheme === 'mbp' ? 'rgba(239, 68, 68, 0.5)' : $currentTheme === 'lsu' ? 'rgba(147, 51, 234, 0.2)' : 'rgb(229, 231, 235)'};">
     <div class="px-8 py-10">
       <div class="flex justify-center mb-6">
         <!-- MBP Logo -->
@@ -61,7 +63,7 @@
       {/if}
     </div>
     
-    <div class="px-8 py-4 bg-gray-100/95 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-800 lsu:bg-purple-800 border-t border-gray-200 dark:border-slate-600 dracula:border-purple-400/50 mbp:border-red-500/50 lsu:border-purple-200">
+    <div class="px-8 py-4 border-t" style="background-color: {$currentTheme === 'mbp' ? 'rgb(31, 41, 55)' : $currentTheme === 'lsu' ? 'rgb(107, 33, 168)' : 'rgba(243, 244, 246, 0.95)'}; border-color: {$currentTheme === 'mbp' ? 'rgba(239, 68, 68, 0.5)' : $currentTheme === 'lsu' ? 'rgba(147, 51, 234, 0.2)' : 'rgb(229, 231, 235)'};">
       <div class="flex items-center justify-center space-x-6">
         <img src="/images/mbp.png" alt="Mary Bird Perkins" class="h-8" />
         <span class="text-gray-500 dark:text-slate-400 dracula:text-slate-300 mbp:text-red-300 lsu:text-purple-300 text-sm">with</span>
