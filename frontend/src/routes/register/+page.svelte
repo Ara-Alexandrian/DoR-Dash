@@ -59,15 +59,29 @@
           email: email,
           username: username,
           password: password,
-          role: role,
+          role: role.toUpperCase(),
           phone: phone || null,
           preferred_email: preferredEmail || null
         })
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Registration failed');
+        let errorMessage = 'Registration failed';
+        try {
+          const errorData = await response.json();
+          console.error('Registration API error:', errorData);
+          if (typeof errorData.detail === 'string') {
+            errorMessage = errorData.detail;
+          } else if (errorData.detail && errorData.detail.length > 0) {
+            errorMessage = errorData.detail[0].msg || errorData.detail[0];
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError);
+          errorMessage = `Registration failed with status ${response.status}`;
+        }
+        throw new Error(errorMessage);
       }
       
       const result = await response.json();
@@ -127,7 +141,7 @@
   </div>
 
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-    <div class="backdrop-blur-sm py-8 px-4 shadow-2xl sm:rounded-lg sm:px-10 border" style="background-color: {currentTheme === 'mbp' ? 'rgb(17, 24, 39)' : currentTheme === 'lsu' ? 'rgb(88, 28, 135)' : 'rgba(249, 250, 251, 0.95)'}; border-color: {currentTheme === 'mbp' ? 'rgba(239, 68, 68, 0.5)' : currentTheme === 'lsu' ? 'rgba(147, 51, 234, 0.2)' : 'rgb(229, 231, 235)'}">
+    <div class="backdrop-blur-sm py-8 px-4 shadow-2xl sm:rounded-lg sm:px-10 border" style="background-color: {currentTheme === 'mbp' ? 'rgb(15, 15, 20)' : currentTheme === 'lsu' ? 'rgb(60, 20, 100)' : currentTheme === 'dark' ? 'rgb(30, 41, 59)' : 'rgba(30, 30, 30, 0.95)'}; border-color: {currentTheme === 'mbp' ? 'rgba(239, 68, 68, 0.5)' : currentTheme === 'lsu' ? 'rgba(147, 51, 234, 0.3)' : currentTheme === 'dark' ? 'rgba(71, 85, 105, 0.5)' : 'rgba(60, 60, 60, 0.8)'}">
       
       {#if success}
         <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
