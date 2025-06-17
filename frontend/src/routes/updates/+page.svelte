@@ -47,9 +47,13 @@
       const studentUpdates = isAdmin ? allStudentUpdates : allStudentUpdates.filter(update => update.user_id === currentUserId);
       
       // For admins, get all faculty updates; for regular users, get only their own
-      const facultyUpdates = isAdmin ? 
-        (await facultyUpdateApi.getUpdates().catch(() => [])) :
-        facultyUpdatesResponse.items || facultyUpdatesResponse || [];
+      let facultyUpdates = [];
+      if (isAdmin) {
+        const facultyResponse = await facultyUpdateApi.getUpdates().catch(() => ({ items: [] }));
+        facultyUpdates = facultyResponse.items || [];
+      } else {
+        facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
+      }
       
       // Combine and sort all updates by submission date (newest first)
       const allUpdates = [...studentUpdates, ...facultyUpdates];

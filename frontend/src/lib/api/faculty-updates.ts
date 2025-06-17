@@ -6,12 +6,12 @@ import type { FacultyUpdate } from '../types';
  */
 export const facultyUpdateApi = {
   // Get all faculty updates
-  getUpdates: async (): Promise<FacultyUpdate[]> => {
+  getUpdates: async (): Promise<{ items: FacultyUpdate[], total: number }> => {
     return await apiFetch('/faculty-updates/');
   },
   
   // Get faculty updates for current user
-  getUpdatesByUser: async (userId: number | string): Promise<FacultyUpdate[]> => {
+  getUpdatesByUser: async (userId: number | string): Promise<{ items: FacultyUpdate[], total: number }> => {
     return await apiFetch(`/faculty-updates?user_id=${userId}`);
   },
   
