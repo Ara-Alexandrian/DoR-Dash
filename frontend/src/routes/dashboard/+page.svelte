@@ -149,7 +149,7 @@
               </div>
             </div>
             <div class="flex items-center">
-              <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU" class="h-16" style="width: auto; max-width: 400px; object-fit: cover; object-position: center;"/>
+              <img src="/images/MBPCC-LSU-cropped.png" alt="MBPCC-LSU" class="h-20 w-auto"/>
             </div>
           </div>
         </div>
