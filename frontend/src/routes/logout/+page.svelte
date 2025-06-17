@@ -48,7 +48,7 @@
           <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-600"></div>
         </div>
       {:else}
-        <p class="text-center text-gray-600 dark:text-slate-300 dracula:text-slate-200 mbp:text-red-100 lsu:text-purple-100 mb-8">
+        <p class="text-center mb-8" style="color: {currentTheme === 'mbp' ? 'rgb(254, 202, 202)' : currentTheme === 'lsu' ? 'rgb(221, 214, 254)' : 'rgb(75, 85, 99)'};">>
           Thank you for using the Dose of Reality Dashboard. You have been successfully logged out of your account.
         </p>
         
