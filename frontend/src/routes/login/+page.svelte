@@ -2,11 +2,23 @@
   import { authApi } from '$lib/api';
   import { auth } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
+  import { onMount } from 'svelte';
+  import { browser } from '$app/environment';
   
   let username = '';
   let password = '';
   let error = '';
   let loading = false;
+  
+  onMount(() => {
+    // Ensure theme is applied
+    if (browser) {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.classList.remove('light', 'dark', 'dracula', 'mbp', 'lsu');
+      document.documentElement.classList.add(savedTheme);
+      console.log('Login page - Applied theme:', savedTheme);
+    }
+  });
   
   async function handleLogin() {
     if (!username || !password) {

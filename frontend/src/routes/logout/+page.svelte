@@ -2,10 +2,19 @@
   import { onMount } from 'svelte';
   import { auth } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
+  import { browser } from '$app/environment';
   
   let loggingOut = true;
   
   onMount(() => {
+    // Ensure theme is applied
+    if (browser) {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.classList.remove('light', 'dark', 'dracula', 'mbp', 'lsu');
+      document.documentElement.classList.add(savedTheme);
+      console.log('Logout page - Applied theme:', savedTheme);
+    }
+    
     // Set a small timeout to show the loading state briefly
     setTimeout(() => {
       // The logout API endpoint has already been called by the auth.logout() function

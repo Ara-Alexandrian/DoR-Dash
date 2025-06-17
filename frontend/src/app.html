@@ -12,9 +12,16 @@
 		<script>
 			// Apply theme immediately to prevent flash of unstyled content
 			(function() {
-				const savedTheme = localStorage.getItem('theme') || 'light';
-				document.documentElement.classList.remove('light', 'dark', 'dracula', 'mbp', 'lsu');
-				document.documentElement.classList.add(savedTheme);
+				try {
+					const savedTheme = localStorage.getItem('theme') || 'light';
+					console.log('Applying theme:', savedTheme);
+					document.documentElement.classList.remove('light', 'dark', 'dracula', 'mbp', 'lsu');
+					document.documentElement.classList.add(savedTheme);
+					console.log('HTML classes after theme application:', document.documentElement.className);
+				} catch (e) {
+					console.error('Theme application failed:', e);
+					document.documentElement.classList.add('light');
+				}
 			})();
 		</script>
 		%sveltekit.head%
