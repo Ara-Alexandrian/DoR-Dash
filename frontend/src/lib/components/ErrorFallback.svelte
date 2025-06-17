@@ -52,13 +52,7 @@
     {/if}
     
     <div class="mt-10 flex justify-center">
-      <div class="flex items-center space-x-4">
-        <img src="/images/mbp.png" alt="Mary Bird Perkins" class="h-8" />
-        <div class="flex items-center">
-          <span class="text-xs text-secondary-900">with</span>
-          <img src="/images/lsu.png" alt="LSU" class="h-8 ml-2" />
-        </div>
-      </div>
+      <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU Partnership" class="h-12 w-auto" />
     </div>
   </div>
 </div>

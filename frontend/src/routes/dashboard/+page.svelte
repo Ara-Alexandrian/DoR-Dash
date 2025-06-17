@@ -488,14 +488,8 @@
       <!-- Footer with branding -->
       <div class="mt-12 pt-8 border-t border-[rgb(var(--color-border))]" in:fade={{duration: 300, delay: 400}}>
         <div class="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-          <div class="flex items-center space-x-6">
-            <div class="p-3 rounded-lg bg-white/50 dark:bg-slate-700/50 dracula:bg-gray-700/50 mbp:bg-gray-800/70 lsu:bg-purple-800/70 shadow-sm">
-              <img src="/images/mbp.png" alt="Mary Bird Perkins Logo" class="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity"/>
-            </div>
-            <span class="text-xs text-[rgb(var(--color-text-tertiary))] font-medium">in partnership with</span>
-            <div class="p-2 rounded-lg bg-white/50 dark:bg-slate-700/50 dracula:bg-gray-700/50 mbp:bg-gray-800/70 lsu:bg-purple-800/70 shadow-sm">
-              <img src="/images/lsu.png" alt="LSU Logo" class="h-8 w-auto opacity-80 hover:opacity-100 transition-opacity"/>
-            </div>
+          <div class="flex items-center">
+            <img src="/images/MBPCC-LSU.png" alt="MBPCC-LSU Partnership" class="h-10 w-auto"/>
           </div>
           <div class="text-xs text-[rgb(var(--color-text-tertiary))] text-center sm:text-right">
             <p>Dose of Reality Research Program</p>
