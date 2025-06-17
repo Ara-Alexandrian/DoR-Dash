@@ -1,9 +1,23 @@
 <script>
   import { goto } from '$app/navigation';
+  import { onMount } from 'svelte';
+  import { browser } from '$app/environment';
   
   // API configuration
   const API_URL = import.meta.env.VITE_API_URL || '';
   const API_BASE = API_URL ? `${API_URL}/api/v1` : '/api/v1';
+  
+  // Theme detection
+  let currentTheme = 'light';
+  
+  onMount(() => {
+    if (browser) {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      currentTheme = savedTheme;
+      document.documentElement.classList.remove('light', 'dark', 'dracula', 'mbp', 'lsu');
+      document.documentElement.classList.add(savedTheme);
+    }
+  });
   
   // Form data
   let fullName = '';
@@ -75,7 +89,16 @@
       }, 3000);
       
     } catch (err) {
-      error = err.message || 'Registration failed. Please try again.';
+      console.error('Registration error:', err);
+      if (typeof err === 'string') {
+        error = err;
+      } else if (err.message) {
+        error = err.message;
+      } else if (err.detail) {
+        error = err.detail;
+      } else {
+        error = 'Registration failed. Please try again.';
+      }
     } finally {
       isSubmitting = false;
     }
@@ -86,15 +109,15 @@
   <title>Registration - DoR-Dash</title>
 </svelte:head>
 
-<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-primary-50 to-secondary-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dracula:from-gray-900 dracula:via-slate-900 dracula:to-gray-900 mbp:from-gray-950 mbp:via-red-950/80 mbp:to-gray-900 lsu:from-purple-950 lsu:via-purple-900/80 lsu:to-purple-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
   <div class="sm:mx-auto sm:w-full sm:max-w-md">
     <div class="flex justify-center">
-      <h1 class="text-3xl font-bold text-primary-600">DoR-Dash</h1>
+      <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-900 to-primary-800 dark:from-primary-400 dark:to-primary-300 dracula:from-cyan-200 dracula:to-purple-200 mbp:from-red-300 mbp:to-red-100 lsu:from-purple-300 lsu:to-purple-100 bg-clip-text text-transparent">DoR-Dash</h1>
     </div>
-    <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+    <h2 class="mt-6 text-center text-3xl font-extrabold text-[rgb(var(--color-text-primary))]">
       Registration
     </h2>
-    <p class="mt-2 text-center text-sm text-gray-600">
+    <p class="mt-2 text-center text-sm text-[rgb(var(--color-text-secondary))]">
       Request access to the research dashboard.
       <br>
       <a href="/login" class="font-medium text-primary-600 hover:text-primary-500">
@@ -104,7 +127,7 @@
   </div>
 
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-    <div class="bg-[rgb(var(--color-bg-primary))] py-8 px-4 shadow sm:rounded-lg sm:px-10">
+    <div class="backdrop-blur-sm py-8 px-4 shadow-2xl sm:rounded-lg sm:px-10 border" style="background-color: {currentTheme === 'mbp' ? 'rgb(17, 24, 39)' : currentTheme === 'lsu' ? 'rgb(88, 28, 135)' : 'rgba(249, 250, 251, 0.95)'}; border-color: {currentTheme === 'mbp' ? 'rgba(239, 68, 68, 0.5)' : currentTheme === 'lsu' ? 'rgba(147, 51, 234, 0.2)' : 'rgb(229, 231, 235)'}">
       
       {#if success}
         <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
@@ -141,7 +164,7 @@
         
         <!-- Full Name -->
         <div>
-          <label for="fullName" class="block text-sm font-medium text-gray-700">
+          <label for="fullName" class="block text-sm font-medium" style="color: {currentTheme === 'mbp' ? 'rgb(254, 226, 226)' : currentTheme === 'lsu' ? 'rgb(243, 232, 255)' : 'rgb(55, 65, 81)'};">
             Full Name *
           </label>
           <div class="mt-1">
