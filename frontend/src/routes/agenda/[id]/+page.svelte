@@ -339,7 +339,7 @@
         <div class="flex justify-between">
           <h2 class="text-xl font-semibold">{(meeting.title && meeting.title !== 'undefined' && meeting.title !== 'null') ? meeting.title : 'DoR General Updates Only'}</h2>
           <span class="px-2 py-1 rounded text-xs uppercase font-bold bg-[rgb(var(--color-bg-primary))] text-primary-700">
-            {meeting.status}
+            {(meeting.status && meeting.status !== 'undefined' && meeting.status !== 'null' && meeting.status !== null) ? meeting.status : 'Scheduled'}
           </span>
         </div>
         <p class="mt-1 font-bold">{formatDate(meeting.date)}</p>

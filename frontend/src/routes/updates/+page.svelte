@@ -53,6 +53,8 @@
         if (!update.submission_date) {
           update.submission_date = update.submitted_at || update.created_at || new Date().toISOString();
         }
+        // Debug log to see what data we're getting
+        console.log('Update data:', update);
       });
       
       updates = allUpdates.sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
@@ -560,7 +562,7 @@
                 <!-- Student Update Display -->
                 <div>
                   <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Research Progress</h4>
-                  <p class="text-sm text-gray-600 dark:text-gray-400">{update.progress_text}</p>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">{update.progress_text || 'No progress text available'}</p>
                 </div>
                 
                 {#if update.challenges_text}
