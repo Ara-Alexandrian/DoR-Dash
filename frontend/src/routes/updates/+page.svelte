@@ -55,6 +55,7 @@
       
       updates = allUpdates.sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
       
+      console.log('Current user ID:', currentUserId);
       console.log('Student updates response:', studentUpdatesResponse);
       console.log('Faculty updates response:', facultyUpdatesResponse);
       console.log('Student updates:', studentUpdates);
@@ -62,6 +63,12 @@
       console.log('Combined updates:', allUpdates);
       console.log('Final sorted updates:', updates);
       console.log('Loaded updates:', updates.length, 'total updates');
+      console.log('Updates details:', updates.map(u => ({
+        id: u.id,
+        type: u.is_faculty ? 'faculty' : 'student',
+        date: u.submission_date || u.submitted_at || u.created_at,
+        title: u.announcements_text?.substring(0, 50) || u.progress_text?.substring(0, 50) || 'No title'
+      })));
     } catch (err) {
       error = err.message || 'Failed to load updates';
       console.error('Error loading updates:', err);
