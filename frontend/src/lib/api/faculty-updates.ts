@@ -41,6 +41,14 @@ export const facultyUpdateApi = {
     });
   },
   
+  // Alias for backward compatibility with updates page
+  updateUpdate: async (id: number | string, updateData: Partial<FacultyUpdate>): Promise<FacultyUpdate> => {
+    return await apiFetch(`/faculty-updates/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updateData)
+    });
+  },
+  
   // Get faculty updates for a specific meeting
   getUpdatesByMeeting: async (meetingId: number | string): Promise<FacultyUpdate[]> => {
     return await apiFetch(`/faculty-updates?meeting_id=${meetingId}`);
