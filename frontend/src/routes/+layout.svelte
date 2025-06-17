@@ -43,18 +43,34 @@
   
   // State for sidebar
   let showSidebar = false;
-  let isAdmin = false;
   
-  // Navigation items
-  const nav = [
+  // Reactive admin status
+  $: isAdmin = $auth?.user?.role === 'admin';
+  
+  // Debug user role
+  $: if ($auth?.user) {
+    console.log('Layout: Current user role:', $auth.user.role, 'isAdmin:', isAdmin);
+  }
+  
+  // Base navigation items (for all users)
+  const baseNav = [
     { title: 'Dashboard', path: '/dashboard', icon: 'home' },
     { title: 'Submit Update', path: '/submit-update', icon: 'document-text' },
     { title: 'Your Updates', path: '/updates', icon: 'document-duplicate' },
     { title: 'Support Request (Beta)', path: '/requests/support', icon: 'support' },
     { title: 'Calendar', path: '/calendar', icon: 'calendar' },
-    { title: 'Agenda', path: '/agenda', icon: 'calendar-days' },
+    { title: 'Agenda', path: '/agenda', icon: 'calendar-days' }
+  ];
+
+  // Faculty/Admin only items
+  const facultyAdminNav = [
     { title: 'Roster', path: '/roster', icon: 'users' }
   ];
+
+  // Computed navigation based on user role
+  $: nav = $auth?.user?.role === 'admin' || $auth?.user?.role === 'faculty' 
+    ? [...baseNav, ...facultyAdminNav] 
+    : baseNav;
   
   // Admin nav items (only shown to admins)
   const adminNav = [
@@ -105,8 +121,6 @@
         goto('/dashboard');
       }
       
-      // Check if user is an admin
-      isAdmin = $auth?.user?.role === 'admin';
     }
     
     // Add event listener for clicking outside sidebar
