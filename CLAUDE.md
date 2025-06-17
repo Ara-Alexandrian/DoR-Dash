@@ -11,6 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Verification link: https://dd.kronisto.net/updates
 - **NEW**: LLM text refinement testing suite implemented with automated QA reports
 - **NEW**: QA folder structure reorganized for better organization
+- **NEW**: UI refinement process implemented to address redirect and inline editing challenges
 
 ## Quality Assurance (QA) Structure
 

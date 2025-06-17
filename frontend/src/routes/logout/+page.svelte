@@ -63,16 +63,8 @@
       {/if}
     </div>
     
-    <div class="px-8 py-4 border-t" style="background-color: {currentTheme === 'mbp' ? 'rgb(31, 41, 55)' : currentTheme === 'lsu' ? 'rgb(107, 33, 168)' : 'rgba(243, 244, 246, 0.95)'}; border-color: {currentTheme === 'mbp' ? 'rgba(239, 68, 68, 0.5)' : currentTheme === 'lsu' ? 'rgba(147, 51, 234, 0.2)' : 'rgb(229, 231, 235)'};">
-      <div class="flex items-center justify-center space-x-6">
-        <img src="/images/mbp.png" alt="Mary Bird Perkins" class="h-8" />
-        <span class="text-gray-500 dark:text-slate-400 dracula:text-slate-300 mbp:text-red-300 lsu:text-purple-300 text-sm">with</span>
-        <img src="/images/lsu.png" alt="LSU" class="h-8" />
-      </div>
-    </div>
+    <!-- Bottom section removed - partnership info now in main logo -->
   </div>
   
-  <p class="mt-6 text-center text-xs text-gray-500 dark:text-slate-400 dracula:text-slate-300 mbp:text-red-300 lsu:text-purple-300">
-    In partnership with Louisiana State University
-  </p>
+  <!-- Partnership text removed - now included in main logo -->
 </div>

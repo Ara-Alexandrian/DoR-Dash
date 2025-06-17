@@ -99,9 +99,7 @@
       <!-- Logo and title -->
       <div class="text-center">
         <div class="flex justify-center mb-4">
-          <div class="p-3 rounded-xl shadow-lg" style="background-color: {currentTheme === 'mbp' ? 'rgb(31, 41, 55)' : currentTheme === 'lsu' ? 'rgb(107, 33, 168)' : 'rgba(243, 244, 246, 0.95)'};">
-            <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-20 w-auto"/>
-          </div>
+          <img src="/images/MBPCC-LSU.png" alt="Mary Bird Perkins Cancer Center LSU" class="h-24 w-auto" />
         </div>
         <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-900 to-primary-800 dark:from-primary-400 dark:to-primary-300 dracula:from-cyan-200 dracula:to-purple-200 mbp:from-red-300 mbp:to-red-100 lsu:from-purple-300 lsu:to-purple-100 bg-clip-text text-transparent">
           DoR-Dash
@@ -186,15 +184,6 @@
       </form>
     </div>
     
-    <!-- Partner logos at bottom -->
-    <div class="mt-8 flex items-center justify-center gap-4 text-xs text-gray-600 dark:text-slate-400 dracula:text-slate-200 mbp:text-red-200 lsu:text-purple-200">
-      <div class="p-3 rounded-lg shadow-md" style="background-color: {currentTheme === 'mbp' ? 'rgb(31, 41, 55)' : currentTheme === 'lsu' ? 'rgb(107, 33, 168)' : 'rgba(243, 244, 246, 0.95)'};">
-        <img src="/images/mbp.png" alt="Mary Bird Perkins" class="h-12 opacity-90 hover:opacity-100 transition-opacity" />
-      </div>
-      <span class="font-medium px-2">in partnership with</span>
-      <div class="p-2 rounded-lg shadow-md" style="background-color: {currentTheme === 'mbp' ? 'rgb(31, 41, 55)' : currentTheme === 'lsu' ? 'rgb(107, 33, 168)' : 'rgba(243, 244, 246, 0.95)'};">
-        <img src="/images/lsu.png" alt="LSU" class="h-8 opacity-90 hover:opacity-100 transition-opacity" />
-      </div>
-    </div>
+    <!-- Partner logos removed - now included in main logo -->
   </div>
 </div>
