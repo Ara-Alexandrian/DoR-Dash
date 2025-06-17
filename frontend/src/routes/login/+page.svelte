@@ -81,11 +81,11 @@
 <div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 via-primary-50 to-secondary-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dracula:from-gray-900 dracula:via-slate-900 dracula:to-gray-900 mbp:from-red-50 mbp:via-red-100/50 mbp:to-red-200/30 lsu:from-purple-50 lsu:via-purple-100/50 lsu:to-yellow-100/30 py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full">
     <!-- Main card -->
-    <div class="bg-gray-50 dark:bg-slate-800/95 dracula:bg-gray-800/95 mbp:bg-gray-900/95 lsu:bg-purple-900/95 backdrop-blur-sm p-10 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-600 dracula:border-purple-400/50 mbp:border-red-500/50 lsu:border-purple-200">
+    <div class="bg-white/80 dark:bg-slate-800/95 dracula:bg-gray-800/95 mbp:bg-gray-900/95 lsu:bg-purple-900/95 backdrop-blur-sm p-10 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-600 dracula:border-purple-400/50 mbp:border-red-500/50 lsu:border-purple-200 mbp:backdrop-blur-md lsu:backdrop-blur-md">
       <!-- Logo and title -->
       <div class="text-center">
         <div class="flex justify-center mb-4">
-          <div class="p-3 rounded-xl bg-gray-100 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-800/50 lsu:bg-purple-800/50 shadow-lg">
+          <div class="p-3 rounded-xl bg-white/60 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-900/95 lsu:bg-purple-900/95 shadow-lg mbp:shadow-red-900/20 lsu:shadow-purple-900/20">
             <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="h-20 w-auto"/>
           </div>
         </div>
@@ -106,7 +106,7 @@
               name="username"
               type="text"
               required
-              class="appearance-none relative block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dracula:border-purple-400/60 mbp:border-red-500/60 lsu:border-purple-300/60 rounded-lg placeholder-gray-400 dark:placeholder-slate-400 dracula:placeholder-slate-300 mbp:placeholder-red-300/70 lsu:placeholder-purple-400/70 text-gray-900 dark:text-slate-100 dracula:text-slate-100 mbp:text-red-100 lsu:text-purple-100 bg-gray-100 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-800/50 lsu:bg-purple-800/50 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-400 dracula:focus:ring-cyan-300 mbp:focus:ring-red-400 lsu:focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+              class="appearance-none relative block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dracula:border-purple-400/60 mbp:border-red-500/60 lsu:border-purple-300/60 rounded-lg placeholder-gray-400 dark:placeholder-slate-400 dracula:placeholder-slate-300 mbp:placeholder-red-300/70 lsu:placeholder-purple-400/70 text-gray-900 dark:text-slate-100 dracula:text-slate-100 mbp:text-red-100 lsu:text-purple-100 bg-white/50 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-900/95 lsu:bg-purple-900/95 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-400 dracula:focus:ring-cyan-300 mbp:focus:ring-red-400 lsu:focus:ring-purple-500 focus:border-transparent transition-all duration-200"
               placeholder="Enter your username"
               bind:value={username}
               disabled={loading}
@@ -119,7 +119,7 @@
               name="password"
               type="password"
               required
-              class="appearance-none relative block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dracula:border-purple-400/60 mbp:border-red-500/60 lsu:border-purple-300/60 rounded-lg placeholder-gray-400 dark:placeholder-slate-400 dracula:placeholder-slate-300 mbp:placeholder-red-300/70 lsu:placeholder-purple-400/70 text-gray-900 dark:text-slate-100 dracula:text-slate-100 mbp:text-red-100 lsu:text-purple-100 bg-gray-100 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-800/50 lsu:bg-purple-800/50 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-400 dracula:focus:ring-cyan-300 mbp:focus:ring-red-400 lsu:focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+              class="appearance-none relative block w-full px-4 py-3 border border-gray-300 dark:border-slate-600 dracula:border-purple-400/60 mbp:border-red-500/60 lsu:border-purple-300/60 rounded-lg placeholder-gray-400 dark:placeholder-slate-400 dracula:placeholder-slate-300 mbp:placeholder-red-300/70 lsu:placeholder-purple-400/70 text-gray-900 dark:text-slate-100 dracula:text-slate-100 mbp:text-red-100 lsu:text-purple-100 bg-white/50 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-900/95 lsu:bg-purple-900/95 focus:outline-none focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-400 dracula:focus:ring-cyan-300 mbp:focus:ring-red-400 lsu:focus:ring-purple-500 focus:border-transparent transition-all duration-200"
               placeholder="Enter your password"
               bind:value={password}
               disabled={loading}
@@ -128,13 +128,13 @@
         </div>
       
         {#if error}
-          <div class="rounded-lg bg-red-50 dark:bg-red-900/30 dracula:bg-red-900/30 border border-red-200 dark:border-red-700 dracula:border-red-500/50 p-4">
+          <div class="rounded-lg bg-red-50 dark:bg-red-900/30 dracula:bg-red-900/30 mbp:bg-red-950/95 lsu:bg-purple-900/95 border border-red-200 dark:border-red-700 dracula:border-red-500/50 mbp:border-red-500/50 lsu:border-purple-400/50 p-4">
             <div class="text-sm text-red-800 dark:text-red-300 dracula:text-red-300 font-medium">
               {error}
             </div>
             {#if error.includes('credentials')}
               <div class="mt-2 text-xs text-gray-600 dark:text-slate-400 dracula:text-cyan-300/70">
-                <p>Development credentials: <code class="bg-gray-200 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-700 lsu:bg-purple-700 px-1 py-0.5 rounded text-gray-800 dark:text-slate-200 dracula:text-cyan-300 mbp:text-red-200 lsu:text-purple-200">admin / password</code></p>
+                <p>Development credentials: <code class="bg-black/10 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-900/95 lsu:bg-purple-900/95 px-1 py-0.5 rounded text-gray-800 dark:text-slate-200 dracula:text-cyan-300 mbp:text-red-200 lsu:text-purple-200">admin / password</code></p>
               </div>
             {/if}
           </div>
@@ -174,11 +174,11 @@
     
     <!-- Partner logos at bottom -->
     <div class="mt-8 flex items-center justify-center gap-4 text-xs text-gray-600 dark:text-slate-400 dracula:text-slate-200 mbp:text-red-200 lsu:text-purple-200">
-      <div class="p-3 rounded-lg bg-gray-100 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-800/50 lsu:bg-purple-800/50 shadow-md">
+      <div class="p-3 rounded-lg bg-white/60 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-900/95 lsu:bg-purple-900/95 shadow-md">
         <img src="/images/mbp.png" alt="Mary Bird Perkins" class="h-12 opacity-90 hover:opacity-100 transition-opacity" />
       </div>
       <span class="font-medium px-2">in partnership with</span>
-      <div class="p-2 rounded-lg bg-gray-100 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-800/50 lsu:bg-purple-800/50 shadow-md">
+      <div class="p-2 rounded-lg bg-white/60 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-red-950/30 lsu:bg-purple-950/30 shadow-md">
         <img src="/images/lsu.png" alt="LSU" class="h-8 opacity-90 hover:opacity-100 transition-opacity" />
       </div>
     </div>
