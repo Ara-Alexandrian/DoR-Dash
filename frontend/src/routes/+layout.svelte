@@ -87,6 +87,11 @@
   
   onMount(() => {
     if (browser) {
+      // Apply theme immediately on mount
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.classList.remove('light', 'dark', 'dracula', 'mbp', 'lsu');
+      document.documentElement.classList.add(savedTheme);
+      
       // Check auth state
       const currentRoute = $page.url.pathname;
       const isProtected = protectedRoutes.some(route => currentRoute.startsWith(route));
