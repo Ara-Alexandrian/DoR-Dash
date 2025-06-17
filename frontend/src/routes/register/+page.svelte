@@ -125,19 +125,21 @@
 
 <div class="min-h-screen bg-gradient-to-br from-gray-50 via-primary-50 to-secondary-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dracula:from-gray-900 dracula:via-slate-900 dracula:to-gray-900 mbp:from-gray-950 mbp:via-red-950/80 mbp:to-gray-900 lsu:from-purple-950 lsu:via-purple-900/80 lsu:to-purple-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
   <div class="sm:mx-auto sm:w-full sm:max-w-md">
-    <div class="flex justify-center">
-      <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-900 to-primary-800 dark:from-primary-400 dark:to-primary-300 dracula:from-cyan-200 dracula:to-purple-200 mbp:from-red-300 mbp:to-red-100 lsu:from-purple-300 lsu:to-purple-100 bg-clip-text text-transparent">DoR-Dash</h1>
+    <div class="backdrop-blur-sm py-6 px-6 rounded-lg shadow-lg border" style="background-color: {currentTheme === 'mbp' ? 'rgb(20, 20, 25)' : currentTheme === 'lsu' ? 'rgb(70, 30, 110)' : currentTheme === 'dark' ? 'rgb(40, 51, 69)' : 'rgba(40, 40, 40, 0.9)'}; border-color: {currentTheme === 'mbp' ? 'rgba(239, 68, 68, 0.3)' : currentTheme === 'lsu' ? 'rgba(147, 51, 234, 0.3)' : currentTheme === 'dark' ? 'rgba(71, 85, 105, 0.3)' : 'rgba(80, 80, 80, 0.6)'};">
+      <div class="flex justify-center">
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-900 to-primary-800 dark:from-primary-400 dark:to-primary-300 dracula:from-cyan-200 dracula:to-purple-200 mbp:from-red-300 mbp:to-red-100 lsu:from-purple-300 lsu:to-purple-100 bg-clip-text text-transparent">DoR-Dash</h1>
+      </div>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-[rgb(var(--color-text-primary))]">
+        Registration
+      </h2>
+      <p class="mt-2 text-center text-sm text-[rgb(var(--color-text-secondary))]">
+        Request access to the research dashboard.
+        <br>
+        <a href="/login" class="font-medium text-primary-600 hover:text-primary-500">
+          Already have an account? Sign in
+        </a>
+      </p>
     </div>
-    <h2 class="mt-6 text-center text-3xl font-extrabold text-[rgb(var(--color-text-primary))]">
-      Registration
-    </h2>
-    <p class="mt-2 text-center text-sm text-[rgb(var(--color-text-secondary))]">
-      Request access to the research dashboard.
-      <br>
-      <a href="/login" class="font-medium text-primary-600 hover:text-primary-500">
-        Already have an account? Sign in
-      </a>
-    </p>
   </div>
 
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
