@@ -67,8 +67,16 @@
         id: u.id,
         type: u.is_faculty ? 'faculty' : 'student',
         date: u.submission_date || u.submitted_at || u.created_at,
-        title: u.announcements_text?.substring(0, 50) || u.progress_text?.substring(0, 50) || 'No title'
+        announcements_text: u.announcements_text,
+        projects_text: u.projects_text,
+        progress_text: u.progress_text,
+        title: u.announcements_text?.substring(0, 50) || u.progress_text?.substring(0, 50) || 'No title',
+        raw_update: u
       })));
+      
+      // Also log the raw responses for debugging
+      console.log('Raw student updates:', studentUpdates.map(u => ({ id: u.id, ...u })));
+      console.log('Raw faculty updates:', facultyUpdates.map(u => ({ id: u.id, ...u })));
     } catch (err) {
       error = err.message || 'Failed to load updates';
       console.error('Error loading updates:', err);

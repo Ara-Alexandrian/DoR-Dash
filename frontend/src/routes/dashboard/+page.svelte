@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { auth } from '$lib/stores/auth';
-  import { updateApi, presentationApi } from '$lib/api';
+  import { updateApi, presentationApi, facultyUpdateApi } from '$lib/api';
   import { fade, fly, scale } from 'svelte/transition';
   
   let updates = [];
@@ -11,29 +11,49 @@
   
   onMount(async () => {
     try {
-      // Fetch user's own updates and calculate stats
+      // Fetch user's own updates (both student and faculty) and calculate stats
       try {
-        const updatesResponse = await updateApi.getUpdates();
-        updates = updatesResponse.items || updatesResponse || [];
+        const currentUserId = $auth.user?.id;
+        const [studentUpdatesResponse, facultyUpdatesResponse] = await Promise.all([
+          updateApi.getUpdates().catch(() => ({ items: [] })),
+          currentUserId ? facultyUpdateApi.getUpdatesByUser(currentUserId).catch(() => ({ items: [] })) : Promise.resolve({ items: [] })
+        ]);
+        
+        const studentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
+        const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
+        
+        // Combine all updates
+        const allUpdates = [...studentUpdates, ...facultyUpdates];
+        allUpdates.forEach(update => {
+          if (!update.submission_date) {
+            update.submission_date = update.submitted_at || update.created_at || new Date().toISOString();
+          }
+        });
+        
+        // Sort by date (newest first)
+        const sortedUpdates = allUpdates.sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
         
         // Calculate stats from user's own updates
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         
-        const recentUpdates = updates.filter(u => {
+        const recentUpdates = sortedUpdates.filter(u => {
           const updateDate = new Date(u.submission_date);
           return updateDate > thirtyDaysAgo;
         });
         
         stats = {
-          totalUpdates: updates.length,
+          totalUpdates: sortedUpdates.length,
           recentUpdates: recentUpdates.length,
           upcomingPresentations: 0, // Will be calculated from presentations
           completedPresentations: 0 // Will be calculated from presentations
         };
         
+        console.log('Dashboard: Found', sortedUpdates.length, 'total updates for user', currentUserId);
+        console.log('Dashboard updates:', sortedUpdates.map(u => ({ id: u.id, type: u.is_faculty ? 'faculty' : 'student', date: u.submission_date })));
+        
         // Keep only 3 most recent for display
-        updates = updates.slice(0, 3);
+        updates = sortedUpdates.slice(0, 3);
       } catch (err) {
         console.error('Failed to load updates:', err);
         updates = [];
