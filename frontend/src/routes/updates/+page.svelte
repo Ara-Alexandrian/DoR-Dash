@@ -41,10 +41,15 @@
         currentUserId ? facultyUpdateApi.getUpdatesByUser(currentUserId).catch(() => ({ items: [] })) : Promise.resolve({ items: [] })
       ]);
       
-      // Filter student updates to only show current user's updates
+      // Filter student updates based on user role
       const allStudentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
-      const studentUpdates = allStudentUpdates.filter(update => update.user_id === currentUserId);
-      const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
+      const isAdmin = $auth.user?.role === 'admin';
+      const studentUpdates = isAdmin ? allStudentUpdates : allStudentUpdates.filter(update => update.user_id === currentUserId);
+      
+      // For admins, get all faculty updates; for regular users, get only their own
+      const facultyUpdates = isAdmin ? 
+        (await facultyUpdateApi.getUpdates().catch(() => [])) :
+        facultyUpdatesResponse.items || facultyUpdatesResponse || [];
       
       // Combine and sort all updates by submission date (newest first)
       const allUpdates = [...studentUpdates, ...facultyUpdates];
@@ -242,9 +247,11 @@
 
 <div class="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Your Updates</h1>
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+      {$auth.user?.role === 'admin' ? 'All Updates' : 'Your Updates'}
+    </h1>
     <p class="mt-2 text-gray-600 dark:text-gray-400">
-      View all your submitted research updates
+      {$auth.user?.role === 'admin' ? 'View all submitted research updates from all users' : 'View all your submitted research updates'}
     </p>
   </div>
   
@@ -495,6 +502,9 @@
               <div>
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white">
                   Update from {formatDate(update.submission_date)}
+                  {#if $auth.user?.role === 'admin' && update.username}
+                    <span class="text-sm font-normal text-blue-600 dark:text-blue-400">by {update.username}</span>
+                  {/if}
                 </h3>
                 {#if update.meeting_id}
                   <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">

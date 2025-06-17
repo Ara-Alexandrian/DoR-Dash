@@ -19,10 +19,15 @@
           currentUserId ? facultyUpdateApi.getUpdatesByUser(currentUserId).catch(() => ({ items: [] })) : Promise.resolve({ items: [] })
         ]);
         
-        // Filter student updates to only show current user's updates
+        // Filter student updates based on user role
         const allStudentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
-        const studentUpdates = allStudentUpdates.filter(update => update.user_id === currentUserId);
-        const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
+        const isAdmin = $auth.user?.role === 'admin';
+        const studentUpdates = isAdmin ? allStudentUpdates : allStudentUpdates.filter(update => update.user_id === currentUserId);
+        
+        // For admins, get all faculty updates; for regular users, get only their own
+        const facultyUpdates = isAdmin ? 
+          (await facultyUpdateApi.getUpdates().catch(() => [])) :
+          facultyUpdatesResponse.items || facultyUpdatesResponse || [];
         
         // Combine all updates
         const allUpdates = [...studentUpdates, ...facultyUpdates];
