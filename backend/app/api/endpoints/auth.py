@@ -201,7 +201,26 @@ def delete_user(db: Session, user_id: int):
         
         # Note: Most deletions will happen automatically via CASCADE constraints
         
-        # 5. Finally, delete the user
+        # 5. Manually delete records that might not have CASCADE constraints yet
+        try:
+            # Delete legacy student updates
+            db.query(StudentUpdate).filter(StudentUpdate.student_id == user_id).delete()
+        except Exception as e:
+            print(f"  Warning: Could not delete student updates: {e}")
+            
+        try:
+            # Delete legacy faculty updates  
+            db.query(FacultyUpdate).filter(FacultyUpdate.faculty_id == user_id).delete()
+        except Exception as e:
+            print(f"  Warning: Could not delete faculty updates: {e}")
+            
+        try:
+            # Delete presentations
+            db.query(AssignedPresentation).filter(AssignedPresentation.user_id == user_id).delete()
+        except Exception as e:
+            print(f"  Warning: Could not delete presentations: {e}")
+        
+        # 6. Finally, delete the user
         db.delete(db_user)
         db.commit()
         
