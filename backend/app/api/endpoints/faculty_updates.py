@@ -231,6 +231,10 @@ async def list_faculty_updates(
         agenda_items = query.order_by(AgendaItem.created_at.desc()).offset(skip).limit(limit).all()
         
         print(f"FACULTY UPDATES DEBUG - Found {total} faculty updates for user {current_user.id}")
+        print(f"FACULTY UPDATES DEBUG - User {current_user.id} ({current_user.username}) is requesting faculty updates")
+        print(f"FACULTY UPDATES DEBUG - User role: {current_user.role}")
+        print(f"FACULTY UPDATES DEBUG - Query filters: user_id={current_user.id if current_user.role not in ['admin'] else 'ALL'}")
+        print(f"FACULTY UPDATES DEBUG - Database result count: {total}")
         
         # Convert to response format
         result_items = []

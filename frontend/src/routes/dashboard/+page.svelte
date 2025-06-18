@@ -18,6 +18,10 @@
         
         console.log('DASHBOARD DEBUG - User:', currentUserId, 'Role:', $auth.user?.role, 'Is Admin:', isAdmin);
         
+        // Add cache-busting timestamp to ensure fresh data
+        const cacheBuster = `?_=${Date.now()}`;
+        console.log('DASHBOARD DEBUG - Using cache buster:', cacheBuster);
+        
         const [studentUpdatesResponse, facultyUpdatesResponse] = await Promise.all([
           updateApi.getUpdates().catch(err => {
             console.error('Dashboard student updates error:', err);
@@ -47,7 +51,12 @@
         // Sort by date (newest first)
         const sortedUpdates = allUpdates.sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
         
-        // Calculate stats
+        // Calculate stats - ensure fresh data by re-validating counts
+        console.log('DASHBOARD DEBUG - Calculating stats from fresh data');
+        console.log('DASHBOARD DEBUG - Student updates count:', studentUpdates.length);
+        console.log('DASHBOARD DEBUG - Faculty updates count:', facultyUpdates.length);
+        console.log('DASHBOARD DEBUG - Combined updates count:', allUpdates.length);
+        
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         
@@ -56,12 +65,17 @@
           return updateDate > thirtyDaysAgo;
         });
         
+        // Force fresh calculation - don't rely on potentially stale data
+        const actualTotalUpdates = sortedUpdates.length;
+        
         stats = {
-          totalUpdates: sortedUpdates.length,
+          totalUpdates: actualTotalUpdates,
           recentUpdates: recentUpdates.length,
           upcomingPresentations: 0, // Will be calculated from presentations
           completedPresentations: 0 // Will be calculated from presentations
         };
+        
+        console.log('DASHBOARD DEBUG - Final stats:', stats);
         
         console.log('DASHBOARD DEBUG - Total updates:', sortedUpdates.length);
         console.log('DASHBOARD DEBUG - Recent updates:', recentUpdates.length);
@@ -173,8 +187,12 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" in:fly={{y: 20, duration: 400, delay: 100}}>
         <button 
           class="card group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border-primary-200 dark:border-primary-700 w-full text-left cursor-pointer hover:bg-gradient-to-br hover:from-primary-100 hover:to-primary-200"
-          on:click={() => { console.log('Clicking updates tile'); window.location.href = '/updates'; }}
-          title="View all your submitted updates"
+          on:click={() => { 
+            console.log('Clicking updates tile - current count:', stats.totalUpdates); 
+            // Force refresh by adding timestamp to URL
+            window.location.href = `/updates?refresh=${Date.now()}`; 
+          }}
+          title="View all your submitted updates (click to refresh and see latest count)"
         >
           <div class="p-6">
             <div class="flex items-center justify-between">
