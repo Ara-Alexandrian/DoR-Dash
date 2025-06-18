@@ -114,13 +114,21 @@ async def create_faculty_update(
     
     # Convert to response format - use content JSON field
     content = db_update.content or {}
+    
+    # Validate announcement_type and default to 'general' if invalid
+    announcement_type = content.get("announcement_type", "general")
+    valid_types = ["general", "urgent", "deadline", "funding"]
+    if announcement_type not in valid_types:
+        print(f"WARNING: Invalid announcement_type '{announcement_type}' for update {db_update.id}, defaulting to 'general'")
+        announcement_type = "general"
+    
     return FacultyUpdate(
         id=db_update.id,
         user_id=db_update.user_id,
         user_name=user.full_name or user.username,
         meeting_id=db_update.meeting_id,
         announcements_text=content.get("announcements_text", ""),
-        announcement_type=content.get("announcement_type", "general"),
+        announcement_type=announcement_type,
         projects_text=content.get("projects_text", ""),
         project_status_text=content.get("project_status_text", ""),
         faculty_questions=content.get("faculty_questions", ""),
@@ -172,13 +180,21 @@ async def read_faculty_update(
     
     # Use content JSON field
     content = agenda_item.content or {}
+    
+    # Validate announcement_type and default to 'general' if invalid
+    announcement_type = content.get("announcement_type", "general")
+    valid_types = ["general", "urgent", "deadline", "funding"]
+    if announcement_type not in valid_types:
+        print(f"WARNING: Invalid announcement_type '{announcement_type}' for update {agenda_item.id}, defaulting to 'general'")
+        announcement_type = "general"
+    
     return FacultyUpdate(
         id=agenda_item.id,
         user_id=agenda_item.user_id,
         user_name=agenda_item.user.full_name or agenda_item.user.username,
         meeting_id=agenda_item.meeting_id,
         announcements_text=content.get("announcements_text", ""),
-        announcement_type=content.get("announcement_type", "general"),
+        announcement_type=announcement_type,
         projects_text=content.get("projects_text", ""),
         project_status_text=content.get("project_status_text", ""),
         faculty_questions=content.get("faculty_questions", ""),
@@ -253,13 +269,21 @@ async def list_faculty_updates(
             
             # Create a response-compatible faculty update
             content = agenda_item.content
+            
+            # Validate announcement_type and default to 'general' if invalid
+            announcement_type = content.get("announcement_type", "general")
+            valid_types = ["general", "urgent", "deadline", "funding"]
+            if announcement_type not in valid_types:
+                print(f"WARNING: Invalid announcement_type '{announcement_type}' for update {agenda_item.id}, defaulting to 'general'")
+                announcement_type = "general"
+            
             faculty_update = FacultyUpdate(
                 id=agenda_item.id,
                 user_id=agenda_item.user_id,
                 user_name=agenda_item.user.full_name or agenda_item.user.username,
                 meeting_id=agenda_item.meeting_id,
                 announcements_text=content.get("announcements_text", ""),
-                announcement_type=content.get("announcement_type", "general"),
+                announcement_type=announcement_type,
                 projects_text=content.get("projects_text", ""),
                 project_status_text=content.get("project_status_text", ""),
                 faculty_questions=content.get("faculty_questions", ""),
@@ -353,13 +377,21 @@ async def update_faculty_update(
     
     # Use content JSON field
     content = agenda_item.content or {}
+    
+    # Validate announcement_type and default to 'general' if invalid
+    announcement_type = content.get("announcement_type", "general")
+    valid_types = ["general", "urgent", "deadline", "funding"]
+    if announcement_type not in valid_types:
+        print(f"WARNING: Invalid announcement_type '{announcement_type}' for update {agenda_item.id}, defaulting to 'general'")
+        announcement_type = "general"
+    
     return FacultyUpdate(
         id=agenda_item.id,
         user_id=agenda_item.user_id,
         user_name=agenda_item.user.full_name or agenda_item.user.username,
         meeting_id=agenda_item.meeting_id,
         announcements_text=content.get("announcements_text", ""),
-        announcement_type=content.get("announcement_type", "general"),
+        announcement_type=announcement_type,
         projects_text=content.get("projects_text", ""),
         project_status_text=content.get("project_status_text", ""),
         faculty_questions=content.get("faculty_questions", ""),

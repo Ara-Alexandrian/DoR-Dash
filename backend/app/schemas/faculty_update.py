@@ -10,6 +10,7 @@ class AnnouncementType(str, Enum):
     GENERAL = "general"
     URGENT = "urgent"
     DEADLINE = "deadline"
+    FUNDING = "funding"
 
 
 class FacultyUpdateBase(BaseModel):
