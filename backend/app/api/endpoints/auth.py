@@ -139,8 +139,13 @@ def update_user(db: Session, user_id: int, update_data: dict):
 def delete_user(db: Session, user_id: int):
     """Delete user and all associated data from database"""
     try:
+        # Start with a clean transaction state
+        db.rollback()  # Clear any previous transaction state
+        db.begin()     # Start a new transaction explicitly
+        
         db_user = db.query(UserModel).filter(UserModel.id == user_id).first()
         if not db_user:
+            db.rollback()
             return None
         
         # Store user data before deletion
@@ -164,78 +169,100 @@ def delete_user(db: Session, user_id: int):
         from app.db.models.presentation import AssignedPresentation
         import os
         
-        # 1. Delete files associated with user's agenda items first
-        agenda_items = db.query(AgendaItem).filter(AgendaItem.user_id == user_id).all()
-        deleted_agenda_count = len(agenda_items)
+        # 1. Handle file deletion first (outside transaction)
+        file_paths_to_delete = []
         
-        # Delete physical files first, before database cleanup
-        for item in agenda_items:
-            file_uploads = db.query(FileUpload).filter(FileUpload.agenda_item_id == item.id).all()
-            for file_upload in file_uploads:
-                if file_upload.file_path and os.path.exists(file_upload.file_path):
-                    try:
-                        os.remove(file_upload.file_path)
-                        print(f"  Deleted file: {file_upload.filename}")
-                    except Exception as e:
-                        print(f"  Warning: Could not delete file {file_upload.filename}: {e}")
-        
-        # Note: agenda items will be deleted automatically by CASCADE when user is deleted
-        
-        # 2. Count meetings created by this user (they'll be updated to have null created_by)
-        meetings = db.query(Meeting).filter(Meeting.created_by == user_id).all()
-        deleted_meetings_count = len(meetings)
-        
-        # 3. Count registration requests (no FK to user, safe to leave)
-        registration_requests = []
-        deleted_requests_count = 0
-        
-        # 4. Delete any orphaned file uploads not associated with agenda items
-        orphaned_files = db.query(FileUpload).filter(FileUpload.user_id == user_id).all()
-        for file_upload in orphaned_files:
-            if file_upload.file_path and os.path.exists(file_upload.file_path):
-                try:
-                    os.remove(file_upload.file_path)
-                    print(f"  Deleted orphaned file: {file_upload.filename}")
-                except Exception as e:
-                    print(f"  Warning: Could not delete orphaned file {file_upload.filename}: {e}")
-        
-        # Note: Most deletions will happen automatically via CASCADE constraints
-        
-        # 5. Manually delete records that might not have CASCADE constraints yet
         try:
-            # Delete legacy student updates
-            db.query(StudentUpdate).filter(StudentUpdate.student_id == user_id).delete()
+            # Collect file paths to delete
+            agenda_items = db.query(AgendaItem).filter(AgendaItem.user_id == user_id).all()
+            deleted_agenda_count = len(agenda_items)
+            
+            for item in agenda_items:
+                file_uploads = db.query(FileUpload).filter(FileUpload.agenda_item_id == item.id).all()
+                for file_upload in file_uploads:
+                    if file_upload.file_path:
+                        file_paths_to_delete.append((file_upload.file_path, file_upload.filename))
+            
+            # Also get orphaned files
+            orphaned_files = db.query(FileUpload).filter(FileUpload.user_id == user_id).all()
+            for file_upload in orphaned_files:
+                if file_upload.file_path:
+                    file_paths_to_delete.append((file_upload.file_path, file_upload.filename))
+                    
+        except Exception as e:
+            print(f"Warning: Could not collect file paths: {e}")
+            deleted_agenda_count = 0
+        
+        # 2. Count related records for reporting
+        try:
+            meetings = db.query(Meeting).filter(Meeting.created_by == user_id).all()
+            deleted_meetings_count = len(meetings)
+        except Exception as e:
+            print(f"Warning: Could not count meetings: {e}")
+            deleted_meetings_count = 0
+        
+        # 3. Delete legacy records that might not have CASCADE constraints
+        try:
+            deleted_student_updates = db.query(StudentUpdate).filter(StudentUpdate.student_id == user_id).delete()
+            print(f"  Deleted {deleted_student_updates} legacy student updates")
         except Exception as e:
             print(f"  Warning: Could not delete student updates: {e}")
+            db.rollback()
+            db.begin()  # Start fresh transaction
             
         try:
-            # Delete legacy faculty updates  
-            db.query(FacultyUpdate).filter(FacultyUpdate.faculty_id == user_id).delete()
+            deleted_faculty_updates = db.query(FacultyUpdate).filter(FacultyUpdate.faculty_id == user_id).delete()
+            print(f"  Deleted {deleted_faculty_updates} legacy faculty updates")
         except Exception as e:
             print(f"  Warning: Could not delete faculty updates: {e}")
+            db.rollback()
+            db.begin()  # Start fresh transaction
             
         try:
-            # Delete presentations
-            db.query(AssignedPresentation).filter(AssignedPresentation.user_id == user_id).delete()
+            deleted_presentations = db.query(AssignedPresentation).filter(AssignedPresentation.user_id == user_id).delete()
+            print(f"  Deleted {deleted_presentations} presentations")
         except Exception as e:
             print(f"  Warning: Could not delete presentations: {e}")
+            db.rollback()
+            db.begin()  # Start fresh transaction
         
-        # 6. Finally, delete the user
-        db.delete(db_user)
-        db.commit()
+        # 4. Finally, delete the user (CASCADE will handle related records)
+        try:
+            db.delete(db_user)
+            db.commit()
+            print(f"Successfully deleted user {user_data['username']} from database")
+        except Exception as e:
+            print(f"Error deleting user from database: {e}")
+            db.rollback()
+            raise e
         
-        print(f"Successfully deleted user {user_data['username']} and cleaned up:")
-        print(f"  - {deleted_agenda_count} agenda items (student/faculty updates)")
-        print(f"  - {deleted_meetings_count} meetings")
-        print(f"  - {deleted_requests_count} registration requests")
-        print(f"  - Associated files and uploads")
+        # 5. Delete physical files after successful database transaction
+        for file_path, filename in file_paths_to_delete:
+            if os.path.exists(file_path):
+                try:
+                    os.remove(file_path)
+                    print(f"  Deleted file: {filename}")
+                except Exception as e:
+                    print(f"  Warning: Could not delete file {filename}: {e}")
+        
+        print(f"Successfully completed deletion of user {user_data['username']}:")
+        print(f"  - {deleted_agenda_count} agenda items (cascade deleted)")
+        print(f"  - {deleted_meetings_count} meetings (set to null created_by)")
+        print(f"  - {len(file_paths_to_delete)} physical files removed")
         
         return user_data
         
     except Exception as e:
         print(f"ERROR in delete_user: {e}")
-        db.rollback()
-        raise e
+        print(f"Exception type: {type(e).__name__}")
+        try:
+            db.rollback()
+        except:
+            pass  # Ignore rollback errors
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to delete user: {str(e)}"
+        )
 
 def initialize_admin(db: Session):
     """Initialize admin user if it doesn't exist"""
