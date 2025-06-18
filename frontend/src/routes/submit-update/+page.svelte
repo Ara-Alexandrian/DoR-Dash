@@ -982,8 +982,8 @@
       <!-- Announcements section -->
       <div class="space-y-2">
         <div class="flex justify-between items-center">
-          <label for="announcements" class="block text-sm font-medium text-gray-700">
-            Group Announcements <span class="text-gray-400">(at least one section required *)</span>
+          <label for="announcements" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Group Announcements <span class="text-gray-500 dark:text-gray-400">(at least one section required *)</span>
           </label>
           <button 
             type="button"
