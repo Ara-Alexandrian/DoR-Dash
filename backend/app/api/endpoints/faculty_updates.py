@@ -201,26 +201,83 @@ async def list_faculty_updates(
     db: Session = Depends(get_sync_db)
 ):
     """
-    List faculty updates with pagination and optional filtering - SIMPLIFIED VERSION
+    List faculty updates with pagination and optional filtering - FROM DATABASE
     """
     try:
         print(f"FACULTY UPDATES DEBUG - User: {current_user.id}, Role: {current_user.role}")
         
-        # SIMPLIFIED: Just return empty list for now to stop 500 errors
-        # TODO: Fix the underlying database issue
-        print("FACULTY UPDATES DEBUG - Returning empty list to prevent 500 error")
+        # Start with base query using AgendaItem
+        query = db.query(AgendaItem).options(
+            joinedload(AgendaItem.user),
+            joinedload(AgendaItem.file_uploads)
+        ).filter(AgendaItem.item_type == AgendaItemType.FACULTY_UPDATE)
         
-        return {
-            "items": [],
-            "total": 0
-        }
+        # Filter updates based on permissions and query parameters
+        if current_user.role not in ["admin"]:
+            # Faculty can only see their own updates
+            query = query.filter(AgendaItem.user_id == current_user.id)
+        
+        # Apply additional filters
+        if user_id:
+            query = query.filter(AgendaItem.user_id == user_id)
+        
+        if meeting_id:
+            query = query.filter(AgendaItem.meeting_id == meeting_id)
+        
+        # Get total count before pagination
+        total = query.count()
+        
+        # Sort by creation date (newest first) and apply pagination
+        agenda_items = query.order_by(AgendaItem.created_at.desc()).offset(skip).limit(limit).all()
+        
+        print(f"FACULTY UPDATES DEBUG - Found {total} faculty updates for user {current_user.id}")
+        
+        # Convert to response format
+        result_items = []
+        for agenda_item in agenda_items:
+            # Convert files to expected format
+            files = []
+            for file_upload in agenda_item.file_uploads:
+                files.append({
+                    "id": file_upload.id,
+                    "name": file_upload.filename,
+                    "size": file_upload.file_size or 0,
+                    "file_path": file_upload.file_path,
+                    "type": file_upload.file_type or "other",
+                    "upload_date": file_upload.upload_date.isoformat() if file_upload.upload_date else None
+                })
+            
+            # Create a response-compatible faculty update
+            content = agenda_item.content
+            faculty_update = FacultyUpdate(
+                id=agenda_item.id,
+                user_id=agenda_item.user_id,
+                user_name=agenda_item.user.full_name or agenda_item.user.username,
+                meeting_id=agenda_item.meeting_id,
+                announcements_text=content.get("announcements_text", ""),
+                announcement_type=content.get("announcement_type", "general"),
+                projects_text=content.get("projects_text", ""),
+                project_status_text=content.get("project_status_text", ""),
+                faculty_questions=content.get("faculty_questions", ""),
+                is_presenting=agenda_item.is_presenting,
+                files=files,
+                submitted_at=agenda_item.created_at,
+                created_at=agenda_item.created_at,
+                updated_at=agenda_item.updated_at
+            )
+            result_items.append(faculty_update)
+        
+        return FacultyUpdateList(
+            items=result_items,
+            total=total
+        )
         
     except Exception as e:
         print(f"FACULTY UPDATES ERROR - Endpoint failed: {str(e)}")
-        return {
-            "items": [],
-            "total": 0
-        }
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve faculty updates: {str(e)}"
+        )
 
 
 @router.put("/{update_id}", response_model=FacultyUpdate)
