@@ -22,26 +22,43 @@
         const cacheBuster = `?_=${Date.now()}`;
         console.log('DASHBOARD DEBUG - Using cache buster:', cacheBuster);
         
-        const [studentUpdatesResponse, facultyUpdatesResponse] = await Promise.all([
-          updateApi.getUpdates().catch(err => {
-            console.error('Dashboard student updates error:', err);
-            return { items: [] };
-          }),
-          facultyUpdateApi.getUpdates().catch(err => {
-            console.error('Dashboard faculty updates error:', err);
-            return { items: [] };
-          })
-        ]);
+        // Use dedicated dashboard API for more efficient and consistent stats
+        const dashboardResponse = await fetch('/api/v1/dashboard/stats', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            'Content-Type': 'application/json'
+          }
+        }).then(res => res.json()).catch(err => {
+          console.error('Dashboard stats error:', err);
+          return { totalUpdates: 0, recentUpdates: 0, upcomingPresentations: 0, completedPresentations: 0 };
+        });
+
+        // Get recent updates for display
+        const recentUpdatesResponse = await fetch('/api/v1/dashboard/recent-updates?limit=5', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            'Content-Type': 'application/json'
+          }
+        }).then(res => res.json()).catch(err => {
+          console.error('Dashboard recent updates error:', err);
+          return { items: [] };
+        });
+
+        // Use dashboard API stats directly
+        stats.totalUpdates = dashboardResponse.totalUpdates || 0;
+        stats.recentUpdates = dashboardResponse.recentUpdates || 0;
+        stats.upcomingPresentations = dashboardResponse.upcomingPresentations || 0;
+        stats.completedPresentations = dashboardResponse.completedPresentations || 0;
+
+        // Use recent updates from dashboard API
+        const allUpdates = recentUpdatesResponse.items || [];
         
-        // Extract updates (backend already filters by user for non-admins)
-        const studentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
-        const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
+        console.log('DASHBOARD DEBUG - Dashboard API updates:', allUpdates.length);
+        console.log('DASHBOARD DEBUG - Dashboard stats:', dashboardResponse);
         
-        console.log('DASHBOARD DEBUG - Student updates:', studentUpdates.length);
-        console.log('DASHBOARD DEBUG - Faculty updates:', facultyUpdates.length);
-        
-        // Combine all updates
-        const allUpdates = [...studentUpdates, ...facultyUpdates];
+        // Ensure submission_date is set for display
         allUpdates.forEach(update => {
           if (!update.submission_date) {
             update.submission_date = update.submitted_at || update.created_at || new Date().toISOString();
@@ -51,34 +68,9 @@
         // Sort by date (newest first)
         const sortedUpdates = allUpdates.sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
         
-        // Calculate stats - ensure fresh data by re-validating counts
-        console.log('DASHBOARD DEBUG - Calculating stats from fresh data');
-        console.log('DASHBOARD DEBUG - Student updates count:', studentUpdates.length);
-        console.log('DASHBOARD DEBUG - Faculty updates count:', facultyUpdates.length);
-        console.log('DASHBOARD DEBUG - Combined updates count:', allUpdates.length);
-        
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        
-        const recentUpdates = sortedUpdates.filter(u => {
-          const updateDate = new Date(u.submission_date);
-          return updateDate > thirtyDaysAgo;
-        });
-        
-        // Force fresh calculation - don't rely on potentially stale data
-        const actualTotalUpdates = sortedUpdates.length;
-        
-        stats = {
-          totalUpdates: actualTotalUpdates,
-          recentUpdates: recentUpdates.length,
-          upcomingPresentations: 0, // Will be calculated from presentations
-          completedPresentations: 0 // Will be calculated from presentations
-        };
-        
-        console.log('DASHBOARD DEBUG - Final stats:', stats);
-        
-        console.log('DASHBOARD DEBUG - Total updates:', sortedUpdates.length);
-        console.log('DASHBOARD DEBUG - Recent updates:', recentUpdates.length);
+        console.log('DASHBOARD DEBUG - Final stats from API:', stats);
+        console.log('DASHBOARD DEBUG - Total updates from API:', stats.totalUpdates);
+        console.log('DASHBOARD DEBUG - Recent updates from API:', stats.recentUpdates);
         
         // Keep only 3 most recent for display
         updates = sortedUpdates.slice(0, 3);
