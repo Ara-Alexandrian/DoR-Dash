@@ -381,9 +381,10 @@ async def upload_files_to_update(
         
         # Create database record for file
         db_file = DBFileUpload(
+            user_id=agenda_item.user_id,  # Required field that was missing!
             agenda_item_id=agenda_item.id,
             filename=file.filename,
-            file_path=file_path,
+            filepath=file_path,  # Note: model uses 'filepath' not 'file_path'
             file_size=len(content),
             file_type="document" if file.filename.endswith('.pdf') else 
                       "presentation" if file.filename.endswith(('.ppt', '.pptx')) else
