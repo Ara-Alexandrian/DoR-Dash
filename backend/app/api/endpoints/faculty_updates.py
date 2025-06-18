@@ -261,6 +261,7 @@ async def list_faculty_updates(
                 faculty_questions=content.get("faculty_questions", ""),
                 is_presenting=agenda_item.is_presenting,
                 files=files,
+                submission_date=agenda_item.created_at,  # Required field!
                 submitted_at=agenda_item.created_at,
                 created_at=agenda_item.created_at,
                 updated_at=agenda_item.updated_at
