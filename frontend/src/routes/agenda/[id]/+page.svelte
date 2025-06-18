@@ -312,7 +312,7 @@
         </svg>
         Back to All Meetings
       </a>
-      <h1 class="text-3xl font-bold text-gray-900 mt-2">Meeting Agenda</h1>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mbp:text-gray-100 lsu:text-gray-100 mt-2">Meeting Agenda</h1>
     </div>
     
     <a href="#" onclick="window.print(); return false;" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
@@ -393,7 +393,7 @@
       {#if facultyExpanded}
         <div class="border-t border-gray-200">
           {#if !agenda.faculty_updates || agenda.faculty_updates.length === 0}
-            <div class="p-4 text-center text-gray-500">
+            <div class="p-4 text-center text-gray-500 dark:text-gray-400 mbp:text-gray-300 lsu:text-gray-300">
               No faculty announcements for this meeting.
             </div>
           {:else}
@@ -587,8 +587,8 @@
                       <!-- Faculty Announcements -->
                       {#if announcement.announcements_text}
                         <div class="mt-4">
-                          <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Announcements</h5>
-                          <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 uppercase tracking-wider">Announcements</h5>
+                          <div class="mt-2 text-sm text-gray-600 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 whitespace-pre-line">
                             {announcement.announcements_text}
                           </div>
                         </div>
@@ -597,8 +597,8 @@
                       <!-- Show projects information if available -->
                       {#if announcement.projects_text}
                         <div class="mt-4">
-                          <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Current Projects</h5>
-                          <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 uppercase tracking-wider">Current Projects</h5>
+                          <div class="mt-2 text-sm text-gray-600 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 whitespace-pre-line">
                             {announcement.projects_text}
                           </div>
                         </div>
@@ -607,8 +607,8 @@
                       <!-- Show project status if available -->
                       {#if announcement.project_status_text}
                         <div class="mt-4">
-                          <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Project Status Updates</h5>
-                          <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 uppercase tracking-wider">Project Status Updates</h5>
+                          <div class="mt-2 text-sm text-gray-600 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 whitespace-pre-line">
                             {announcement.project_status_text}
                           </div>
                         </div>
@@ -617,8 +617,8 @@
                       <!-- Show faculty questions if available -->
                       {#if announcement.faculty_questions}
                         <div class="mt-4">
-                          <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Questions for Students</h5>
-                          <div class="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded border border-gray-200 whitespace-pre-line">
+                          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 uppercase tracking-wider">Questions for Students</h5>
+                          <div class="mt-2 text-sm text-gray-600 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 bg-gray-50 dark:bg-gray-700 mbp:bg-red-950/30 lsu:bg-purple-950/30 p-3 rounded border border-gray-200 dark:border-gray-600 mbp:border-red-800/50 lsu:border-purple-800/50 whitespace-pre-line">
                             {announcement.faculty_questions}
                           </div>
                         </div>
@@ -659,8 +659,8 @@
                               
                               <!-- File name and size -->
                               <div class="flex-1">
-                                <div class="text-sm text-gray-700 font-medium">{file.name}</div>
-                                <div class="text-xs text-gray-500">
+                                <div class="text-sm text-gray-700 dark:text-gray-200 mbp:text-gray-200 lsu:text-gray-200 font-medium">{file.name}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mbp:text-gray-300 lsu:text-gray-300">
                                   {formatFileSize(file.size)} • {formatFileType(file.type)}
                                 </div>
                               </div>
@@ -720,7 +720,7 @@
       {#if studentExpanded}
         <div class="border-t border-gray-200">
           {#if !agenda.student_updates || agenda.student_updates.length === 0}
-            <div class="p-4 text-center text-gray-500">
+            <div class="p-4 text-center text-gray-500 dark:text-gray-400 mbp:text-gray-300 lsu:text-gray-300">
               No student updates for this meeting.
             </div>
           {:else}
@@ -886,24 +886,24 @@
                       <!-- DISPLAY MODE -->
                       <!-- Research Progress -->
                       <div class="mt-4">
-                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Research Progress</h5>
-                        <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                        <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 uppercase tracking-wider">Research Progress</h5>
+                        <div class="mt-2 text-sm text-gray-600 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 whitespace-pre-line">
                           {update.progress_text}
                         </div>
                       </div>
                       
                       <!-- Challenges -->
                       <div class="mt-4">
-                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Challenges</h5>
-                        <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                        <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 uppercase tracking-wider">Challenges</h5>
+                        <div class="mt-2 text-sm text-gray-600 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 whitespace-pre-line">
                           {update.challenges_text}
                         </div>
                       </div>
                       
                       <!-- Next Steps -->
                       <div class="mt-4">
-                        <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Next Steps</h5>
-                        <div class="mt-2 text-sm text-gray-600 whitespace-pre-line">
+                        <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 uppercase tracking-wider">Next Steps</h5>
+                        <div class="mt-2 text-sm text-gray-600 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 whitespace-pre-line">
                           {update.next_steps_text}
                         </div>
                       </div>
@@ -911,7 +911,7 @@
                       <!-- Meeting Notes -->
                       {#if update.meeting_notes}
                         <div class="mt-4">
-                          <h5 class="text-sm font-medium text-gray-700 uppercase tracking-wider">Meeting Notes</h5>
+                          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mbp:text-gray-200 lsu:text-gray-200 uppercase tracking-wider">Meeting Notes</h5>
                           <div class="mt-2 text-sm text-gray-600 bg-gray-50 p-3 rounded border border-gray-200">
                             {update.meeting_notes}
                           </div>
@@ -953,8 +953,8 @@
                               
                               <!-- File name and size -->
                               <div class="flex-1">
-                                <div class="text-sm text-gray-700 font-medium">{file.name}</div>
-                                <div class="text-xs text-gray-500">
+                                <div class="text-sm text-gray-700 dark:text-gray-200 mbp:text-gray-200 lsu:text-gray-200 font-medium">{file.name}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mbp:text-gray-300 lsu:text-gray-300">
                                   {formatFileSize(file.size)} • {formatFileType(file.type)}
                                 </div>
                               </div>

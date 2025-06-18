@@ -39,29 +39,52 @@
       
       console.log('UPDATES DEBUG - User ID:', currentUserId, 'Role:', $auth.user?.role, 'Is Admin:', isAdmin);
       
-      // Simplified approach: Let the backend handle user filtering
-      const [studentUpdatesResponse, facultyUpdatesResponse] = await Promise.all([
-        updateApi.getUpdates().catch(err => {
+      // Get updates based on user role and permissions
+      let allUpdates = [];
+      
+      if (isAdmin || $auth.user?.role === 'faculty') {
+        // Admins and faculty can see all updates, but we should separate them
+        // For now, let's just show their own updates on this page
+        if ($auth.user?.role === 'faculty') {
+          // Faculty should see their own faculty updates
+          const facultyUpdatesResponse = await facultyUpdateApi.getUpdates().catch(err => {
+            console.error('Faculty updates API error:', err);
+            return { items: [] };
+          });
+          const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
+          allUpdates = facultyUpdates.filter(update => update.user_id === currentUserId);
+        } else {
+          // Admin should see their own updates (could be student or faculty)
+          const [studentUpdatesResponse, facultyUpdatesResponse] = await Promise.all([
+            updateApi.getUpdates().catch(err => {
+              console.error('Student updates API error:', err);
+              return { items: [] };
+            }),
+            facultyUpdateApi.getUpdates().catch(err => {
+              console.error('Faculty updates API error:', err);
+              return { items: [] };
+            })
+          ]);
+          
+          const studentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
+          const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
+          
+          // Filter to only show admin's own updates
+          allUpdates = [
+            ...studentUpdates.filter(update => update.user_id === currentUserId),
+            ...facultyUpdates.filter(update => update.user_id === currentUserId)
+          ];
+        }
+      } else {
+        // Students can only see their own updates (backend already filters this)
+        const studentUpdatesResponse = await updateApi.getUpdates().catch(err => {
           console.error('Student updates API error:', err);
           return { items: [] };
-        }),
-        facultyUpdateApi.getUpdates().catch(err => {
-          console.error('Faculty updates API error:', err);
-          return { items: [] };
-        })
-      ]);
+        });
+        allUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
+      }
       
-      // Extract updates from responses (handle both array and object formats)
-      const studentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
-      const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
-      
-      console.log('UPDATES DEBUG - Student updates:', studentUpdates.length);
-      console.log('UPDATES DEBUG - Faculty updates:', facultyUpdates.length);
-      console.log('UPDATES DEBUG - Raw student response:', studentUpdatesResponse);
-      console.log('UPDATES DEBUG - Raw faculty response:', facultyUpdatesResponse);
-      
-      // Combine all updates
-      const allUpdates = [...studentUpdates, ...facultyUpdates];
+      console.log('UPDATES DEBUG - User updates for user', currentUserId, ':', allUpdates.length);
       
       // Add consistent submission_date and user info for debugging
       allUpdates.forEach(update => {
