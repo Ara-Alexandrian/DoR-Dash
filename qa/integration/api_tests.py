@@ -9,8 +9,8 @@ import json
 import sys
 from datetime import datetime
 
-BASE_URL = "http://172.30.98.177:8000"
-FRONTEND_URL = "http://172.30.98.177:1717"
+BASE_URL = "http://172.30.98.21:8000"
+FRONTEND_URL = "http://172.30.98.21:1717"
 
 def test_endpoint(url, expected_status=200, method="GET", data=None, headers=None):
     """Test a single endpoint and return results"""
