@@ -195,8 +195,8 @@
 <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
   <div class="flex justify-between items-center mb-8">
     <div>
-      <h1 class="text-2xl font-semibold text-gray-900">User Management</h1>
-      <p class="text-gray-500 mt-1">Add, edit, and manage user accounts</p>
+      <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">User Management</h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-1">Add, edit, and manage user accounts</p>
     </div>
     <div>
       <a href="/admin" class="btn-secondary mr-2">Back to Admin</a>
@@ -220,11 +220,11 @@
   
   <!-- Create User Form -->
   <div class="bg-[rgb(var(--color-bg-primary))] shadow rounded-lg mb-6 p-6">
-    <h2 class="text-lg font-medium text-gray-900 mb-4">Create New User</h2>
+    <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Create New User</h2>
     
     <div class="grid grid-cols-1 gap-y-5 gap-x-6 sm:grid-cols-2">
       <div>
-        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+        <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
         <input
           type="text"
           id="username"
@@ -237,7 +237,7 @@
       </div>
       
       <div>
-        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
         <input
           type="email"
           id="email"
@@ -250,7 +250,7 @@
       </div>
       
       <div>
-        <label for="full_name" class="block text-sm font-medium text-gray-700">Full Name</label>
+        <label for="full_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
         <input
           type="text"
           id="full_name"
@@ -263,7 +263,7 @@
       </div>
       
       <div>
-        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
         <input
           type="password"
           id="password"
@@ -276,7 +276,7 @@
       </div>
       
       <div>
-        <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
+        <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
         <select
           id="role"
           bind:value={newUser.role}
@@ -296,7 +296,7 @@
           bind:checked={newUser.is_active}
           class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
         />
-        <label for="is_active" class="ml-2 block text-sm text-gray-900">
+        <label for="is_active" class="ml-2 block text-sm text-gray-900 dark:text-gray-100">
           Active
         </label>
       </div>
@@ -312,7 +312,7 @@
   <!-- Users Table -->
   <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg">
     <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
-      <h2 class="text-lg font-medium text-gray-900">User List</h2>
+      <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">User List</h2>
     </div>
     
     {#if isLoading}
@@ -333,27 +333,27 @@
     {:else}
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+          <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 ID
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Name
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Username
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Email
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Role
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Status
               </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -361,22 +361,22 @@
           <tbody class="bg-[rgb(var(--color-bg-primary))] divide-y divide-gray-200">
             {#each users as user}
               <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {user.id}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <div class="text-sm font-medium text-gray-900">{user.full_name}</div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{user.full_name}</div>
                   {#if user.phone}
-                    <div class="text-xs text-gray-500">{user.phone}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-400">{user.phone}</div>
                   {/if}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {user.username}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   <div>{user.email}</div>
                   {#if user.preferred_email && user.preferred_email !== user.email}
-                    <div class="text-xs text-gray-400">{user.preferred_email}</div>
+                    <div class="text-xs text-gray-400 dark:text-gray-500">{user.preferred_email}</div>
                   {/if}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -428,13 +428,13 @@
       
       <div class="inline-block align-bottom bg-[rgb(var(--color-bg-primary))] rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
         <div>
-          <h3 class="text-lg leading-6 font-medium text-gray-900">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
             Edit User
           </h3>
           
           <div class="mt-4 grid grid-cols-1 gap-y-4">
             <div>
-              <label for="edit-username" class="block text-sm font-medium text-gray-700">Username</label>
+              <label for="edit-username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
               <input
                 type="text"
                 id="edit-username"
@@ -444,7 +444,7 @@
             </div>
             
             <div>
-              <label for="edit-email" class="block text-sm font-medium text-gray-700">Email</label>
+              <label for="edit-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
               <input
                 type="email"
                 id="edit-email"
@@ -454,7 +454,7 @@
             </div>
             
             <div>
-              <label for="edit-full-name" class="block text-sm font-medium text-gray-700">Full Name</label>
+              <label for="edit-full-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
               <input
                 type="text"
                 id="edit-full-name"
@@ -464,7 +464,7 @@
             </div>
             
             <div>
-              <label for="edit-preferred-email" class="block text-sm font-medium text-gray-700">Preferred Email (Optional)</label>
+              <label for="edit-preferred-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Preferred Email (Optional)</label>
               <input
                 type="email"
                 id="edit-preferred-email"
@@ -474,7 +474,7 @@
             </div>
             
             <div>
-              <label for="edit-phone" class="block text-sm font-medium text-gray-700">Phone (Optional)</label>
+              <label for="edit-phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone (Optional)</label>
               <input
                 type="text"
                 id="edit-phone"
@@ -484,7 +484,7 @@
             </div>
             
             <div>
-              <label for="edit-password" class="block text-sm font-medium text-gray-700">New Password (leave blank to keep current)</label>
+              <label for="edit-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Password (leave blank to keep current)</label>
               <input
                 type="password"
                 id="edit-password"
@@ -494,7 +494,7 @@
             </div>
             
             <div>
-              <label for="edit-role" class="block text-sm font-medium text-gray-700">Role</label>
+              <label for="edit-role" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Role</label>
               <select
                 id="edit-role"
                 bind:value={editingUser.role}
@@ -514,7 +514,7 @@
                 bind:checked={editingUser.is_active}
                 class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
               />
-              <label for="edit-is-active" class="ml-2 block text-sm text-gray-900">
+              <label for="edit-is-active" class="ml-2 block text-sm text-gray-900 dark:text-gray-100">
                 Active
               </label>
             </div>

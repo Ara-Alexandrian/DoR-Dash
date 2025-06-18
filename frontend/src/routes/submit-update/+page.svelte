@@ -1017,7 +1017,7 @@
         
         <!-- Announcement type selection -->
         <div class="mt-2">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Announcement Type</label>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Announcement Type</label>
           <div class="flex space-x-4">
             <label class="inline-flex items-center">
               <input 
@@ -1028,7 +1028,7 @@
                 bind:group={announcementType}
                 disabled={isSubmitting}
               />
-              <span class="ml-2 text-sm text-gray-700">General</span>
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">General</span>
             </label>
             <label class="inline-flex items-center">
               <input 
@@ -1039,7 +1039,7 @@
                 bind:group={announcementType}
                 disabled={isSubmitting}
               />
-              <span class="ml-2 text-sm text-gray-700">Urgent</span>
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Urgent</span>
             </label>
             <label class="inline-flex items-center">
               <input 
@@ -1050,7 +1050,7 @@
                 bind:group={announcementType}
                 disabled={isSubmitting}
               />
-              <span class="ml-2 text-sm text-gray-700">Deadline</span>
+              <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Deadline</span>
             </label>
           </div>
         </div>
@@ -1059,7 +1059,7 @@
       <!-- Projects section -->
       <div class="space-y-2">
         <div class="flex justify-between items-center">
-          <label for="projects" class="block text-sm font-medium text-gray-700">
+          <label for="projects" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Current Projects
           </label>
           <button 
@@ -1096,7 +1096,7 @@
       <!-- Project Status section -->
       <div class="space-y-2">
         <div class="flex justify-between items-center">
-          <label for="projectStatus" class="block text-sm font-medium text-gray-700">
+          <label for="projectStatus" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Project Status Updates
           </label>
           <button 
@@ -1133,7 +1133,7 @@
       <!-- Faculty Questions section -->
       <div class="space-y-2">
         <div class="flex justify-between items-center">
-          <label for="facultyQuestions" class="block text-sm font-medium text-gray-700">
+          <label for="facultyQuestions" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Questions for Students
           </label>
           <button 
@@ -1169,7 +1169,7 @@
       
       <!-- Meeting selection section for faculty -->
       <div>
-        <label for="meeting-faculty" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="meeting-faculty" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Related Meeting <span class="text-red-500">*</span>
         </label>
         <select 
@@ -1200,14 +1200,14 @@
           bind:checked={facultyIsPresenting}
           disabled={isSubmitting}
         />
-        <label for="faculty-is-presenting" class="ml-2 block text-sm font-medium text-gray-700">
+        <label for="faculty-is-presenting" class="ml-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
           I will be presenting at this meeting
         </label>
       </div>
       
       <!-- File upload section for faculty -->
       <div>
-        <label for="faculty-files" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="faculty-files" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Attach Files {facultyIsPresenting ? '(Required for presentations)' : '(Optional)'}
         </label>
         <input
@@ -1231,7 +1231,7 @@
         <!-- Show selected files -->
         {#if facultyFiles && facultyFiles.length > 0}
           <div class="mt-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-md">
-            <h4 class="text-sm font-medium text-gray-700 mb-2">Selected Files ({facultyFiles.length}):</h4>
+            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Selected Files ({facultyFiles.length}):</h4>
             <ul class="text-xs text-gray-600 space-y-1">
               {#each facultyFiles as file}
                 <li class="flex justify-between">
@@ -1249,7 +1249,7 @@
       <!-- Progress section -->
       <div class="space-y-2">
         <div class="flex justify-between items-center">
-          <label for="progress" class="block text-sm font-medium text-gray-700">
+          <label for="progress" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Research Progress <span class="text-gray-400">(at least one section required *)</span>
           </label>
           <button 
@@ -1286,7 +1286,7 @@
       <!-- Challenges section -->
       <div class="space-y-2">
         <div class="flex justify-between items-center">
-          <label for="challenges" class="block text-sm font-medium text-gray-700">
+          <label for="challenges" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Challenges & Obstacles <span class="text-gray-400">(at least one section required *)</span>
           </label>
           <button 
@@ -1323,7 +1323,7 @@
       <!-- Goals section -->
       <div class="space-y-2">
         <div class="flex justify-between items-center">
-          <label for="goals" class="block text-sm font-medium text-gray-700">
+          <label for="goals" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Upcoming Goals <span class="text-gray-400">(at least one section required *)</span>
           </label>
           <button 
@@ -1360,7 +1360,7 @@
       <!-- Meeting notes section -->
       <div class="space-y-2">
         <div class="flex justify-between items-center">
-          <label for="meetingNotes" class="block text-sm font-medium text-gray-700">
+          <label for="meetingNotes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Meeting Notes
           </label>
           <button 
@@ -1396,7 +1396,7 @@
       
       <!-- Meeting selection section for students -->
       <div>
-        <label for="meeting" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="meeting" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Related Meeting <span class="text-red-500">*</span>
         </label>
         <select 
@@ -1427,14 +1427,14 @@
           bind:checked={isPresenting}
           disabled={isSubmitting}
         />
-        <label for="is-presenting" class="ml-2 block text-sm font-medium text-gray-700">
+        <label for="is-presenting" class="ml-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
           I will be presenting at this meeting
         </label>
       </div>
       
       <!-- File upload section for students -->
       <div>
-        <label for="files" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="files" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Attach Files {isPresenting ? '(Required for presentations)' : '(Optional)'}
         </label>
         <input
@@ -1458,7 +1458,7 @@
         <!-- Show selected files -->
         {#if files && files.length > 0}
           <div class="mt-3 p-3 bg-[rgb(var(--color-bg-secondary))] rounded-md">
-            <h4 class="text-sm font-medium text-gray-700 mb-2">Selected Files ({files.length}):</h4>
+            <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Selected Files ({files.length}):</h4>
             <ul class="text-xs text-gray-600 space-y-1">
               {#each files as file}
                 <li class="flex justify-between">

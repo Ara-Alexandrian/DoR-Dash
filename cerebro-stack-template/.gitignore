@@ -1,0 +1,262 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+.nyc_output/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# Poetry
+poetry.lock
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Frontend Build Artifacts
+.svelte-kit/
+build/
+dist/
+.output/
+.nuxt/
+.next/
+out/
+
+# Package managers
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Local development
+local/
+.local/
+
+# Runtime
+runtime/
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.cert
+
+# Configuration files with secrets
+config/secrets/
+secrets/
+.secrets
+
+# Performance monitoring
+.clinic/
+.0x/
+
+# Profiling
+.prof
+
+# Static analysis
+.scannerwork/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Kubernetes
+*.kubeconfig
+
+# Cloud provider configs
+.aws/
+.gcp/
+.azure/
+
+# Monitoring and observability
+.grafana/
+.prometheus/
+
+# Cache directories
+.cache/
+.parcel-cache/
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env.test
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Miscellaneous
+*.tsbuildinfo
+.rush/

@@ -412,8 +412,8 @@
                         </span>
                       </div>
                       <div>
-                        <h4 class="text-lg font-bold text-gray-900">{announcement.user_name || 'Faculty Member'}</h4>
-                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-gray-100">{announcement.user_name || 'Faculty Member'}</h4>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                           <span>Submitted on {new Date(announcement.submitted_at).toLocaleDateString()}</span>
                           {#if announcement.announcement_type === 'urgent'}
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
@@ -739,8 +739,8 @@
                         </span>
                       </div>
                       <div>
-                        <h4 class="text-lg font-bold text-gray-900">{update.user_name || 'Student'}</h4>
-                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-gray-100">{update.user_name || 'Student'}</h4>
+                        <div class="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
                           <span>Submitted on {new Date(update.submission_date).toLocaleDateString()}</span>
                           {#if update.will_present}
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
@@ -1046,13 +1046,13 @@
             <!-- Faculty Announcements -->
             {#if agenda.faculty_updates && agenda.faculty_updates.length > 0}
               <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   {formatTime(new Date(meeting.start_time.getTime() + 5 * 60 * 1000))}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                   Faculty
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                   Announcements and Updates
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -1067,13 +1067,13 @@
             {#if agenda.student_updates && agenda.student_updates.length > 0}
               {#each agenda.student_updates as update, index}
                 <tr class={$auth.user?.id === update.user_id ? 'bg-primary-50 dark:bg-primary-900/20 mbp:bg-red-950/10 lsu:bg-purple-950/10' : ''}>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {formatTime(new Date(meeting.start_time.getTime() + (15 + index * 20) * 60 * 1000))}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                     {update.user_name || 'Student'}
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {#if update.will_present}
                       Research Presentation
                     {:else}

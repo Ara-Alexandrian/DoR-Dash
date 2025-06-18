@@ -192,9 +192,23 @@ async def delete_user(
         )
     
     # Delete from database using auth function
-    auth_delete_user(db, user_id)
-    
-    return None
+    try:
+        deleted_user = auth_delete_user(db, user_id)
+        
+        if deleted_user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"User with ID {user_id} not found during deletion"
+            )
+        
+        return None
+        
+    except Exception as e:
+        print(f"ERROR in delete_user endpoint: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete user: {str(e)}"
+        )
 
 # Change password (admin can change anyone's, users can change their own)
 @router.post("/{user_id}/change-password", status_code=status.HTTP_200_OK)

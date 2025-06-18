@@ -23,7 +23,7 @@ class Meeting(Base):
     )
     start_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     end_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    created_by: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    created_by: Mapped[int] = mapped_column(ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
     
     # Track changes
     created_at: Mapped[datetime] = mapped_column(

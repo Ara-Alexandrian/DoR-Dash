@@ -19,7 +19,7 @@ class FacultyUpdate(Base):
     __tablename__ = "faculty_updates"
     
     id = Column(Integer, primary_key=True, index=True)
-    faculty_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    faculty_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     meeting_id = Column(Integer, ForeignKey("meeting.id"), nullable=True)
     title = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)

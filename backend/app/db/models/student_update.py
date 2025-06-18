@@ -10,7 +10,7 @@ class StudentUpdate(Base):
     __tablename__ = "student_updates"
     
     id = Column(Integer, primary_key=True, index=True)
-    student_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    student_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
     meeting_id = Column(Integer, ForeignKey("meeting.id"), nullable=True)
     title = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)

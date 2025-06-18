@@ -127,7 +127,7 @@
   <div class="sm:mx-auto sm:w-full sm:max-w-md">
     <div class="backdrop-blur-sm py-6 px-6 rounded-lg shadow-lg border" style="background-color: {currentTheme === 'mbp' ? 'rgb(20, 20, 25)' : currentTheme === 'lsu' ? 'rgb(70, 30, 110)' : currentTheme === 'dark' ? 'rgb(40, 51, 69)' : 'rgba(40, 40, 40, 0.9)'}; border-color: {currentTheme === 'mbp' ? 'rgba(239, 68, 68, 0.3)' : currentTheme === 'lsu' ? 'rgba(147, 51, 234, 0.3)' : currentTheme === 'dark' ? 'rgba(71, 85, 105, 0.3)' : 'rgba(80, 80, 80, 0.6)'};">
       <div class="flex justify-center">
-        <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-900 to-primary-800 dark:from-primary-400 dark:to-primary-300 dracula:from-cyan-200 dracula:to-purple-200 mbp:from-red-300 mbp:to-red-100 lsu:from-purple-300 lsu:to-purple-100 bg-clip-text text-transparent">DoR-Dash</h1>
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-900 to-primary-800 dark:from-primary-200 dark:to-primary-100 dracula:from-cyan-200 dracula:to-purple-200 mbp:from-red-300 mbp:to-red-100 lsu:from-purple-300 lsu:to-purple-100 bg-clip-text text-transparent">DoR-Dash</h1>
       </div>
       <h2 class="mt-6 text-center text-3xl font-extrabold text-[rgb(var(--color-text-primary))]">
         Registration
