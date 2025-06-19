@@ -3,7 +3,12 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Path, status, Uplo
 from pydantic import EmailStr
 import os
 from datetime import datetime
-from PIL import Image
+try:
+    from PIL import Image
+    PIL_AVAILABLE = True
+except ImportError:
+    PIL_AVAILABLE = False
+    Image = None
 import io
 
 from sqlalchemy.orm import Session
@@ -310,6 +315,13 @@ async def upload_avatar(
         )
     
     try:
+        # Check if PIL is available
+        if not PIL_AVAILABLE:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Image processing not available. PIL/Pillow not installed."
+            )
+        
         # Process the image with PIL
         image = Image.open(io.BytesIO(content))
         
