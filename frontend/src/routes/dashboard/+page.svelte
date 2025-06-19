@@ -405,26 +405,25 @@
         <div class="card hover:shadow-2xl transition-shadow duration-300 p-8 overflow-x-auto">
           <div class="mermaid min-w-[800px]">
             gantt
-              title DoR Dash Feature Development Progress
-              section Core Features
-                Faculty Updates System           :done, core1, 1, 3
-                Student Submission Portal        :done, core2, 2, 3  
-                Meeting Agenda Management        :done, core3, 3, 2
-                File Upload System              :done, core4, 4, 2
-              section QA & Testing
-                QA Validation Framework         :done, qa1, 5, 2
-                LLM Text Refinement Testing     :done, qa2, 6, 2
-                Automated Test Suite            :done, qa3, 7, 1
+              title DoR Dash Feature Timeline
+              section Completed
+                Faculty Updates System           :done, core1, 1, 20
+                Student Submission Portal        :done, core2, 5, 15
+                Meeting Agenda Management        :done, core3, 10, 10
+                File Upload System              :done, core4, 15, 10
+                QA Validation Framework         :done, qa1, 20, 10
+                LLM Text Refinement Testing     :done, qa2, 25, 8
+                Automated Test Suite            :done, qa3, 30, 5
               section In Progress
-                Auto-compiling Agenda           :active, prog1, 8, 2
-                Secretarial Login Layer         :active, prog2, 9, 3
-                Advanced Roster Management      :prog3, 10, 2
+                Auto-compiling Agenda           :active, prog1, 35, 10
+                Secretarial Login Layer         :active, prog2, 40, 15
+                Advanced Roster Management      :prog3, 50, 10
               section Future Features
-                LLM Feedback Integration Phase 1 :fut1, 11, 4
-                LLM LoRA Fine-tuning            :fut2, 12, 3
-                LLM-Assisted Agenda Compiler    :fut3, 13, 4
-                Real-time Collaboration         :fut4, 14, 6
-                Mobile App Development          :fut5, 15, 8
+                LLM Feedback Integration Phase 1 :fut1, 60, 20
+                LLM LoRA Fine-tuning            :fut2, 70, 15
+                LLM-Assisted Agenda Compiler    :fut3, 80, 20
+                Real-time Collaboration         :fut4, 90, 30
+                Mobile App Development          :fut5, 100, 40
           </div>
         </div>
       </div>

@@ -49,6 +49,21 @@
   let dragStart = { x: 0, y: 0 };
   let cropContainer = null;
   let savedCropSettings = null; // Store crop settings for reuse
+  let previewCanvas = null; // Live preview of cropped result
+  
+  // Update preview when crop settings change
+  $: if (showCropper && cropImage && cropContainer && (cropData.x || cropData.y || cropData.scale || featherRadius >= 0)) {
+    setTimeout(updatePreview, 50); // Small delay to prevent excessive updates
+  }
+  
+  function updatePreview() {
+    if (!cropImage || !cropContainer) return;
+    
+    const canvas = getCroppedImage();
+    if (canvas) {
+      previewCanvas = canvas.toDataURL('image/jpeg', 0.9);
+    }
+  }
   
   // Load user data on mount
   onMount(async () => {
@@ -356,60 +371,68 @@
     const centerY = containerRect.height / 2;
     
     // Calculate source coordinates on the original image
-    const scaledWidth = cropImage.naturalWidth * cropData.scale;
-    const scaledHeight = cropImage.naturalHeight * cropData.scale;
-    
-    // Calculate the position of the crop area relative to the scaled image
     const sourceX = (centerX - cropSize/2 - cropData.x) / cropData.scale;
     const sourceY = (centerY - cropSize/2 - cropData.y) / cropData.scale;
     const sourceSize = cropSize / cropData.scale;
     
-    // Create circular mask with soft edges
     const radius = size / 2;
     const centerPoint = radius;
     
-    // Save the context
-    ctx.save();
-    
-    // Create circular clipping path with feathering
     if (featherRadius > 0) {
-      // Draw the image first
-      ctx.drawImage(
+      // Soft circular crop using multiple steps
+      
+      // Step 1: Draw the image to a temporary canvas
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCanvas.width = size;
+      tempCanvas.height = size;
+      
+      tempCtx.drawImage(
         cropImage,
         sourceX, sourceY, sourceSize, sourceSize,
         0, 0, size, size
       );
       
-      // Create soft circular mask
-      ctx.globalCompositeOperation = 'destination-in';
+      // Step 2: Create circular mask with soft edges
+      const maskCanvas = document.createElement('canvas');
+      const maskCtx = maskCanvas.getContext('2d');
+      maskCanvas.width = size;
+      maskCanvas.height = size;
       
-      // Create radial gradient for soft edges
-      const gradient = ctx.createRadialGradient(
+      // Create radial gradient for the mask
+      const gradient = maskCtx.createRadialGradient(
         centerPoint, centerPoint, Math.max(0, radius - featherRadius),
         centerPoint, centerPoint, radius
       );
-      gradient.addColorStop(0, 'rgba(255,255,255,1)'); // Fully opaque
-      gradient.addColorStop(1, 'rgba(255,255,255,0)'); // Fully transparent
+      gradient.addColorStop(0, 'rgba(0,0,0,1)'); // Fully opaque center
+      gradient.addColorStop(1, 'rgba(0,0,0,0)'); // Fully transparent edge
       
-      // Fill the entire canvas with the gradient
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, size, size);
+      // Fill circle with gradient
+      maskCtx.fillStyle = gradient;
+      maskCtx.beginPath();
+      maskCtx.arc(centerPoint, centerPoint, radius, 0, Math.PI * 2);
+      maskCtx.fill();
+      
+      // Step 3: Apply mask to image
+      ctx.drawImage(tempCanvas, 0, 0);
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.drawImage(maskCanvas, 0, 0);
+      
     } else {
       // Hard circular crop (no feathering)
+      ctx.save();
       ctx.beginPath();
       ctx.arc(centerPoint, centerPoint, radius, 0, Math.PI * 2);
       ctx.clip();
       
-      // Draw the cropped portion
       ctx.drawImage(
         cropImage,
         sourceX, sourceY, sourceSize, sourceSize,
         0, 0, size, size
       );
+      
+      ctx.restore();
     }
-    
-    // Restore the context
-    ctx.restore();
     
     return canvas;
   }
@@ -661,11 +684,14 @@
               <p class="text-sm text-gray-500">Drag to reposition, scroll to zoom. The circle shows your final profile picture.</p>
             </div>
             
-            <!-- Crop Area -->
-            <div class="flex justify-center">
-              <div 
-                bind:this={cropContainer}
-                class="relative w-80 h-80 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-300 cursor-move select-none"
+            <!-- Crop Area and Preview -->
+            <div class="flex justify-center items-center space-x-8">
+              <!-- Main Crop Area -->
+              <div class="text-center">
+                <p class="text-sm font-medium text-gray-700 mb-2">Position & Scale</p>
+                <div 
+                  bind:this={cropContainer}
+                  class="relative w-80 h-80 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-300 cursor-move select-none"
                 on:mousedown={handleDragStart}
                 on:mousemove={handleDragMove}
                 on:mouseup={handleDragEnd}
@@ -702,6 +728,27 @@
                   <div class="absolute top-1/2 left-1/2 w-6 h-0.5 bg-white opacity-75" style="transform: translate(-50%, -50%);"></div>
                   <div class="absolute top-1/2 left-1/2 w-0.5 h-6 bg-white opacity-75" style="transform: translate(-50%, -50%);"></div>
                 </div>
+              </div>
+              
+              <!-- Live Preview -->
+              <div class="text-center">
+                <p class="text-sm font-medium text-gray-700 mb-2">Preview</p>
+                <div class="w-40 h-40 bg-gray-100 rounded-xl border-2 border-gray-300 flex items-center justify-center">
+                  {#if previewCanvas}
+                    <img 
+                      src={previewCanvas} 
+                      alt="Crop preview" 
+                      class="w-32 h-32 rounded-full border-2 border-white shadow-lg"
+                    />
+                  {:else}
+                    <div class="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center">
+                      <svg class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  {/if}
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Final result</p>
               </div>
             </div>
             
