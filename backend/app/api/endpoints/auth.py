@@ -35,15 +35,23 @@ class User(BaseModel):
 def get_user_by_username(db: Session, username: str):
     """Get user by username from database"""
     try:
-        return db.query(UserModel).filter(UserModel.username == username).first()
+        print(f"DEBUG: Querying user by username: {username}")
+        user = db.query(UserModel).filter(UserModel.username == username).first()
+        print(f"DEBUG: Query result: {user.username if user else 'None'}")
+        return user
     except Exception as e:
         print(f"ERROR in get_user_by_username: {e}")
+        print(f"ERROR details: {type(e).__name__}: {str(e)}")
         # Try again with a fresh session if the first query fails
         try:
             db.rollback()
-            return db.query(UserModel).filter(UserModel.username == username).first()
+            print(f"DEBUG: Retrying query for username: {username}")
+            user = db.query(UserModel).filter(UserModel.username == username).first()
+            print(f"DEBUG: Retry result: {user.username if user else 'None'}")
+            return user
         except Exception as e2:
             print(f"ERROR in get_user_by_username retry: {e2}")
+            print(f"ERROR retry details: {type(e2).__name__}: {str(e2)}")
             return None
 
 def get_user_by_id(db: Session, user_id: int):
@@ -397,7 +405,10 @@ def get_current_user(
     
     user = get_user_by_username(db, username)
     if user is None:
+        print(f"DEBUG: get_current_user - user not found for username: {username}")
         raise credentials_exception
+    
+    print(f"DEBUG: get_current_user - found user: {user.username}, role: {user.role}")
     
     return User(
         id=user.id,
