@@ -388,29 +388,31 @@
         <h2 class="text-xl font-bold text-[rgb(var(--color-text-primary))]">DoR Dash Development Roadmap</h2>
         <div class="card hover:shadow-2xl transition-shadow duration-300 p-8 overflow-x-auto">
           <div class="mermaid min-w-[800px]">
-            gantt
-              title DoR Dash Feature Timeline
-              dateFormat YYYY-MM-DD
-              axisFormat %b
-              section Core Features
-                Faculty Updates System           :done, core1, 2024-10-01, 60d
-                Student Submission Portal        :done, core2, 2024-10-15, 45d
-                Meeting Agenda Management        :done, core3, 2024-11-01, 30d
-                File Upload System              :done, core4, 2024-11-15, 30d
-              section QA & Testing
-                QA Validation Framework         :done, qa1, 2024-12-01, 30d
-                LLM Text Refinement Testing     :done, qa2, 2024-12-15, 21d
-                Automated Test Suite            :done, qa3, 2025-01-01, 14d
-              section In Progress
-                Auto-compiling Agenda           :active, prog1, 2025-01-20, 30d
-                Secretarial Login Layer         :active, prog2, 2025-01-25, 45d
-                Advanced Roster Management      :prog3, after prog2, 30d
-              section Future Features
-                LLM Feedback Integration Phase 1 :fut1, 2025-03-01, 60d
-                LLM LoRA Fine-tuning            :fut2, after fut1, 45d
-                LLM-Assisted Agenda Compiler    :fut3, after fut2, 60d
-                Real-time Collaboration         :fut4, 2025-06-01, 90d
-                Mobile App Development          :fut5, 2025-07-01, 120d
+            flowchart TD
+              A["✅ Faculty Updates System"] --> B["✅ Student Submission Portal"]
+              B --> C["✅ Meeting Agenda Management"]
+              C --> D["✅ File Upload System"]
+              D --> E["✅ QA Validation Framework"]
+              E --> F["✅ LLM Text Refinement Testing"]
+              F --> G["✅ Automated Test Suite"]
+              G --> H["🔄 Auto-compiling Agenda"]
+              H --> I["🔄 Secretarial Login Layer"]
+              I --> J["📋 Advanced Roster Management"]
+              J --> K["🚀 LLM Feedback Integration Phase 1"]
+              K --> L["🚀 LLM LoRA Fine-tuning"]
+              L --> M["🚀 LLM-Assisted Agenda Compiler"]
+              M --> N["🚀 Real-time Collaboration"]
+              N --> O["🚀 Mobile App Development"]
+
+              classDef completed fill:#22c55e,stroke:#16a34a,stroke-width:2px,color:#fff
+              classDef inProgress fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
+              classDef planned fill:#6366f1,stroke:#4f46e5,stroke-width:2px,color:#fff
+              classDef future fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
+
+              class A,B,C,D,E,F,G completed
+              class H,I inProgress
+              class J planned
+              class K,L,M,N,O future
           </div>
         </div>
       </div>

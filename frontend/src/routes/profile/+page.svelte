@@ -246,13 +246,7 @@
       userData.avatar_url = result.avatar_url;
       
       // Update auth store user data
-      auth.update(authData => ({
-        ...authData,
-        user: {
-          ...authData.user,
-          avatar_url: result.avatar_url
-        }
-      }));
+      auth.updateUser({ avatar_url: result.avatar_url });
       
       avatarSuccess = 'Avatar uploaded successfully!';
       avatarFile = null;
@@ -300,13 +294,7 @@
       userData.avatar_url = null;
       
       // Update auth store user data
-      auth.update(authData => ({
-        ...authData,
-        user: {
-          ...authData.user,
-          avatar_url: null
-        }
-      }));
+      auth.updateUser({ avatar_url: null });
       
       avatarSuccess = 'Profile picture removed successfully!';
       

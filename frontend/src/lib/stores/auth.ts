@@ -41,6 +41,26 @@ const createAuthStore = () => {
       goto('/logout');
     },
     
+    // Update user data while keeping authentication
+    updateUser: (userData: any) => {
+      update(authState => {
+        const newAuth = {
+          ...authState,
+          user: {
+            ...authState.user,
+            ...userData
+          }
+        };
+        
+        // Save to localStorage
+        if (browser) {
+          localStorage.setItem('auth', JSON.stringify(newAuth));
+        }
+        
+        return newAuth;
+      });
+    },
+    
     // Internal method to actually clear the auth state
     // This will be called by the logout page
     clearAuthState: () => {
@@ -51,19 +71,6 @@ const createAuthStore = () => {
       if (browser) {
         localStorage.removeItem('auth');
       }
-    },
-    
-    updateUser: (user: any) => {
-      update(state => {
-        const newState = { ...state, user };
-        
-        // Save to localStorage
-        if (browser) {
-          localStorage.setItem('auth', JSON.stringify(newState));
-        }
-        
-        return newState;
-      });
     }
   };
 };
