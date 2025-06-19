@@ -227,9 +227,61 @@
         }
       }
       
-      // Reload the update to get the latest file list
-      const response = await updateApi.getUpdates();
-      updates = response.items || [];
+      // Reload the updates to get the latest data including file list
+      // Use the same logic as onMount to properly filter based on user role
+      const currentUserId = $auth.user?.id;
+      const isAdmin = $auth.user?.role === 'admin';
+      let allUpdates = [];
+      
+      if (isAdmin || $auth.user?.role === 'faculty') {
+        if ($auth.user?.role === 'faculty') {
+          // Faculty should see their own faculty updates
+          const facultyUpdatesResponse = await facultyUpdateApi.getUpdates().catch(err => {
+            console.error('Faculty updates API error:', err);
+            return { items: [] };
+          });
+          const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
+          allUpdates = facultyUpdates.filter(update => update.user_id === currentUserId);
+        } else {
+          // Admin should see their own updates (could be student or faculty)
+          const [studentUpdatesResponse, facultyUpdatesResponse] = await Promise.all([
+            updateApi.getUpdates().catch(err => {
+              console.error('Student updates API error:', err);
+              return { items: [] };
+            }),
+            facultyUpdateApi.getUpdates().catch(err => {
+              console.error('Faculty updates API error:', err);
+              return { items: [] };
+            })
+          ]);
+          
+          const studentUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
+          const facultyUpdates = facultyUpdatesResponse.items || facultyUpdatesResponse || [];
+          
+          // Filter to only show admin's own updates
+          allUpdates = [
+            ...studentUpdates.filter(update => update.user_id === currentUserId),
+            ...facultyUpdates.filter(update => update.user_id === currentUserId)
+          ];
+        }
+      } else {
+        // Students can only see their own updates (backend already filters this)
+        const studentUpdatesResponse = await updateApi.getUpdates().catch(err => {
+          console.error('Student updates API error:', err);
+          return { items: [] };
+        });
+        allUpdates = studentUpdatesResponse.items || studentUpdatesResponse || [];
+      }
+      
+      // Add consistent submission_date
+      allUpdates.forEach(update => {
+        if (!update.submission_date) {
+          update.submission_date = update.submitted_at || update.created_at || new Date().toISOString();
+        }
+      });
+      
+      // Sort by submission date (newest first)
+      updates = allUpdates.sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
       
       cancelEdit();
     } catch (err) {
