@@ -18,6 +18,7 @@ class UserBase(BaseModel):
     is_active: bool = True
     preferred_email: Optional[str] = None
     phone: Optional[str] = None
+    avatar_url: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str
@@ -32,6 +33,7 @@ class UserUpdate(BaseModel):
     role: Optional[str] = None
     is_active: Optional[bool] = None
     password: Optional[str] = None
+    avatar_url: Optional[str] = None
 
 class UserInDB(UserBase):
     id: int
@@ -49,6 +51,7 @@ class UserResponse(BaseModel):
     phone: Optional[str] = None
     role: str
     is_active: bool
+    avatar_url: Optional[str] = None
     
     class Config:
         from_attributes = True

@@ -323,9 +323,17 @@
               <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
-                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-800 font-medium">
-                      {(user.full_name?.[0] || user.username?.[0] || '').toUpperCase()}
-                    </div>
+                    {#if user.avatar_url}
+                      <img 
+                        src={user.avatar_url} 
+                        alt="{user.full_name || user.username}" 
+                        class="flex-shrink-0 h-10 w-10 rounded-full object-cover"
+                      />
+                    {:else}
+                      <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-800 font-medium">
+                        {(user.full_name?.[0] || user.username?.[0] || '').toUpperCase()}
+                      </div>
+                    {/if}
                     <div class="ml-4">
                       <div class="text-sm font-medium text-gray-900">
                         {user.full_name || user.username}

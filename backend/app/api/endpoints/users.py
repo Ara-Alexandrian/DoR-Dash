@@ -1,6 +1,10 @@
 from typing import List, Annotated, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, Path, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Path, status, UploadFile, File
 from pydantic import EmailStr
+import os
+from datetime import datetime
+from PIL import Image
+import io
 
 from sqlalchemy.orm import Session
 from app.api.endpoints.auth import User, get_current_user, create_user as auth_create_user, update_user as auth_update_user, delete_user as auth_delete_user, get_all_users
@@ -254,3 +258,167 @@ async def change_password(
     auth_update_user(db, user_id, {"password": new_password})
     
     return {"message": "Password changed successfully"}
+
+
+# Upload/update user avatar
+@router.post("/{user_id}/avatar", status_code=status.HTTP_200_OK)
+async def upload_avatar(
+    user_id: int = Path(..., description="The ID of the user"),
+    file: UploadFile = File(..., description="Avatar image file (JPG, PNG, WebP max 5MB)"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_sync_db)
+):
+    """
+    Upload or update a user's avatar image.
+    - Admin can update any user's avatar
+    - Users can only update their own avatar
+    - Supported formats: JPG, PNG, WebP
+    - Max file size: 5MB
+    - Images are automatically resized to 200x200px
+    """
+    # Check permissions - only admins or the user themselves can update avatar
+    if not is_owner_or_admin(user_id, current_user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to update this user's avatar"
+        )
+    
+    # Check if user exists
+    all_users = get_all_users(db)
+    user = next((u for u in all_users if u["id"] == user_id), None)
+    
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with ID {user_id} not found"
+        )
+    
+    # Validate file type
+    allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid file type. Only JPG, PNG, and WebP are allowed"
+        )
+    
+    # Read and validate file size
+    content = await file.read()
+    if len(content) > 5 * 1024 * 1024:  # 5MB limit
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File size exceeds 5MB limit"
+        )
+    
+    try:
+        # Process the image with PIL
+        image = Image.open(io.BytesIO(content))
+        
+        # Convert to RGB if necessary (for JPG compatibility)
+        if image.mode in ('RGBA', 'LA', 'P'):
+            # Create white background for transparency
+            background = Image.new('RGB', image.size, (255, 255, 255))
+            if image.mode == 'P':
+                image = image.convert('RGBA')
+            background.paste(image, mask=image.split()[-1] if image.mode == 'RGBA' else None)
+            image = background
+        
+        # Resize to 200x200 with smart cropping
+        # First, resize to make the smallest dimension 200px
+        img_w, img_h = image.size
+        if img_w < img_h:
+            new_w = 200
+            new_h = int((200 * img_h) / img_w)
+        else:
+            new_h = 200
+            new_w = int((200 * img_w) / img_h)
+        
+        image = image.resize((new_w, new_h), Image.Resampling.LANCZOS)
+        
+        # Crop to 200x200 from center
+        left = (new_w - 200) // 2
+        top = (new_h - 200) // 2
+        image = image.crop((left, top, left + 200, top + 200))
+        
+        # Ensure upload directory exists
+        upload_dir = "/app/uploads/avatars"
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Generate unique filename
+        timestamp = int(datetime.now().timestamp() * 1000)
+        file_extension = '.jpg'  # Always save as JPG for consistency
+        filename = f"avatar_{user_id}_{timestamp}{file_extension}"
+        file_path = os.path.join(upload_dir, filename)
+        
+        # Save processed image
+        image.save(file_path, 'JPEG', quality=90, optimize=True)
+        
+        # Update user's avatar_url in database
+        avatar_url = f"/uploads/avatars/{filename}"
+        auth_update_user(db, user_id, {"avatar_url": avatar_url})
+        
+        # Clean up old avatar file if it exists
+        if user.get("avatar_url"):
+            old_file_path = f"/app{user['avatar_url']}"
+            if os.path.exists(old_file_path):
+                try:
+                    os.remove(old_file_path)
+                except Exception as e:
+                    print(f"Warning: Could not delete old avatar file: {e}")
+        
+        return {
+            "message": "Avatar uploaded successfully",
+            "avatar_url": avatar_url,
+            "file_size": len(content),
+            "processed_size": f"{image.size[0]}x{image.size[1]}"
+        }
+        
+    except Exception as e:
+        print(f"Error processing avatar: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to process avatar image"
+        )
+
+
+# Delete user avatar
+@router.delete("/{user_id}/avatar", status_code=status.HTTP_200_OK)
+async def delete_avatar(
+    user_id: int = Path(..., description="The ID of the user"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_sync_db)
+):
+    """
+    Delete a user's avatar image (reverts to initials).
+    - Admin can delete any user's avatar
+    - Users can only delete their own avatar
+    """
+    # Check permissions
+    if not is_owner_or_admin(user_id, current_user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to delete this user's avatar"
+        )
+    
+    # Check if user exists
+    all_users = get_all_users(db)
+    user = next((u for u in all_users if u["id"] == user_id), None)
+    
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with ID {user_id} not found"
+        )
+    
+    # Remove avatar file if it exists
+    if user.get("avatar_url"):
+        file_path = f"/app{user['avatar_url']}"
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                print(f"Warning: Could not delete avatar file: {e}")
+    
+    # Clear avatar_url in database
+    auth_update_user(db, user_id, {"avatar_url": None})
+    
+    return {"message": "Avatar deleted successfully"}

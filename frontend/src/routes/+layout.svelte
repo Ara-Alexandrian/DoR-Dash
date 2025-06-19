@@ -237,9 +237,17 @@
         {#if $auth?.user}
           <div class="flex items-center p-2 rounded-lg hover:bg-primary-800/30 dark:hover:bg-slate-700/30 dracula:hover:bg-gray-700/30 mbp:hover:bg-red-800/30 lsu:hover:bg-purple-800/30 transition-colors duration-200">
             <div class="flex-shrink-0">
-              <div class="h-10 w-10 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 dark:from-yellow-400 dark:to-yellow-600 dracula:from-cyan-400 dracula:to-cyan-600 mbp:from-red-400 mbp:to-red-600 lsu:from-yellow-400 lsu:to-yellow-600 flex items-center justify-center text-primary-950 dark:text-slate-900 dracula:text-slate-900 mbp:text-white lsu:text-purple-900 font-bold shadow-md">
-                {($auth.user.full_name?.[0] || $auth.user.username?.[0] || '').toUpperCase()}
-              </div>
+              {#if $auth.user.avatar_url}
+                <img 
+                  src={$auth.user.avatar_url} 
+                  alt="{$auth.user.full_name || $auth.user.username}" 
+                  class="h-10 w-10 rounded-full object-cover shadow-md"
+                />
+              {:else}
+                <div class="h-10 w-10 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 dark:from-yellow-400 dark:to-yellow-600 dracula:from-cyan-400 dracula:to-cyan-600 mbp:from-red-400 mbp:to-red-600 lsu:from-yellow-400 lsu:to-yellow-600 flex items-center justify-center text-primary-950 dark:text-slate-900 dracula:text-slate-900 mbp:text-white lsu:text-purple-900 font-bold shadow-md">
+                  {($auth.user.full_name?.[0] || $auth.user.username?.[0] || '').toUpperCase()}
+                </div>
+              {/if}
             </div>
             <div class="ml-3 flex-1">
               <p class="text-sm font-semibold text-white">{$auth.user.full_name || $auth.user.username}</p>

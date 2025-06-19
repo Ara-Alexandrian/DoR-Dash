@@ -28,6 +28,13 @@
   let passwordSuccess = null;
   let isChangingPassword = false;
   
+  // Avatar upload
+  let avatarFile = null;
+  let avatarPreview = null;
+  let isUploadingAvatar = false;
+  let avatarError = null;
+  let avatarSuccess = null;
+  
   // Load user data on mount
   onMount(async () => {
     if (!$auth.isAuthenticated) {
@@ -172,6 +179,149 @@
       };
     }
   }
+  
+  // Handle avatar file selection
+  function handleAvatarChange(event) {
+    const file = event.target.files[0];
+    avatarError = null;
+    
+    if (!file) {
+      avatarFile = null;
+      avatarPreview = null;
+      return;
+    }
+    
+    // Validate file type
+    if (!file.type.match(/^image\/(jpeg|jpg|png|webp)$/)) {
+      avatarError = 'Please select a JPG, PNG, or WebP image file';
+      return;
+    }
+    
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      avatarError = 'File size must be less than 5MB';
+      return;
+    }
+    
+    avatarFile = file;
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      avatarPreview = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  // Upload avatar
+  async function uploadAvatar() {
+    if (!avatarFile) return;
+    
+    isUploadingAvatar = true;
+    avatarError = null;
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', avatarFile);
+      
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const API_BASE = API_URL ? `${API_URL}/api/v1` : '/api/v1';
+      
+      const response = await fetch(`${API_BASE}/users/${$auth.user.id}/avatar`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${$auth.token}`
+        },
+        body: formData
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to upload avatar');
+      }
+      
+      const result = await response.json();
+      
+      // Update user data with new avatar URL
+      userData.avatar_url = result.avatar_url;
+      
+      // Update auth store user data
+      auth.update(authData => ({
+        ...authData,
+        user: {
+          ...authData.user,
+          avatar_url: result.avatar_url
+        }
+      }));
+      
+      avatarSuccess = 'Avatar uploaded successfully!';
+      avatarFile = null;
+      avatarPreview = null;
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        avatarSuccess = null;
+      }, 3000);
+      
+    } catch (err) {
+      console.error('Avatar upload failed:', err);
+      avatarError = err.message || 'Failed to upload avatar. Please try again.';
+    } finally {
+      isUploadingAvatar = false;
+    }
+  }
+  
+  // Delete avatar
+  async function deleteAvatar() {
+    if (!confirm('Are you sure you want to remove your profile picture?')) {
+      return;
+    }
+    
+    isUploadingAvatar = true;
+    avatarError = null;
+    
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const API_BASE = API_URL ? `${API_URL}/api/v1` : '/api/v1';
+      
+      const response = await fetch(`${API_BASE}/users/${$auth.user.id}/avatar`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${$auth.token}`
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to delete avatar');
+      }
+      
+      // Update user data
+      userData.avatar_url = null;
+      
+      // Update auth store user data
+      auth.update(authData => ({
+        ...authData,
+        user: {
+          ...authData.user,
+          avatar_url: null
+        }
+      }));
+      
+      avatarSuccess = 'Profile picture removed successfully!';
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        avatarSuccess = null;
+      }, 3000);
+      
+    } catch (err) {
+      console.error('Avatar deletion failed:', err);
+      avatarError = err.message || 'Failed to remove profile picture. Please try again.';
+    } finally {
+      isUploadingAvatar = false;
+    }
+  }
 </script>
 
 <div class="max-w-3xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -190,6 +340,124 @@
       <p class="text-primary-800">{error}</p>
     </div>
   {:else}
+    <!-- Avatar Upload Section -->
+    <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg mb-6">
+      <div class="px-4 py-5 sm:px-6 bg-primary-50 border-b border-primary-100">
+        <h2 class="text-lg font-medium text-gray-900">Profile Picture</h2>
+        <p class="mt-1 text-sm text-gray-500">Upload a profile picture or use your initials</p>
+      </div>
+      
+      <div class="px-4 py-5 sm:p-6">
+        {#if avatarError}
+          <div class="mb-4 p-4 bg-red-50 rounded-md">
+            <p class="text-sm text-red-700">{avatarError}</p>
+          </div>
+        {/if}
+        
+        {#if avatarSuccess}
+          <div class="mb-4 p-4 bg-green-50 rounded-md">
+            <p class="text-sm text-green-700">{avatarSuccess}</p>
+          </div>
+        {/if}
+        
+        <div class="flex items-center space-x-6">
+          <!-- Current Avatar Display -->
+          <div class="flex-shrink-0">
+            {#if avatarPreview}
+              <img 
+                src={avatarPreview} 
+                alt="Avatar preview" 
+                class="h-20 w-20 rounded-full object-cover border-2 border-gray-300"
+              />
+            {:else if userData?.avatar_url}
+              <img 
+                src={userData.avatar_url} 
+                alt="{userData.full_name || userData.username}" 
+                class="h-20 w-20 rounded-full object-cover border-2 border-gray-300"
+              />
+            {:else}
+              <div class="h-20 w-20 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-2xl font-bold border-2 border-gray-300">
+                {(userData?.full_name?.[0] || userData?.username?.[0] || '').toUpperCase()}
+              </div>
+            {/if}
+          </div>
+          
+          <!-- Upload Controls -->
+          <div class="flex-1">
+            <div class="space-y-4">
+              {#if !avatarFile}
+                <div class="flex items-center space-x-3">
+                  <label for="avatar-upload" class="cursor-pointer inline-flex items-center px-4 py-2 border border-primary-300 rounded-md shadow-sm text-sm font-medium text-primary-700 bg-white hover:bg-primary-50 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Choose file
+                    <input
+                      id="avatar-upload"
+                      type="file"
+                      class="sr-only"
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
+                      on:change={handleAvatarChange}
+                    />
+                  </label>
+                  
+                  {#if userData?.avatar_url}
+                    <button
+                      type="button"
+                      on:click={deleteAvatar}
+                      disabled={isUploadingAvatar}
+                      class="inline-flex items-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Remove
+                    </button>
+                  {/if}
+                </div>
+              {:else}
+                <div class="flex items-center space-x-3">
+                  <button
+                    type="button"
+                    on:click={uploadAvatar}
+                    disabled={isUploadingAvatar}
+                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {#if isUploadingAvatar}
+                      <div class="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Uploading...
+                    {:else}
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      Upload
+                    {/if}
+                  </button>
+                  
+                  <button
+                    type="button"
+                    on:click={() => {
+                      avatarFile = null;
+                      avatarPreview = null;
+                      avatarError = null;
+                    }}
+                    disabled={isUploadingAvatar}
+                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              {/if}
+              
+              <p class="text-xs text-gray-500">
+                JPG, PNG, or WebP. Max file size: 5MB. Images will be automatically resized to 200x200px.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <!-- User information form -->
     <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg">
       <div class="px-4 py-5 sm:px-6 bg-primary-50 border-b border-primary-100">

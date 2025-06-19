@@ -28,8 +28,10 @@
   // Inline editing state
   let editingStudent = null; // ID of student update being edited
   let editingFaculty = null; // ID of faculty update being edited
+  let editingMeeting = false; // Whether meeting description is being edited
   let editForm = {}; // Form data for editing
   let isSaving = false; // Save state
+  let meetingEditForm = {}; // Form data for meeting editing
   
   // Format date for display
   function formatDate(dateString) {
@@ -202,6 +204,62 @@
     editingFaculty = null;
     editForm = {};
   }
+
+  // Start editing meeting description
+  function startEditMeeting() {
+    if (!$auth.user || ($auth.user.role !== 'admin' && $auth.user.role !== 'faculty')) {
+      return;
+    }
+    
+    editingMeeting = true;
+    meetingEditForm = {
+      description: meeting.description || ''
+    };
+  }
+
+  // Save meeting description
+  async function saveMeetingDescription() {
+    if (!editingMeeting) return;
+    
+    isSaving = true;
+    try {
+      const authStore = get(auth);
+      const response = await fetch(`${API_BASE}/meetings/${meetingId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authStore.token}`
+        },
+        body: JSON.stringify({
+          description: meetingEditForm.description
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update meeting description');
+      }
+
+      // Reload meeting details to reflect changes
+      await loadMeetingDetails();
+      
+      // Reset editing state
+      editingMeeting = false;
+      meetingEditForm = {};
+      
+      alert('Meeting description updated successfully');
+    } catch (err) {
+      console.error('Error updating meeting description:', err);
+      alert('Failed to update meeting description. Please try again.');
+    } finally {
+      isSaving = false;
+    }
+  }
+
+  // Cancel meeting edit
+  function cancelMeetingEdit() {
+    editingMeeting = false;
+    meetingEditForm = {};
+  }
   
   // Delete faculty update function
   async function deleteFacultyUpdate(updateId) {
@@ -355,8 +413,59 @@
             <dd class="mt-1 text-sm text-[rgb(var(--color-text-primary))]">{meeting.location}</dd>
           </div>
           <div class="sm:col-span-2">
-            <dt class="text-sm font-medium text-gray-500">Description</dt>
-            <dd class="mt-1 text-sm text-[rgb(var(--color-text-primary))]">{meeting.description}</dd>
+            <dt class="text-sm font-medium text-gray-500 flex items-center justify-between">
+              Description
+              {#if $auth.user && ($auth.user.role === 'admin' || $auth.user.role === 'faculty')}
+                <button 
+                  on:click={editingMeeting ? cancelMeetingEdit : startEditMeeting}
+                  class="ml-2 p-1 transition-colors {editingMeeting ? 'text-blue-600 bg-blue-100 rounded' : 'text-gray-400 hover:text-primary-600'}"
+                  title="{editingMeeting ? 'Cancel edit' : 'Edit description'}"
+                >
+                  {#if editingMeeting}
+                    <!-- Cancel/Close icon when editing -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  {:else}
+                    <!-- Edit/Pencil icon when viewing -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.379-8.379-2.828-2.828z" />
+                    </svg>
+                  {/if}
+                </button>
+              {/if}
+            </dt>
+            {#if editingMeeting}
+              <dd class="mt-1">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h5 class="text-sm font-semibold text-blue-800 mb-3">✏️ Editing Meeting Description</h5>
+                  <textarea
+                    bind:value={meetingEditForm.description}
+                    rows="4"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    placeholder="Enter meeting description..."
+                  ></textarea>
+                  <div class="mt-3 flex items-center gap-2">
+                    <button 
+                      on:click={saveMeetingDescription}
+                      disabled={isSaving}
+                      class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSaving ? 'Saving...' : 'Save'}
+                    </button>
+                    <button 
+                      on:click={cancelMeetingEdit}
+                      disabled={isSaving}
+                      class="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </dd>
+            {:else}
+              <dd class="mt-1 text-sm text-[rgb(var(--color-text-primary))]">{meeting.description || 'No description provided'}</dd>
+            {/if}
           </div>
         </dl>
       </div>
