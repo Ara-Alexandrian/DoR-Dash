@@ -34,12 +34,41 @@
   let isUploadingAvatar = false;
   let avatarError = null;
   let avatarSuccess = null;
+  let showCropper = false;
+  let cropCanvas = null;
+  let cropImage = null;
+  let cropData = {
+    x: 0,
+    y: 0,
+    scale: 1,
+    minScale: 0.5,
+    maxScale: 3
+  };
+  let isDragging = false;
+  let dragStart = { x: 0, y: 0 };
+  let cropContainer = null;
   
   // Load user data on mount
   onMount(async () => {
     if (!$auth.isAuthenticated) {
       return;
     }
+
+    // Add global mouse event listeners for drag functionality
+    const handleGlobalMouseMove = (event) => {
+      if (isDragging) {
+        handleDragMove(event);
+      }
+    };
+
+    const handleGlobalMouseUp = () => {
+      if (isDragging) {
+        handleDragEnd();
+      }
+    };
+
+    document.addEventListener('mousemove', handleGlobalMouseMove);
+    document.addEventListener('mouseup', handleGlobalMouseUp);
     
     try {
       // Fetch user data
@@ -71,6 +100,12 @@
     } finally {
       loading = false;
     }
+
+    // Cleanup function for event listeners
+    return () => {
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
   });
   
   // Handle form submission
@@ -188,6 +223,7 @@
     if (!file) {
       avatarFile = null;
       avatarPreview = null;
+      showCropper = false;
       return;
     }
     
@@ -205,12 +241,140 @@
     
     avatarFile = file;
     
-    // Create preview
+    // Create preview and show cropper
     const reader = new FileReader();
     reader.onload = (e) => {
       avatarPreview = e.target.result;
+      showCropper = true;
+      // Reset crop data when new image is loaded
+      cropData = {
+        x: 0,
+        y: 0,
+        scale: 1,
+        minScale: 0.5,
+        maxScale: 3
+      };
+      
+      // Load image to get dimensions
+      setTimeout(() => {
+        if (cropImage) {
+          centerImage();
+        }
+      }, 100);
     };
     reader.readAsDataURL(file);
+  }
+
+  // Center the image in the crop area
+  function centerImage() {
+    if (!cropImage || !cropContainer) return;
+    
+    const containerRect = cropContainer.getBoundingClientRect();
+    const imageRect = cropImage.getBoundingClientRect();
+    
+    // Calculate scale to fit image in container while maintaining aspect ratio
+    const containerSize = Math.min(containerRect.width, containerRect.height) - 40; // 20px padding
+    const imageSize = Math.max(cropImage.naturalWidth, cropImage.naturalHeight);
+    const initialScale = containerSize / imageSize;
+    
+    // Center the image
+    cropData.x = 0;
+    cropData.y = 0;
+    cropData.scale = Math.max(initialScale, cropData.minScale);
+    cropData.minScale = initialScale * 0.5;
+  }
+
+  // Handle mouse/touch drag for repositioning
+  function handleDragStart(event) {
+    isDragging = true;
+    const clientX = event.clientX || event.touches?.[0]?.clientX || 0;
+    const clientY = event.clientY || event.touches?.[0]?.clientY || 0;
+    dragStart = {
+      x: clientX - cropData.x,
+      y: clientY - cropData.y
+    };
+    event.preventDefault();
+  }
+
+  function handleDragMove(event) {
+    if (!isDragging) return;
+    
+    const clientX = event.clientX || event.touches?.[0]?.clientX || 0;
+    const clientY = event.clientY || event.touches?.[0]?.clientY || 0;
+    
+    cropData.x = clientX - dragStart.x;
+    cropData.y = clientY - dragStart.y;
+    event.preventDefault();
+  }
+
+  function handleDragEnd() {
+    isDragging = false;
+  }
+
+  // Handle zoom
+  function handleZoom(delta) {
+    const newScale = Math.max(
+      cropData.minScale,
+      Math.min(cropData.maxScale, cropData.scale + delta)
+    );
+    cropData.scale = newScale;
+  }
+
+  // Handle mouse wheel zoom
+  function handleWheel(event) {
+    event.preventDefault();
+    const delta = event.deltaY > 0 ? -0.1 : 0.1;
+    handleZoom(delta);
+  }
+
+  // Generate cropped image
+  function getCroppedImage() {
+    if (!cropImage) return null;
+    
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const size = 200; // Final avatar size
+    
+    canvas.width = size;
+    canvas.height = size;
+    
+    // Calculate crop area (200x200 px in the center of the crop container)
+    const cropSize = 200;
+    const containerRect = cropContainer.getBoundingClientRect();
+    const centerX = containerRect.width / 2;
+    const centerY = containerRect.height / 2;
+    
+    // Calculate source coordinates on the original image
+    const scaledWidth = cropImage.naturalWidth * cropData.scale;
+    const scaledHeight = cropImage.naturalHeight * cropData.scale;
+    
+    // Calculate the position of the crop area relative to the scaled image
+    const sourceX = (centerX - cropSize/2 - cropData.x) / cropData.scale;
+    const sourceY = (centerY - cropSize/2 - cropData.y) / cropData.scale;
+    const sourceSize = cropSize / cropData.scale;
+    
+    // Draw the cropped portion
+    ctx.drawImage(
+      cropImage,
+      sourceX, sourceY, sourceSize, sourceSize,
+      0, 0, size, size
+    );
+    
+    return canvas;
+  }
+
+  // Cancel cropping
+  function cancelCropping() {
+    showCropper = false;
+    avatarFile = null;
+    avatarPreview = null;
+    cropData = {
+      x: 0,
+      y: 0,
+      scale: 1,
+      minScale: 0.5,
+      maxScale: 3
+    };
   }
   
   // Upload avatar
@@ -221,8 +385,22 @@
     avatarError = null;
     
     try {
+      // Get cropped image if cropper is shown, otherwise use original
+      let fileToUpload = avatarFile;
+      
+      if (showCropper) {
+        const croppedCanvas = getCroppedImage();
+        if (croppedCanvas) {
+          // Convert canvas to blob
+          const blob = await new Promise(resolve => {
+            croppedCanvas.toBlob(resolve, 'image/jpeg', 0.9);
+          });
+          fileToUpload = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
+        }
+      }
+      
       const formData = new FormData();
-      formData.append('file', avatarFile);
+      formData.append('file', fileToUpload);
       
       const API_URL = import.meta.env.VITE_API_URL || '';
       const API_BASE = API_URL ? `${API_URL}/api/v1` : '/api/v1';
@@ -251,6 +429,7 @@
       avatarSuccess = 'Avatar uploaded successfully!';
       avatarFile = null;
       avatarPreview = null;
+      showCropper = false;
       
       // Clear success message after 3 seconds
       setTimeout(() => {
@@ -348,32 +527,27 @@
           </div>
         {/if}
         
-        <div class="flex items-center space-x-6">
-          <!-- Current Avatar Display -->
-          <div class="flex-shrink-0">
-            {#if avatarPreview}
-              <img 
-                src={avatarPreview} 
-                alt="Avatar preview" 
-                class="h-20 w-20 rounded-full object-cover border-2 border-gray-300"
-              />
-            {:else if userData?.avatar_url}
-              <img 
-                src={userData.avatar_url} 
-                alt="{userData.full_name || userData.username}" 
-                class="h-20 w-20 rounded-full object-cover border-2 border-gray-300"
-              />
-            {:else}
-              <div class="h-20 w-20 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-2xl font-bold border-2 border-gray-300">
-                {(userData?.full_name?.[0] || userData?.username?.[0] || '').toUpperCase()}
-              </div>
-            {/if}
-          </div>
-          
-          <!-- Upload Controls -->
-          <div class="flex-1">
-            <div class="space-y-4">
-              {#if !avatarFile}
+{#if !showCropper}
+          <!-- Standard Avatar Display -->
+          <div class="flex items-center space-x-6">
+            <!-- Current Avatar Display -->
+            <div class="flex-shrink-0">
+              {#if userData?.avatar_url}
+                <img 
+                  src={userData.avatar_url} 
+                  alt="{userData.full_name || userData.username}" 
+                  class="h-20 w-20 rounded-full object-cover border-2 border-gray-300"
+                />
+              {:else}
+                <div class="h-20 w-20 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-2xl font-bold border-2 border-gray-300">
+                  {(userData?.full_name?.[0] || userData?.username?.[0] || '').toUpperCase()}
+                </div>
+              {/if}
+            </div>
+            
+            <!-- Upload Controls -->
+            <div class="flex-1">
+              <div class="space-y-4">
                 <div class="flex items-center space-x-3">
                   <label for="avatar-upload" class="cursor-pointer inline-flex items-center px-4 py-2 border border-primary-300 rounded-md shadow-sm text-sm font-medium text-primary-700 bg-white hover:bg-primary-50 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -403,46 +577,123 @@
                     </button>
                   {/if}
                 </div>
-              {:else}
-                <div class="flex items-center space-x-3">
-                  <button
-                    type="button"
-                    on:click={uploadAvatar}
-                    disabled={isUploadingAvatar}
-                    class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {#if isUploadingAvatar}
-                      <div class="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Uploading...
-                    {:else}
-                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                      </svg>
-                      Upload
-                    {/if}
-                  </button>
-                  
-                  <button
-                    type="button"
-                    on:click={() => {
-                      avatarFile = null;
-                      avatarPreview = null;
-                      avatarError = null;
-                    }}
-                    disabled={isUploadingAvatar}
-                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              {/if}
-              
-              <p class="text-xs text-gray-500">
-                JPG, PNG, or WebP. Max file size: 5MB. Images will be automatically resized to 200x200px.
-              </p>
+                
+                <p class="text-xs text-gray-500">
+                  JPG, PNG, or WebP. Max file size: 5MB. Images will be cropped to 200x200px circles.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        {:else}
+          <!-- Image Cropper Interface -->
+          <div class="space-y-6">
+            <div class="text-center">
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Position Your Profile Picture</h3>
+              <p class="text-sm text-gray-500">Drag to reposition, scroll to zoom. The circle shows your final profile picture.</p>
+            </div>
+            
+            <!-- Crop Area -->
+            <div class="flex justify-center">
+              <div 
+                bind:this={cropContainer}
+                class="relative w-80 h-80 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-300 cursor-move select-none"
+                on:mousedown={handleDragStart}
+                on:mousemove={handleDragMove}
+                on:mouseup={handleDragEnd}
+                on:mouseleave={handleDragEnd}
+                on:touchstart={handleDragStart}
+                on:touchmove={handleDragMove}
+                on:touchend={handleDragEnd}
+                on:wheel={handleWheel}
+              >
+                <!-- Image -->
+                {#if avatarPreview}
+                  <img
+                    bind:this={cropImage}
+                    src={avatarPreview}
+                    alt="Crop preview"
+                    class="absolute top-1/2 left-1/2 pointer-events-none user-select-none"
+                    style="transform: translate(-50%, -50%) translate({cropData.x}px, {cropData.y}px) scale({cropData.scale}); transform-origin: center center;"
+                    draggable="false"
+                  />
+                {/if}
+                
+                <!-- Crop Overlay -->
+                <div class="absolute inset-0 pointer-events-none">
+                  <!-- Dark overlay -->
+                  <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+                  
+                  <!-- Circular crop area -->
+                  <div 
+                    class="absolute top-1/2 left-1/2 w-50 h-50 border-2 border-white rounded-full bg-transparent"
+                    style="width: 200px; height: 200px; transform: translate(-50%, -50%); box-shadow: 0 0 0 1000px rgba(0,0,0,0.5);"
+                  ></div>
+                  
+                  <!-- Center guidelines -->
+                  <div class="absolute top-1/2 left-1/2 w-6 h-0.5 bg-white opacity-75" style="transform: translate(-50%, -50%);"></div>
+                  <div class="absolute top-1/2 left-1/2 w-0.5 h-6 bg-white opacity-75" style="transform: translate(-50%, -50%);"></div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Zoom Controls -->
+            <div class="flex justify-center items-center space-x-4">
+              <button
+                type="button"
+                on:click={() => handleZoom(-0.2)}
+                class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"></path>
+                </svg>
+              </button>
+              
+              <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-500">Zoom: </span>
+                <span class="text-sm font-medium">{Math.round(cropData.scale * 100)}%</span>
+              </div>
+              
+              <button
+                type="button"
+                on:click={() => handleZoom(0.2)}
+                class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                </svg>
+              </button>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex justify-center space-x-4">
+              <button
+                type="button"
+                on:click={cancelCropping}
+                disabled={isUploadingAvatar}
+                class="inline-flex items-center px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              
+              <button
+                type="button"
+                on:click={uploadAvatar}
+                disabled={isUploadingAvatar}
+                class="inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {#if isUploadingAvatar}
+                  <div class="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Uploading...
+                {:else}
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Use This Photo
+                {/if}
+              </button>
+            </div>
+          </div>
+        {/if}
       </div>
     </div>
     
@@ -721,3 +972,33 @@
     </div>
   {/if}
 </div>
+
+<style>
+  .user-select-none {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+  .select-none {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+  /* Prevent text selection during drag */
+  .crop-container {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+  }
+
+  /* Smooth cropper interactions */
+  .crop-image {
+    transition: transform 0.1s ease-out;
+  }
+</style>
