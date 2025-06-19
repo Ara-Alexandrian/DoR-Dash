@@ -44,9 +44,11 @@
     minScale: 0.5,
     maxScale: 3
   };
+  let featherRadius = 5; // Soft edge radius in pixels
   let isDragging = false;
   let dragStart = { x: 0, y: 0 };
   let cropContainer = null;
+  let savedCropSettings = null; // Store crop settings for reuse
   
   // Load user data on mount
   onMount(async () => {
@@ -246,19 +248,28 @@
     reader.onload = (e) => {
       avatarPreview = e.target.result;
       showCropper = true;
-      // Reset crop data when new image is loaded
-      cropData = {
-        x: 0,
-        y: 0,
-        scale: 1,
-        minScale: 0.5,
-        maxScale: 3
-      };
+      
+      // Restore saved crop settings if available, otherwise reset
+      if (savedCropSettings && savedCropSettings.originalFileName === file.name) {
+        cropData = { ...savedCropSettings.cropData };
+        featherRadius = savedCropSettings.featherRadius || 5;
+      } else {
+        cropData = {
+          x: 0,
+          y: 0,
+          scale: 1,
+          minScale: 0.5,
+          maxScale: 3
+        };
+        featherRadius = 5;
+      }
       
       // Load image to get dimensions
       setTimeout(() => {
         if (cropImage) {
-          centerImage();
+          if (!savedCropSettings || savedCropSettings.originalFileName !== file.name) {
+            centerImage();
+          }
         }
       }, 100);
     };
@@ -327,7 +338,7 @@
     handleZoom(delta);
   }
 
-  // Generate cropped image
+  // Generate cropped image with soft edges
   function getCroppedImage() {
     if (!cropImage) return null;
     
@@ -353,18 +364,67 @@
     const sourceY = (centerY - cropSize/2 - cropData.y) / cropData.scale;
     const sourceSize = cropSize / cropData.scale;
     
-    // Draw the cropped portion
-    ctx.drawImage(
-      cropImage,
-      sourceX, sourceY, sourceSize, sourceSize,
-      0, 0, size, size
-    );
+    // Create circular mask with soft edges
+    const radius = size / 2;
+    const centerPoint = radius;
+    
+    // Save the context
+    ctx.save();
+    
+    // Create circular clipping path with feathering
+    if (featherRadius > 0) {
+      // Create radial gradient for soft edges
+      const gradient = ctx.createRadialGradient(
+        centerPoint, centerPoint, radius - featherRadius,
+        centerPoint, centerPoint, radius
+      );
+      gradient.addColorStop(0, 'rgba(0,0,0,1)');
+      gradient.addColorStop(1, 'rgba(0,0,0,0)');
+      
+      // Draw the image first
+      ctx.drawImage(
+        cropImage,
+        sourceX, sourceY, sourceSize, sourceSize,
+        0, 0, size, size
+      );
+      
+      // Apply soft circular mask
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.beginPath();
+      ctx.arc(centerPoint, centerPoint, radius, 0, Math.PI * 2);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+    } else {
+      // Hard circular crop (no feathering)
+      ctx.beginPath();
+      ctx.arc(centerPoint, centerPoint, radius, 0, Math.PI * 2);
+      ctx.clip();
+      
+      // Draw the cropped portion
+      ctx.drawImage(
+        cropImage,
+        sourceX, sourceY, sourceSize, sourceSize,
+        0, 0, size, size
+      );
+    }
+    
+    // Restore the context
+    ctx.restore();
     
     return canvas;
   }
 
   // Cancel cropping
   function cancelCropping() {
+    // Save crop settings before canceling in case user wants to try again
+    if (avatarFile) {
+      savedCropSettings = {
+        originalFileName: avatarFile.name,
+        cropData: { ...cropData },
+        featherRadius: featherRadius
+      };
+    }
+    
     showCropper = false;
     avatarFile = null;
     avatarPreview = null;
@@ -425,6 +485,15 @@
       
       // Update auth store user data
       auth.updateUser({ avatar_url: result.avatar_url });
+      
+      // Save crop settings for future use
+      if (showCropper && avatarFile) {
+        savedCropSettings = {
+          originalFileName: avatarFile.name,
+          cropData: { ...cropData },
+          featherRadius: featherRadius
+        };
+      }
       
       avatarSuccess = 'Avatar uploaded successfully!';
       avatarFile = null;
@@ -662,6 +731,22 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
                 </svg>
               </button>
+            </div>
+            
+            <!-- Soft Edge Control -->
+            <div class="flex justify-center items-center space-x-4">
+              <div class="flex items-center space-x-3">
+                <span class="text-sm text-gray-500">Soft Edge:</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="20"
+                  step="1"
+                  bind:value={featherRadius}
+                  class="w-32 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                />
+                <span class="text-sm font-medium w-12">{featherRadius}px</span>
+              </div>
             </div>
             
             <!-- Action Buttons -->
@@ -1000,5 +1085,45 @@
   /* Smooth cropper interactions */
   .crop-image {
     transition: transform 0.1s ease-out;
+  }
+
+  /* Slider styling */
+  .slider {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #8b5cf6;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #8b5cf6;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .slider::-webkit-slider-track {
+    height: 8px;
+    border-radius: 4px;
+    background: #e5e7eb;
+  }
+
+  .slider::-moz-range-track {
+    height: 8px;
+    border-radius: 4px;
+    background: #e5e7eb;
   }
 </style>

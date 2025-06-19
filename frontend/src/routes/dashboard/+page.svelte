@@ -91,7 +91,7 @@
         const dashboardResponse = await fetch('/api/v1/dashboard/stats', {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            'Authorization': `Bearer ${$auth.token}`,
             'Content-Type': 'application/json'
           }
         }).then(res => res.json()).catch(err => {
@@ -103,7 +103,7 @@
         const recentUpdatesResponse = await fetch('/api/v1/dashboard/recent-updates?limit=5', {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            'Authorization': `Bearer ${$auth.token}`,
             'Content-Type': 'application/json'
           }
         }).then(res => res.json()).catch(err => {
