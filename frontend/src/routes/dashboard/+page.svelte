@@ -94,8 +94,16 @@
             'Authorization': `Bearer ${$auth.token}`,
             'Content-Type': 'application/json'
           }
-        }).then(res => res.json()).catch(err => {
-          console.error('Dashboard stats error:', err);
+        }).then(async res => {
+          if (!res.ok) {
+            console.error('Dashboard stats API error:', res.status, res.statusText);
+            const errorText = await res.text();
+            console.error('Dashboard stats error details:', errorText);
+            return { totalUpdates: 0, recentUpdates: 0, upcomingPresentations: 0, completedPresentations: 0 };
+          }
+          return res.json();
+        }).catch(err => {
+          console.error('Dashboard stats network error:', err);
           return { totalUpdates: 0, recentUpdates: 0, upcomingPresentations: 0, completedPresentations: 0 };
         });
 
@@ -106,8 +114,16 @@
             'Authorization': `Bearer ${$auth.token}`,
             'Content-Type': 'application/json'
           }
-        }).then(res => res.json()).catch(err => {
-          console.error('Dashboard recent updates error:', err);
+        }).then(async res => {
+          if (!res.ok) {
+            console.error('Dashboard recent updates API error:', res.status, res.statusText);
+            const errorText = await res.text();
+            console.error('Dashboard recent updates error details:', errorText);
+            return { items: [] };
+          }
+          return res.json();
+        }).catch(err => {
+          console.error('Dashboard recent updates network error:', err);
           return { items: [] };
         });
 
@@ -388,31 +404,27 @@
         <h2 class="text-xl font-bold text-[rgb(var(--color-text-primary))]">DoR Dash Development Roadmap</h2>
         <div class="card hover:shadow-2xl transition-shadow duration-300 p-8 overflow-x-auto">
           <div class="mermaid min-w-[800px]">
-            flowchart TD
-              A["✅ Faculty Updates System"] --> B["✅ Student Submission Portal"]
-              B --> C["✅ Meeting Agenda Management"]
-              C --> D["✅ File Upload System"]
-              D --> E["✅ QA Validation Framework"]
-              E --> F["✅ LLM Text Refinement Testing"]
-              F --> G["✅ Automated Test Suite"]
-              G --> H["🔄 Auto-compiling Agenda"]
-              H --> I["🔄 Secretarial Login Layer"]
-              I --> J["📋 Advanced Roster Management"]
-              J --> K["🚀 LLM Feedback Integration Phase 1"]
-              K --> L["🚀 LLM LoRA Fine-tuning"]
-              L --> M["🚀 LLM-Assisted Agenda Compiler"]
-              M --> N["🚀 Real-time Collaboration"]
-              N --> O["🚀 Mobile App Development"]
-
-              classDef completed fill:#22c55e,stroke:#16a34a,stroke-width:2px,color:#fff
-              classDef inProgress fill:#f59e0b,stroke:#d97706,stroke-width:2px,color:#fff
-              classDef planned fill:#6366f1,stroke:#4f46e5,stroke-width:2px,color:#fff
-              classDef future fill:#8b5cf6,stroke:#7c3aed,stroke-width:2px,color:#fff
-
-              class A,B,C,D,E,F,G completed
-              class H,I inProgress
-              class J planned
-              class K,L,M,N,O future
+            gantt
+              title DoR Dash Feature Development Progress
+              section Core Features
+                Faculty Updates System           :done, core1, 1, 3
+                Student Submission Portal        :done, core2, 2, 3  
+                Meeting Agenda Management        :done, core3, 3, 2
+                File Upload System              :done, core4, 4, 2
+              section QA & Testing
+                QA Validation Framework         :done, qa1, 5, 2
+                LLM Text Refinement Testing     :done, qa2, 6, 2
+                Automated Test Suite            :done, qa3, 7, 1
+              section In Progress
+                Auto-compiling Agenda           :active, prog1, 8, 2
+                Secretarial Login Layer         :active, prog2, 9, 3
+                Advanced Roster Management      :prog3, 10, 2
+              section Future Features
+                LLM Feedback Integration Phase 1 :fut1, 11, 4
+                LLM LoRA Fine-tuning            :fut2, 12, 3
+                LLM-Assisted Agenda Compiler    :fut3, 13, 4
+                Real-time Collaboration         :fut4, 14, 6
+                Mobile App Development          :fut5, 15, 8
           </div>
         </div>
       </div>

@@ -373,14 +373,6 @@
     
     // Create circular clipping path with feathering
     if (featherRadius > 0) {
-      // Create radial gradient for soft edges
-      const gradient = ctx.createRadialGradient(
-        centerPoint, centerPoint, radius - featherRadius,
-        centerPoint, centerPoint, radius
-      );
-      gradient.addColorStop(0, 'rgba(0,0,0,1)');
-      gradient.addColorStop(1, 'rgba(0,0,0,0)');
-      
       // Draw the image first
       ctx.drawImage(
         cropImage,
@@ -388,12 +380,20 @@
         0, 0, size, size
       );
       
-      // Apply soft circular mask
+      // Create soft circular mask
       ctx.globalCompositeOperation = 'destination-in';
-      ctx.beginPath();
-      ctx.arc(centerPoint, centerPoint, radius, 0, Math.PI * 2);
+      
+      // Create radial gradient for soft edges
+      const gradient = ctx.createRadialGradient(
+        centerPoint, centerPoint, Math.max(0, radius - featherRadius),
+        centerPoint, centerPoint, radius
+      );
+      gradient.addColorStop(0, 'rgba(255,255,255,1)'); // Fully opaque
+      gradient.addColorStop(1, 'rgba(255,255,255,0)'); // Fully transparent
+      
+      // Fill the entire canvas with the gradient
       ctx.fillStyle = gradient;
-      ctx.fill();
+      ctx.fillRect(0, 0, size, size);
     } else {
       // Hard circular crop (no feathering)
       ctx.beginPath();
