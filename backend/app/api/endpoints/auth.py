@@ -34,7 +34,17 @@ class User(BaseModel):
 
 def get_user_by_username(db: Session, username: str):
     """Get user by username from database"""
-    return db.query(UserModel).filter(UserModel.username == username).first()
+    try:
+        return db.query(UserModel).filter(UserModel.username == username).first()
+    except Exception as e:
+        print(f"ERROR in get_user_by_username: {e}")
+        # Try again with a fresh session if the first query fails
+        try:
+            db.rollback()
+            return db.query(UserModel).filter(UserModel.username == username).first()
+        except Exception as e2:
+            print(f"ERROR in get_user_by_username retry: {e2}")
+            return None
 
 def get_user_by_id(db: Session, user_id: int):
     """Get user by ID from database"""
