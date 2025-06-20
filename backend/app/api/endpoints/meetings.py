@@ -260,7 +260,7 @@ async def get_meeting_agenda(
                 "upload_date": file_upload.upload_date.isoformat() if file_upload.upload_date else None
             })
         
-        if item.item_type == AgendaItemType.STUDENT_UPDATE:
+        if item.item_type == AgendaItemType.STUDENT_UPDATE.value:
             content = item.content
             student_updates.append({
                 "id": item.id,
@@ -279,7 +279,7 @@ async def get_meeting_agenda(
                 "updated_at": item.updated_at.isoformat()
             })
         
-        elif item.item_type == AgendaItemType.FACULTY_UPDATE:
+        elif item.item_type == AgendaItemType.FACULTY_UPDATE.value:
             content = item.content
             faculty_updates.append({
                 "id": item.id,

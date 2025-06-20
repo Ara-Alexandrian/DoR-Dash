@@ -646,7 +646,7 @@ async def get_student_update_legacy(
     agenda_item = await get_agenda_item(current_user, update_id, db)
     
     # Ensure it's a student update
-    if agenda_item.item_type != AgendaItemType.STUDENT_UPDATE:
+    if agenda_item.item_type != AgendaItemType.STUDENT_UPDATE.value:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Student update not found"
@@ -706,7 +706,7 @@ async def get_faculty_update_legacy(
     agenda_item = await get_agenda_item(current_user, update_id, db)
     
     # Ensure it's a faculty update
-    if agenda_item.item_type != AgendaItemType.FACULTY_UPDATE:
+    if agenda_item.item_type != AgendaItemType.FACULTY_UPDATE.value:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Faculty update not found"

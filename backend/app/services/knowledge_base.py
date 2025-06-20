@@ -201,8 +201,8 @@ class KnowledgeBaseService:
     
     async def snapshot_submissions(self) -> KnowledgeSnapshot:
         """Analyze all recent submissions and update knowledge base"""
-        from app.db.models.user import SessionLocal
-        from app.db.models.user import StudentUpdate, FacultyUpdate
+        from app.db.session import SessionLocal
+        from app.db.models.agenda_item import AgendaItem, AgendaItemType
         
         snapshot_time = datetime.now()
         new_terms = 0
@@ -212,33 +212,34 @@ class KnowledgeBaseService:
             # Get recent submissions (last 30 days)
             recent_date = snapshot_time - timedelta(days=30)
             
-            # Analyze student updates
-            student_updates = db.query(StudentUpdate).filter(
-                StudentUpdate.created_at >= recent_date
+            # Analyze agenda items (both student and faculty updates)
+            agenda_items = db.query(AgendaItem).filter(
+                AgendaItem.created_at >= recent_date,
+                AgendaItem.item_type.in_([AgendaItemType.STUDENT_UPDATE, AgendaItemType.FACULTY_UPDATE])
             ).all()
             
-            for update in student_updates:
-                # Combine all text fields
-                combined_text = f"{update.progress_text or ''} {update.challenges_text or ''} {update.next_steps_text or ''}"
+            for item in agenda_items:
+                combined_text = ""
+                context_snippet = ""
+                
+                if item.item_type == AgendaItemType.STUDENT_UPDATE:
+                    # Combine student update text fields
+                    progress_text = item.content.get("progress_text", "") if item.content else ""
+                    challenges_text = item.content.get("challenges_text", "") if item.content else ""
+                    next_steps_text = item.content.get("next_steps_text", "") if item.content else ""
+                    combined_text = f"{progress_text} {challenges_text} {next_steps_text}"
+                    context_snippet = f"Student update: {progress_text[:50]}..."
+                elif item.item_type == AgendaItemType.FACULTY_UPDATE:
+                    # Combine faculty update text fields
+                    announcements_text = item.content.get("announcements_text", "") if item.content else ""
+                    projects_text = item.content.get("projects_text", "") if item.content else ""
+                    combined_text = f"{announcements_text} {projects_text}"
+                    context_snippet = f"Faculty update: {announcements_text[:50]}..."
                 
                 if combined_text.strip():
                     terms = self.extract_terminology(combined_text)
                     if terms:
-                        self.update_terminology_db(terms, f"Student update: {update.progress_text[:50]}...")
-                        new_terms += len([t for tlist in terms.values() for t in tlist])
-            
-            # Analyze faculty updates
-            faculty_updates = db.query(FacultyUpdate).filter(
-                FacultyUpdate.created_at >= recent_date
-            ).all()
-            
-            for update in faculty_updates:
-                combined_text = f"{update.announcements_text or ''} {update.projects_text or ''}"
-                
-                if combined_text.strip():
-                    terms = self.extract_terminology(combined_text)
-                    if terms:
-                        self.update_terminology_db(terms, f"Faculty update: {update.announcements_text[:50]}...")
+                        self.update_terminology_db(terms, context_snippet)
                         new_terms += len([t for tlist in terms.values() for t in tlist])
         
         # Get top terms for summary
@@ -252,7 +253,7 @@ class KnowledgeBaseService:
         # Save snapshot
         snapshot = KnowledgeSnapshot(
             timestamp=snapshot_time,
-            total_submissions=len(student_updates) + len(faculty_updates),
+            total_submissions=len(agenda_items),
             new_terms_found=new_terms,
             updated_terms=updated_terms,
             top_terms=top_terms

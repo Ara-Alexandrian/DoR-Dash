@@ -144,7 +144,7 @@ async def read_student_update(
     agenda_item = db.query(AgendaItem).options(
         joinedload(AgendaItem.user),
         joinedload(AgendaItem.file_uploads)
-    ).filter(AgendaItem.id == update_id, AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE).first()
+    ).filter(AgendaItem.id == update_id, AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE.value).first()
     
     if not agenda_item:
         raise HTTPException(
@@ -207,7 +207,7 @@ async def list_student_updates(
     query = db.query(AgendaItem).options(
         joinedload(AgendaItem.user),
         joinedload(AgendaItem.file_uploads)
-    ).filter(AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE)
+    ).filter(AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE.value)
     
     # Filter updates based on permissions and query parameters
     if current_user.role not in ["admin", "faculty"]:
@@ -269,7 +269,7 @@ async def update_student_update(
     agenda_item = db.query(AgendaItem).options(
         joinedload(AgendaItem.user),
         joinedload(AgendaItem.file_uploads)
-    ).filter(AgendaItem.id == update_id, AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE).first()
+    ).filter(AgendaItem.id == update_id, AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE.value).first()
     
     if not agenda_item:
         raise HTTPException(
@@ -340,7 +340,7 @@ async def upload_files_to_update(
     # Find the update in database
     agenda_item = db.query(AgendaItem).filter(
         AgendaItem.id == update_id,
-        AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE
+        AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE.value
     ).first()
     
     if not agenda_item:
@@ -424,7 +424,7 @@ async def download_file(
     # Find the update in database
     agenda_item = db.query(AgendaItem).filter(
         AgendaItem.id == update_id,
-        AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE
+        AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE.value
     ).first()
     
     if not agenda_item:
@@ -529,7 +529,7 @@ async def delete_student_update(
     # Find the update in database using AgendaItem
     agenda_item = db.query(AgendaItem).filter(
         AgendaItem.id == update_id, 
-        AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE
+        AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE.value
     ).first()
     
     if not agenda_item:
