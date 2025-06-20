@@ -402,29 +402,133 @@
       <!-- Roadmap Section -->
       <div class="space-y-4" in:fly={{y: 20, duration: 400, delay: 300}}>
         <h2 class="text-xl font-bold text-[rgb(var(--color-text-primary))]">DoR Dash Development Roadmap</h2>
-        <div class="card hover:shadow-2xl transition-shadow duration-300 p-8 overflow-x-auto">
-          <div class="mermaid min-w-[800px]">
-gantt
-    title DoR Dash Feature Timeline
-    dateFormat YYYY-MM-DD
-    section Completed
-        Faculty Updates System           :done, des1, 2024-01-01, 2024-01-20
-        Student Submission Portal        :done, des2, 2024-01-05, 2024-01-15
-        Meeting Agenda Management        :done, des3, 2024-01-10, 2024-01-20
-        File Upload System              :done, des4, 2024-01-15, 2024-01-25
-        QA Validation Framework         :done, des5, 2024-01-20, 2024-01-30
-        LLM Text Refinement Testing     :done, des6, 2024-01-25, 2024-02-02
-        Automated Test Suite            :done, des7, 2024-01-30, 2024-02-05
-    section In Progress
-        Auto-compiling Agenda           :active, des8, 2024-02-05, 2024-02-15
-        Secretarial Login Layer         :active, des9, 2024-02-10, 2024-02-25
-        Advanced Roster Management      :des10, 2024-02-20, 2024-03-01
-    section Future Features
-        LLM Feedback Integration Phase 1 :des11, 2024-03-01, 2024-03-20
-        LLM LoRA Fine-tuning            :des12, 2024-03-10, 2024-03-25
-        LLM-Assisted Agenda Compiler    :des13, 2024-03-20, 2024-04-10
-        Real-time Collaboration         :des14, 2024-04-01, 2024-05-01
-        Mobile App Development          :des15, 2024-05-01, 2024-06-10
+        <div class="card hover:shadow-2xl transition-shadow duration-300 p-8">
+          <div class="space-y-8">
+            <!-- Completed Section -->
+            <div>
+              <h3 class="text-lg font-semibold text-green-600 dark:text-green-400 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Completed Features
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                  <div class="flex items-center text-green-700 dark:text-green-300 font-medium">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    Faculty Updates System
+                  </div>
+                </div>
+                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                  <div class="flex items-center text-green-700 dark:text-green-300 font-medium">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    Student Submission Portal
+                  </div>
+                </div>
+                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                  <div class="flex items-center text-green-700 dark:text-green-300 font-medium">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    Meeting Agenda Management
+                  </div>
+                </div>
+                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                  <div class="flex items-center text-green-700 dark:text-green-300 font-medium">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    File Upload System
+                  </div>
+                </div>
+                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                  <div class="flex items-center text-green-700 dark:text-green-300 font-medium">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    QA Validation Framework
+                  </div>
+                </div>
+                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                  <div class="flex items-center text-green-700 dark:text-green-300 font-medium">
+                    <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    LLM Text Refinement Testing
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- In Progress Section -->
+            <div>
+              <h3 class="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                In Progress
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  <div class="flex items-center text-blue-700 dark:text-blue-300 font-medium">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                    Auto-compiling Agenda
+                  </div>
+                </div>
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  <div class="flex items-center text-blue-700 dark:text-blue-300 font-medium">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                    Profile Picture System
+                  </div>
+                </div>
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                  <div class="flex items-center text-blue-700 dark:text-blue-300 font-medium">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                    Advanced Roster Management
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Future Features Section -->
+            <div>
+              <h3 class="text-lg font-semibold text-purple-600 dark:text-purple-400 mb-4 flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                Future Features
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                  <div class="flex items-center text-purple-700 dark:text-purple-300 font-medium">
+                    <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                    LLM Feedback Integration
+                  </div>
+                </div>
+                <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                  <div class="flex items-center text-purple-700 dark:text-purple-300 font-medium">
+                    <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                    LLM LoRA Fine-tuning
+                  </div>
+                </div>
+                <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                  <div class="flex items-center text-purple-700 dark:text-purple-300 font-medium">
+                    <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                    LLM-Assisted Agenda Compiler
+                  </div>
+                </div>
+                <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                  <div class="flex items-center text-purple-700 dark:text-purple-300 font-medium">
+                    <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                    Real-time Collaboration
+                  </div>
+                </div>
+                <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                  <div class="flex items-center text-purple-700 dark:text-purple-300 font-medium">
+                    <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                    Mobile App Development
+                  </div>
+                </div>
+                <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                  <div class="flex items-center text-purple-700 dark:text-purple-300 font-medium">
+                    <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                    Secretarial Login Layer
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
