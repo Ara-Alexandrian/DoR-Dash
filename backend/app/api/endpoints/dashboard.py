@@ -18,9 +18,9 @@ async def get_dashboard_stats(
     db: Session = Depends(get_sync_db)
 ):
     """
-    Get dashboard statistics based on user role
-    - Admins/Faculty see all updates
-    - Students see only their own updates
+    Get dashboard statistics for the current user
+    - All users see only their own updates for consistency with the updates page
+    - This ensures dashboard counts match what users see when they click "Your Updates"
     """
     # Calculate date 30 days ago
     thirty_days_ago = datetime.now() - timedelta(days=30)
@@ -30,13 +30,9 @@ async def get_dashboard_stats(
         AgendaItem.item_type.in_([AgendaItemType.STUDENT_UPDATE, AgendaItemType.FACULTY_UPDATE])
     )
     
-    # Filter based on user role
-    if current_user.role not in ["admin"]:
-        # Non-admin users see only their own updates (user-centric design)
-        query = base_query.filter(AgendaItem.user_id == current_user.id)
-    else:
-        # Admins see all updates
-        query = base_query
+    # Filter to show only user's own updates for consistency with the updates page
+    # This ensures the dashboard count matches what users see when they click "Your Updates"
+    query = base_query.filter(AgendaItem.user_id == current_user.id)
     
     # Get total updates count
     total_updates = query.count()
@@ -46,29 +42,25 @@ async def get_dashboard_stats(
         AgendaItem.created_at >= thirty_days_ago
     ).count()
     
-    # Get upcoming presentations count
+    # Get upcoming presentations count - always filter by user for consistency
     presentations_query = db.query(AgendaItem).filter(
         AgendaItem.is_presenting == True,
-        AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE
+        AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE,
+        AgendaItem.user_id == current_user.id
     ).join(Meeting).filter(
         Meeting.start_time >= datetime.now()
     )
     
-    if current_user.role not in ["admin", "faculty"]:
-        presentations_query = presentations_query.filter(AgendaItem.user_id == current_user.id)
-    
     upcoming_presentations = presentations_query.count()
     
-    # Get completed presentations count
+    # Get completed presentations count - always filter by user for consistency
     completed_presentations_query = db.query(AgendaItem).filter(
         AgendaItem.is_presenting == True,
-        AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE
+        AgendaItem.item_type == AgendaItemType.STUDENT_UPDATE,
+        AgendaItem.user_id == current_user.id
     ).join(Meeting).filter(
         Meeting.start_time < datetime.now()
     )
-    
-    if current_user.role not in ["admin", "faculty"]:
-        completed_presentations_query = completed_presentations_query.filter(AgendaItem.user_id == current_user.id)
     
     completed_presentations = completed_presentations_query.count()
     
@@ -88,8 +80,7 @@ async def get_recent_updates(
 ):
     """
     Get recent updates for dashboard display
-    - Admins/Faculty see all recent updates
-    - Students see only their own recent updates
+    - All users see only their own recent updates for consistency with the updates page
     """
     # Base query with user info
     query = db.query(AgendaItem).options(
@@ -99,11 +90,8 @@ async def get_recent_updates(
         AgendaItem.item_type.in_([AgendaItemType.STUDENT_UPDATE, AgendaItemType.FACULTY_UPDATE])
     )
     
-    # Filter based on user role  
-    if current_user.role not in ["admin"]:
-        # Non-admin users see only their own updates (user-centric design)
-        query = query.filter(AgendaItem.user_id == current_user.id)
-    # Admins see all updates (no additional filtering needed)
+    # Filter to show only user's own updates for consistency with the updates page
+    query = query.filter(AgendaItem.user_id == current_user.id)
     
     # Get recent updates, ordered by creation date
     recent_items = query.order_by(AgendaItem.created_at.desc()).limit(limit).all()
@@ -163,11 +151,8 @@ async def get_activity_summary(
         AgendaItem.created_at >= start_date
     )
     
-    # Filter based on user role
-    if current_user.role not in ["admin"]:
-        # Non-admin users see only their own updates (user-centric design)  
-        query = query.filter(AgendaItem.user_id == current_user.id)
-    # Admins see all updates (no additional filtering needed)
+    # Filter to show only user's own updates for consistency with the updates page
+    query = query.filter(AgendaItem.user_id == current_user.id)
     
     # Group by date
     daily_counts = query.group_by(func.date(AgendaItem.created_at)).all()
