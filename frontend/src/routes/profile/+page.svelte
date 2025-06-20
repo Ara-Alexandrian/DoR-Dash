@@ -619,7 +619,7 @@
           </div>
         {/if}
         
-{#if !showCropper}
+        {#if !showCropper}
           <!-- Standard Avatar Display -->
           <div class="flex items-center space-x-6">
             <!-- Current Avatar Display -->
