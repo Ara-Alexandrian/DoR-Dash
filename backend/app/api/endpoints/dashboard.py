@@ -105,19 +105,19 @@ async def get_recent_updates(
             "user_name": item.user.full_name or item.user.username if item.user else "Unknown",
             "submission_date": item.created_at.isoformat(),
             "meeting_id": item.meeting_id,
-            "is_faculty": item.item_type == AgendaItemType.FACULTY_UPDATE.value,
+            "is_faculty": item.item_type == AgendaItemType.FACULTY_UPDATE,
             "type": item.item_type
         }
         
         # Add type-specific fields from content
         if item.content:
-            if item.item_type == AgendaItemType.STUDENT_UPDATE.value:
+            if item.item_type == AgendaItemType.STUDENT_UPDATE:
                 update_data.update({
                     "progress_text": item.content.get("progress_text", ""),
                     "challenges_text": item.content.get("challenges_text", ""),
                     "will_present": item.is_presenting
                 })
-            elif item.item_type == AgendaItemType.FACULTY_UPDATE.value:
+            elif item.item_type == AgendaItemType.FACULTY_UPDATE:
                 update_data.update({
                     "announcements_text": item.content.get("announcements_text", ""),
                     "announcement_type": item.content.get("announcement_type", "general")

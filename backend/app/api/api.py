@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.endpoints import text, auth, updates, faculty_updates, meetings, users, roster, presentations, registration, agenda_items, dashboard, text_testing
+from app.api.endpoints import text, auth, updates, faculty_updates, meetings, users, roster, presentations, registration, agenda_items, dashboard, text_testing, presentation_assignments
 
 # Safe import of knowledge base
 try:
@@ -37,5 +37,6 @@ api_router.include_router(presentations.router, prefix="/presentations", tags=["
 api_router.include_router(registration.router, prefix="/registration", tags=["registration"])
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 api_router.include_router(text_testing.router, prefix="/text-testing", tags=["text-testing"])
+api_router.include_router(presentation_assignments.router, prefix="/presentation-assignments", tags=["presentation-assignments"])
 # api_router.include_router(requests.router, prefix="/requests", tags=["requests"])
 # api_router.include_router(files.router, prefix="/files", tags=["files"])

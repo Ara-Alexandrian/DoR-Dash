@@ -46,6 +46,10 @@ class User(Base):
     created_meetings = relationship("Meeting", back_populates="creator", foreign_keys="Meeting.created_by", cascade="all, delete-orphan")
     file_uploads = relationship("FileUpload", back_populates="user", cascade="all, delete-orphan")
     
+    # Presentation assignment relationships
+    assigned_presentations = relationship("PresentationAssignment", foreign_keys="PresentationAssignment.student_id", back_populates="student", cascade="all, delete-orphan")
+    presentation_assignments_made = relationship("PresentationAssignment", foreign_keys="PresentationAssignment.assigned_by_id", back_populates="assigned_by", cascade="all, delete-orphan")
+    
     @property
     def role_enum(self) -> UserRole:
         """Get role as enum"""

@@ -38,7 +38,7 @@
         <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="w-20 h-20 object-contain" />
       </div>
       
-      <h2 class="text-2xl font-bold text-center text-gray-800 dark:text-slate-100 dracula:text-slate-100 mbp:text-white lsu:text-white mb-6">
+      <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-white dracula:text-white mbp:text-white lsu:text-white mb-6">
         {loggingOut ? 'Logging Out...' : 'You Have Been Logged Out'}
       </h2>
       
@@ -47,7 +47,7 @@
           <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-600"></div>
         </div>
       {:else}
-        <p class="text-center mb-8" style="color: {currentTheme === 'mbp' ? 'rgb(254, 202, 202)' : currentTheme === 'lsu' ? 'rgb(221, 214, 254)' : 'rgb(75, 85, 99)'};">
+        <p class="text-center mb-8 text-gray-700 dark:text-gray-200 dracula:text-gray-200 mbp:text-red-100 lsu:text-purple-100">
           Thank you for using the Dose of Reality Dashboard. You have been successfully logged out of your account.
         </p>
         

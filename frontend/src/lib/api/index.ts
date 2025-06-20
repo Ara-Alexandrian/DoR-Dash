@@ -359,3 +359,53 @@ export const presentationApi = {
     });
   }
 };
+
+// Presentation Assignments API (New grillometer-enabled system)
+export const presentationAssignmentApi = {
+  // Get all presentation assignments
+  getAssignments: async (filters?: { student_id?: number; assigned_by_id?: number; meeting_id?: number; is_completed?: boolean }) => {
+    const params = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, value.toString());
+        }
+      });
+    }
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return await apiFetch(`/presentation-assignments/${query}`);
+  },
+  
+  // Get assignment by ID
+  getAssignment: async (id: number | string) => {
+    return await apiFetch(`/presentation-assignments/${id}`);
+  },
+  
+  // Create assignment (faculty/admin only)
+  createAssignment: async (assignmentData: any) => {
+    return await apiFetch('/presentation-assignments/', {
+      method: 'POST',
+      body: JSON.stringify(assignmentData)
+    });
+  },
+  
+  // Update assignment
+  updateAssignment: async (id: number | string, assignmentData: any) => {
+    return await apiFetch(`/presentation-assignments/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(assignmentData)
+    });
+  },
+  
+  // Delete assignment (faculty/admin only)
+  deleteAssignment: async (id: number | string) => {
+    return await apiFetch(`/presentation-assignments/${id}`, {
+      method: 'DELETE'
+    });
+  },
+  
+  // Get available presentation types
+  getPresentationTypes: async () => {
+    return await apiFetch('/presentation-assignments/types/');
+  }
+};

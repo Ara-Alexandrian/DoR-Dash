@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { auth } from '$lib/stores/auth';
-  import { updateApi, presentationApi, facultyUpdateApi } from '$lib/api';
+  import { updateApi, presentationApi, facultyUpdateApi, presentationAssignmentApi } from '$lib/api';
   import { fade, fly, scale } from 'svelte/transition';
   import mermaid from 'mermaid';
   
@@ -160,20 +160,42 @@
         updates = [];
       }
       
-      // Fetch presentations (user's own only)
+      // Fetch presentation assignments (user's own only)
       try {
-        const presentationsResponse = await presentationApi.getPresentations();
+        const assignmentsResponse = await presentationAssignmentApi.getAssignments();
         
-        // Filter presentations for the current user only
-        presentations = presentationsResponse.filter(
-          p => p.user_id === $auth.user?.id
-        ).sort((a, b) => new Date(a.meeting_date) - new Date(b.meeting_date));
+        // Transform assignments into presentation format for dashboard compatibility
+        presentations = assignmentsResponse.map(assignment => ({
+          id: assignment.id,
+          title: assignment.title,
+          meeting_date: assignment.due_date,
+          status: assignment.is_completed ? 'completed' : 'scheduled',
+          user_id: assignment.student_id,
+          description: assignment.description,
+          presentation_type: assignment.presentation_type,
+          duration_minutes: assignment.duration_minutes,
+          requirements: assignment.requirements,
+          grillometer: {
+            novelty: assignment.grillometer_novelty,
+            methodology: assignment.grillometer_methodology,
+            delivery: assignment.grillometer_delivery
+          },
+          assigned_by: assignment.assigned_by_name,
+          assigned_date: assignment.assigned_date,
+          notes: assignment.notes
+        })).sort((a, b) => {
+          // Sort by due date (earliest first), with no due date assignments at the end
+          if (!a.meeting_date && !b.meeting_date) return 0;
+          if (!a.meeting_date) return 1;
+          if (!b.meeting_date) return -1;
+          return new Date(a.meeting_date) - new Date(b.meeting_date);
+        });
         
         // Update presentation stats
         stats.upcomingPresentations = presentations.filter(p => p.status === 'scheduled').length;
         stats.completedPresentations = presentations.filter(p => p.status === 'completed').length;
       } catch (err) {
-        console.error('Failed to load presentations:', err);
+        console.error('Failed to load presentation assignments:', err);
         presentations = [];
       }
       
@@ -209,6 +231,174 @@
     upcomingPresentations: 0,
     completedPresentations: 0
   };
+
+  // Roadmap modal state
+  let showModal = false;
+  let selectedFeature = null;
+
+  // Roadmap feature details
+  const featureDetails = {
+    'Faculty Updates System': {
+      status: 'completed',
+      description: 'System for faculty to submit announcements and updates',
+      details: [
+        'Faculty can create and submit announcements',
+        'Multiple announcement types (general, urgent, project)',
+        'Integration with meeting agenda generation',
+        'Real-time notifications to students'
+      ]
+    },
+    'Student Submission Portal': {
+      status: 'completed',
+      description: 'Portal for students to submit research progress updates',
+      details: [
+        'Research progress tracking and submission',
+        'Challenge and obstacle reporting',
+        'Goal setting and milestone tracking',
+        'File attachment support for documents'
+      ]
+    },
+    'Meeting Agenda Management': {
+      status: 'completed',
+      description: 'Automated meeting agenda creation and management',
+      details: [
+        'Automatic agenda compilation from submissions',
+        'Meeting scheduling and calendar integration',
+        'Printable agenda generation',
+        'Historical meeting archive'
+      ]
+    },
+    'File Upload System': {
+      status: 'completed',
+      description: 'Secure file upload and management system',
+      details: [
+        'Support for multiple file formats (PDF, DOC, PPT)',
+        'Secure file storage and access control',
+        'File preview and download capabilities',
+        'Integration with student submissions'
+      ]
+    },
+    'QA Validation Framework': {
+      status: 'completed',
+      description: 'Quality assurance and testing framework',
+      details: [
+        'Automated testing suite for all features',
+        'LLM text refinement validation',
+        'Performance monitoring and reporting',
+        'Continuous integration workflows'
+      ]
+    },
+    'LLM Text Refinement Testing': {
+      status: 'completed',
+      description: 'AI-powered text improvement and validation system',
+      details: [
+        'Grammar and clarity enhancement',
+        'Conservative text refinement approach',
+        'Quality validation and reporting',
+        'Integration with submission workflow'
+      ]
+    },
+    'Auto-compiling Agenda': {
+      status: 'in_progress',
+      description: 'Intelligent agenda compilation from submissions',
+      details: [
+        'Smart grouping of related submissions',
+        'Time allocation optimization',
+        'Presenter scheduling automation',
+        'Dynamic agenda updates'
+      ]
+    },
+    'Profile Picture System': {
+      status: 'in_progress',
+      description: 'User profile customization with avatar support',
+      details: [
+        'Image upload and cropping functionality',
+        'Automatic resizing to standard formats',
+        'Soft edge and circular crop options',
+        'Profile picture display across platform'
+      ]
+    },
+    'Advanced Roster Management': {
+      status: 'in_progress',
+      description: 'Enhanced user and role management system',
+      details: [
+        'Bulk user import and export',
+        'Advanced permission controls',
+        'User activity tracking',
+        'Custom role definitions'
+      ]
+    },
+    'LLM Feedback Integration': {
+      status: 'future',
+      description: 'AI-powered feedback and suggestion system',
+      details: [
+        'Intelligent progress analysis',
+        'Personalized improvement suggestions',
+        'Research direction recommendations',
+        'Automated milestone tracking'
+      ]
+    },
+    'LLM LoRA Fine-tuning': {
+      status: 'future',
+      description: 'Custom AI model training for research domain',
+      details: [
+        'Domain-specific language model training',
+        'Research terminology optimization',
+        'Custom feedback generation',
+        'Improved text analysis accuracy'
+      ]
+    },
+    'LLM-Assisted Agenda Compiler': {
+      status: 'future',
+      description: 'AI-powered intelligent agenda creation',
+      details: [
+        'Natural language processing of submissions',
+        'Intelligent topic grouping and ordering',
+        'Optimal time allocation suggestions',
+        'Meeting flow optimization'
+      ]
+    },
+    'Real-time Collaboration': {
+      status: 'future',
+      description: 'Live collaboration features for research teams',
+      details: [
+        'Real-time document editing',
+        'Live chat and messaging',
+        'Collaborative whiteboarding',
+        'Video conference integration'
+      ]
+    },
+    'Mobile App Development': {
+      status: 'future',
+      description: 'Native mobile applications for iOS and Android',
+      details: [
+        'Native iOS and Android applications',
+        'Push notifications for updates',
+        'Offline functionality support',
+        'Mobile-optimized user interface'
+      ]
+    },
+    'Secretarial Login Layer': {
+      status: 'future',
+      description: 'Administrative assistant access and workflow support',
+      details: [
+        'Limited administrative access for support staff',
+        'Meeting preparation assistance tools',
+        'Document management workflows',
+        'Administrative reporting features'
+      ]
+    }
+  };
+
+  function openModal(featureName) {
+    selectedFeature = featureDetails[featureName];
+    showModal = true;
+  }
+
+  function closeModal() {
+    showModal = false;
+    selectedFeature = null;
+  }
 </script>
 
 <div class="min-h-screen">
@@ -413,12 +603,15 @@
                 Completed Features
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                <button 
+                  on:click={() => openModal('Faculty Updates System')}
+                  class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-green-700 dark:text-green-300 font-medium">
                     <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                     Faculty Updates System
                   </div>
-                </div>
+                </button>
                 <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
                   <div class="flex items-center text-green-700 dark:text-green-300 font-medium">
                     <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
@@ -542,10 +735,10 @@
               <svg class="h-6 w-6 text-white mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <h2 class="text-lg font-bold text-white">Upcoming Presentations</h2>
+              <h2 class="text-lg font-bold text-white">Presentation Assignments</h2>
             </div>
             <span class="bg-white/20 text-white text-sm px-3 py-1 rounded-full">
-              {presentations.filter(p => p.status === 'scheduled').length} scheduled
+              {presentations.filter(p => p.status === 'scheduled').length} pending
             </span>
           </div>
           
@@ -559,12 +752,41 @@
                         <h3 class="font-semibold text-[rgb(var(--color-text-primary))] group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
                           {presentation.title || 'Presentation'}
                         </h3>
-                        <p class="text-sm text-[rgb(var(--color-text-secondary))] mt-1 flex items-center">
-                          <svg class="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          {formatDate(presentation.meeting_date)}
-                        </p>
+                        <div class="text-sm text-[rgb(var(--color-text-secondary))] mt-1 space-y-1">
+                          {#if presentation.meeting_date}
+                            <p class="flex items-center">
+                              <svg class="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              Due: {formatDate(presentation.meeting_date)}
+                            </p>
+                          {:else}
+                            <p class="flex items-center text-yellow-600 dark:text-yellow-400">
+                              <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              No due date set
+                            </p>
+                          {/if}
+                          
+                          {#if presentation.assigned_by}
+                            <p class="flex items-center">
+                              <svg class="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                              Assigned by: {presentation.assigned_by}
+                            </p>
+                          {/if}
+                          
+                          {#if presentation.presentation_type}
+                            <p class="flex items-center">
+                              <svg class="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m3 0h-4m-8 0H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2z" />
+                              </svg>
+                              Type: {presentation.presentation_type.replace('_', ' ')}
+                            </p>
+                          {/if}
+                        </div>
                         
                         {#if presentation.files && presentation.files.length > 0}
                           <div class="mt-3">
@@ -582,6 +804,50 @@
                                   {file.name || 'Download'}
                                 </a>
                               {/each}
+                            </div>
+                          </div>
+                        {/if}
+                        
+                        {#if presentation.grillometer && (presentation.grillometer.novelty || presentation.grillometer.methodology || presentation.grillometer.delivery)}
+                          <div class="mt-3 bg-[rgb(var(--color-bg-primary))] rounded-lg p-3 border border-[rgb(var(--color-border))]">
+                            <p class="text-xs font-medium text-[rgb(var(--color-text-tertiary))] mb-2 flex items-center">
+                              🔥 Grillometer Settings
+                              <span class="ml-1 text-[rgb(var(--color-text-secondary))]">(Faculty feedback focus)</span>
+                            </p>
+                            <div class="grid grid-cols-3 gap-3 text-xs">
+                              {#if presentation.grillometer.novelty}
+                                <div class="text-center">
+                                  <div class="text-base mb-1">
+                                    {presentation.grillometer.novelty === 1 ? '🧊' : presentation.grillometer.novelty === 2 ? '🔥' : '🔥🔥🔥'}
+                                  </div>
+                                  <div class="font-medium text-[rgb(var(--color-text-primary))]">Novelty</div>
+                                  <div class="text-[rgb(var(--color-text-secondary))]">
+                                    {presentation.grillometer.novelty === 1 ? 'Relaxed' : presentation.grillometer.novelty === 2 ? 'Moderate' : 'Intense'}
+                                  </div>
+                                </div>
+                              {/if}
+                              {#if presentation.grillometer.methodology}
+                                <div class="text-center">
+                                  <div class="text-base mb-1">
+                                    {presentation.grillometer.methodology === 1 ? '🧊' : presentation.grillometer.methodology === 2 ? '🔥' : '🔥🔥🔥'}
+                                  </div>
+                                  <div class="font-medium text-[rgb(var(--color-text-primary))]">Methodology</div>
+                                  <div class="text-[rgb(var(--color-text-secondary))]">
+                                    {presentation.grillometer.methodology === 1 ? 'Relaxed' : presentation.grillometer.methodology === 2 ? 'Moderate' : 'Intense'}
+                                  </div>
+                                </div>
+                              {/if}
+                              {#if presentation.grillometer.delivery}
+                                <div class="text-center">
+                                  <div class="text-base mb-1">
+                                    {presentation.grillometer.delivery === 1 ? '🧊' : presentation.grillometer.delivery === 2 ? '🔥' : '🔥🔥🔥'}
+                                  </div>
+                                  <div class="font-medium text-[rgb(var(--color-text-primary))]">Delivery</div>
+                                  <div class="text-[rgb(var(--color-text-secondary))]">
+                                    {presentation.grillometer.delivery === 1 ? 'Relaxed' : presentation.grillometer.delivery === 2 ? 'Moderate' : 'Intense'}
+                                  </div>
+                                </div>
+                              {/if}
                             </div>
                           </div>
                         {/if}
@@ -617,8 +883,8 @@
                 <svg class="mx-auto h-16 w-16 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <p class="mt-4 text-[rgb(var(--color-text-secondary))] font-medium">No presentations scheduled</p>
-                <p class="mt-1 text-sm text-[rgb(var(--color-text-tertiary))]">You'll see your upcoming presentations here</p>
+                <p class="mt-4 text-[rgb(var(--color-text-secondary))] font-medium">No presentation assignments</p>
+                <p class="mt-1 text-sm text-[rgb(var(--color-text-tertiary))]">Faculty will assign presentations that appear here</p>
               </div>
             {/if}
           </div>

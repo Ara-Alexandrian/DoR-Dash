@@ -36,6 +36,7 @@ class Meeting(Base):
     # Relationships (core only to avoid circular imports)
     creator = relationship("User", foreign_keys=[created_by], back_populates="created_meetings")
     agenda_items = relationship("AgendaItem", back_populates="meeting", cascade="all, delete-orphan", order_by="AgendaItem.order_index")
+    presentation_assignments = relationship("PresentationAssignment", back_populates="meeting", cascade="all, delete-orphan")
     
     @property
     def meeting_type_enum(self) -> MeetingType:

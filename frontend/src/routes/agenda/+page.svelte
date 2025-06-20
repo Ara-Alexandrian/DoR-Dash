@@ -13,7 +13,7 @@
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
   let showPastOnly = false;
-  let showUpcomingOnly = false;
+  let showUpcomingOnly = true; // Default to upcoming meetings
   
   // Function to load meetings
   async function loadMeetings() {
@@ -196,7 +196,7 @@
           href="/agenda"
           class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-l-md border border-gray-300 {!showPastOnly && !showUpcomingOnly ? 'bg-primary-600 text-white border-primary-600' : 'bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-tertiary))]'}"
         >
-          Current
+          All
         </a>
         <a 
           href="/agenda?filter=upcoming"

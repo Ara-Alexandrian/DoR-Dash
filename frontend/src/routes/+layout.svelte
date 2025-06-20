@@ -33,7 +33,8 @@
     '/agenda',
     '/roster',
     '/admin',
-    '/presentation'
+    '/presentation',
+    '/presentation-assignments'
   ];
   
   // Admin-only routes
@@ -67,7 +68,8 @@
 
   // Faculty/Admin only items
   const facultyAdminNav = [
-    { title: 'Roster', path: '/roster', icon: 'users' }
+    { title: 'Roster', path: '/roster', icon: 'users' },
+    { title: 'Presentation Assignments', path: '/presentation-assignments', icon: 'academic-cap' }
   ];
 
   // Computed navigation based on user role
