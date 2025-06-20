@@ -619,7 +619,157 @@
           </div>
         {/if}
         
-        {#if !showCropper}
+        {#if showCropper}
+          <!-- Image Cropper Interface -->
+          <div class="space-y-6">
+            <div class="text-center">
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Position Your Profile Picture</h3>
+              <p class="text-sm text-gray-500">Drag to reposition, scroll to zoom. The circle shows your final profile picture.</p>
+            </div>
+            
+            <!-- Crop Area and Preview -->
+            <div class="flex justify-center items-center space-x-8">
+              <!-- Main Crop Area -->
+              <div class="text-center">
+                <p class="text-sm font-medium text-gray-700 mb-2">Position & Scale</p>
+                <div 
+                  bind:this={cropContainer}
+                  class="relative w-80 h-80 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-300 cursor-move select-none"
+                  on:mousedown={handleDragStart}
+                  on:mousemove={handleDragMove}
+                  on:mouseup={handleDragEnd}
+                  on:mouseleave={handleDragEnd}
+                  on:touchstart={handleDragStart}
+                  on:touchmove={handleDragMove}
+                  on:touchend={handleDragEnd}
+                  on:wheel={handleWheel}
+                >
+                  <!-- Image -->
+                  {#if avatarPreview}
+                    <img
+                      bind:this={cropImage}
+                      src={avatarPreview}
+                      alt="Crop preview"
+                      class="absolute top-1/2 left-1/2 pointer-events-none user-select-none"
+                      style="transform: translate(-50%, -50%) translate({cropData.x}px, {cropData.y}px) scale({cropData.scale}); transform-origin: center center;"
+                      draggable="false"
+                    />
+                  {/if}
+                  
+                  <!-- Crop Overlay -->
+                  <div class="absolute inset-0 pointer-events-none">
+                    <!-- Dark overlay -->
+                    <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+                    
+                    <!-- Circular crop area -->
+                    <div 
+                      class="absolute top-1/2 left-1/2 w-50 h-50 border-2 border-white rounded-full bg-transparent"
+                      style="width: 200px; height: 200px; transform: translate(-50%, -50%); box-shadow: 0 0 0 1000px rgba(0,0,0,0.5);"
+                    ></div>
+                    
+                    <!-- Center guidelines -->
+                    <div class="absolute top-1/2 left-1/2 w-6 h-0.5 bg-white opacity-75" style="transform: translate(-50%, -50%);"></div>
+                    <div class="absolute top-1/2 left-1/2 w-0.5 h-6 bg-white opacity-75" style="transform: translate(-50%, -50%);"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Live Preview -->
+              <div class="text-center">
+                <p class="text-sm font-medium text-gray-700 mb-2">Preview</p>
+                <div class="w-40 h-40 bg-gray-100 rounded-xl border-2 border-gray-300 flex items-center justify-center">
+                  {#if previewCanvas}
+                    <img 
+                      src={previewCanvas} 
+                      alt="Crop preview" 
+                      class="w-32 h-32 rounded-full border-2 border-white shadow-lg"
+                    />
+                  {:else}
+                    <div class="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center">
+                      <svg class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  {/if}
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Final result</p>
+              </div>
+            </div>
+              
+              <!-- Zoom Controls -->
+              <div class="flex justify-center items-center space-x-4">
+                <button
+                  type="button"
+                  on:click={() => handleZoom(-0.2)}
+                  class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"></path>
+                  </svg>
+                </button>
+                
+                <div class="flex items-center space-x-2">
+                  <span class="text-sm text-gray-500">Zoom: </span>
+                  <span class="text-sm font-medium">{Math.round(cropData.scale * 100)}%</span>
+                </div>
+                
+                <button
+                  type="button"
+                  on:click={() => handleZoom(0.2)}
+                  class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
+                  </svg>
+                </button>
+              </div>
+              
+              <!-- Soft Edge Control -->
+              <div class="flex justify-center items-center space-x-4">
+                <div class="flex items-center space-x-3">
+                  <span class="text-sm text-gray-500">Soft Edge:</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="20"
+                    step="1"
+                    bind:value={featherRadius}
+                    class="w-32 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                  <span class="text-sm font-medium w-12">{featherRadius}px</span>
+                </div>
+              </div>
+              
+              <!-- Action Buttons -->
+              <div class="flex justify-center space-x-4">
+                <button
+                  type="button"
+                  on:click={cancelCropping}
+                  disabled={isUploadingAvatar}
+                  class="inline-flex items-center px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Cancel
+                </button>
+                
+                <button
+                  type="button"
+                  on:click={uploadAvatar}
+                  disabled={isUploadingAvatar}
+                  class="inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {#if isUploadingAvatar}
+                    <div class="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Uploading...
+                  {:else}
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Use This Photo
+                  {/if}
+                </button>
+              </div>
+            </div>
+        {:else}
           <!-- Standard Avatar Display -->
           <div class="flex items-center space-x-6">
             <!-- Current Avatar Display -->
@@ -674,155 +824,6 @@
                   JPG, PNG, or WebP. Max file size: 5MB. Images will be cropped to 200x200px circles.
                 </p>
               </div>
-            </div>
-          </div>
-        {:else}
-          <!-- Image Cropper Interface -->
-          <div class="space-y-6">
-            <div class="text-center">
-              <h3 class="text-lg font-medium text-gray-900 mb-2">Position Your Profile Picture</h3>
-              <p class="text-sm text-gray-500">Drag to reposition, scroll to zoom. The circle shows your final profile picture.</p>
-            </div>
-            
-            <!-- Crop Area and Preview -->
-            <div class="flex justify-center items-center space-x-8">
-              <!-- Main Crop Area -->
-              <div class="text-center">
-                <p class="text-sm font-medium text-gray-700 mb-2">Position & Scale</p>
-                <div 
-                  bind:this={cropContainer}
-                  class="relative w-80 h-80 bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-300 cursor-move select-none"
-                on:mousedown={handleDragStart}
-                on:mousemove={handleDragMove}
-                on:mouseup={handleDragEnd}
-                on:mouseleave={handleDragEnd}
-                on:touchstart={handleDragStart}
-                on:touchmove={handleDragMove}
-                on:touchend={handleDragEnd}
-                on:wheel={handleWheel}
-              >
-                <!-- Image -->
-                {#if avatarPreview}
-                  <img
-                    bind:this={cropImage}
-                    src={avatarPreview}
-                    alt="Crop preview"
-                    class="absolute top-1/2 left-1/2 pointer-events-none user-select-none"
-                    style="transform: translate(-50%, -50%) translate({cropData.x}px, {cropData.y}px) scale({cropData.scale}); transform-origin: center center;"
-                    draggable="false"
-                  />
-                {/if}
-                
-                <!-- Crop Overlay -->
-                <div class="absolute inset-0 pointer-events-none">
-                  <!-- Dark overlay -->
-                  <div class="absolute inset-0 bg-black bg-opacity-50"></div>
-                  
-                  <!-- Circular crop area -->
-                  <div 
-                    class="absolute top-1/2 left-1/2 w-50 h-50 border-2 border-white rounded-full bg-transparent"
-                    style="width: 200px; height: 200px; transform: translate(-50%, -50%); box-shadow: 0 0 0 1000px rgba(0,0,0,0.5);"
-                  ></div>
-                  
-                  <!-- Center guidelines -->
-                  <div class="absolute top-1/2 left-1/2 w-6 h-0.5 bg-white opacity-75" style="transform: translate(-50%, -50%);"></div>
-                  <div class="absolute top-1/2 left-1/2 w-0.5 h-6 bg-white opacity-75" style="transform: translate(-50%, -50%);"></div>
-                </div>
-              </div>
-              
-              <!-- Live Preview -->
-              <div class="text-center">
-                <p class="text-sm font-medium text-gray-700 mb-2">Preview</p>
-                <div class="w-40 h-40 bg-gray-100 rounded-xl border-2 border-gray-300 flex items-center justify-center">
-                  {#if previewCanvas}
-                    <img 
-                      src={previewCanvas} 
-                      alt="Crop preview" 
-                      class="w-32 h-32 rounded-full border-2 border-white shadow-lg"
-                    />
-                  {:else}
-                    <div class="w-32 h-32 rounded-full bg-gray-300 flex items-center justify-center">
-                      <svg class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                  {/if}
-                </div>
-                <p class="text-xs text-gray-500 mt-2">Final result</p>
-              </div>
-            </div>
-            
-            <!-- Zoom Controls -->
-            <div class="flex justify-center items-center space-x-4">
-              <button
-                type="button"
-                on:click={() => handleZoom(-0.2)}
-                class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7"></path>
-                </svg>
-              </button>
-              
-              <div class="flex items-center space-x-2">
-                <span class="text-sm text-gray-500">Zoom: </span>
-                <span class="text-sm font-medium">{Math.round(cropData.scale * 100)}%</span>
-              </div>
-              
-              <button
-                type="button"
-                on:click={() => handleZoom(0.2)}
-                class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path>
-                </svg>
-              </button>
-            </div>
-            
-            <!-- Soft Edge Control -->
-            <div class="flex justify-center items-center space-x-4">
-              <div class="flex items-center space-x-3">
-                <span class="text-sm text-gray-500">Soft Edge:</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="20"
-                  step="1"
-                  bind:value={featherRadius}
-                  class="w-32 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                />
-                <span class="text-sm font-medium w-12">{featherRadius}px</span>
-              </div>
-            </div>
-            
-            <!-- Action Buttons -->
-            <div class="flex justify-center space-x-4">
-              <button
-                type="button"
-                on:click={cancelCropping}
-                disabled={isUploadingAvatar}
-                class="inline-flex items-center px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Cancel
-              </button>
-              
-              <button
-                type="button"
-                on:click={uploadAvatar}
-                disabled={isUploadingAvatar}
-                class="inline-flex items-center px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {#if isUploadingAvatar}
-                  <div class="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Uploading...
-                {:else}
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  Use This Photo
-                {/if}
-              </button>
             </div>
           </div>
         {/if}
