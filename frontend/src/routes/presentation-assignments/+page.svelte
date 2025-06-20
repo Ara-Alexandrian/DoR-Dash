@@ -579,8 +579,8 @@
                 </div>
               {/if}
               
-              <!-- Grillometer Display -->
-              {#if assignment.grillometer_novelty || assignment.grillometer_methodology || assignment.grillometer_delivery}
+              <!-- Grillometer Display (Faculty/Admin Only) -->
+              {#if canAssign && (assignment.grillometer_novelty || assignment.grillometer_methodology || assignment.grillometer_delivery)}
                 <div class="bg-[rgb(var(--color-bg-secondary))] p-4 rounded-lg mt-4">
                   <h4 class="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
                     🔥 Grillometer Settings

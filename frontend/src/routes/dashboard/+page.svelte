@@ -437,6 +437,28 @@
                 </h1>
                 <p class="mt-2 text-lg text-[rgb(var(--color-text-secondary))] font-medium">Welcome to your Dose of Reality Dashboard</p>
                 <p class="mt-1 text-sm text-[rgb(var(--color-text-tertiary))]">Track your progress and manage your research journey</p>
+                
+                <!-- Presentation Assignment Notification for Students -->
+                {#if $auth.user?.role === 'student' && presentations.filter(p => p.status === 'scheduled').length > 0}
+                  <div class="mt-4 p-4 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 border border-orange-200 dark:border-orange-700 rounded-lg" transition:fly={{ y: -10, duration: 300 }}>
+                    <div class="flex items-center">
+                      <svg class="h-5 w-5 text-orange-600 dark:text-orange-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM6 2h8l6 6v10a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" />
+                      </svg>
+                      <div class="flex-1">
+                        <p class="text-sm font-medium text-orange-800 dark:text-orange-200">
+                          📋 You have {presentations.filter(p => p.status === 'scheduled').length} upcoming presentation{presentations.filter(p => p.status === 'scheduled').length === 1 ? '' : 's'} assigned!
+                        </p>
+                        <p class="text-xs text-orange-600 dark:text-orange-300 mt-1">
+                          Check the "Upcoming Presentations" section below for details and submission options.
+                        </p>
+                      </div>
+                      <a href="/presentation-assignments" class="ml-4 text-xs font-medium text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-200 underline">
+                        View All
+                      </a>
+                    </div>
+                  </div>
+                {/if}
               </div>
             </div>
             <div class="flex items-center">
@@ -808,7 +830,7 @@
                           </div>
                         {/if}
                         
-                        {#if presentation.grillometer && (presentation.grillometer.novelty || presentation.grillometer.methodology || presentation.grillometer.delivery)}
+                        {#if $auth.user?.role !== 'student' && presentation.grillometer && (presentation.grillometer.novelty || presentation.grillometer.methodology || presentation.grillometer.delivery)}
                           <div class="mt-3 bg-[rgb(var(--color-bg-primary))] rounded-lg p-3 border border-[rgb(var(--color-border))]">
                             <p class="text-xs font-medium text-[rgb(var(--color-text-tertiary))] mb-2 flex items-center">
                               🔥 Grillometer Settings
@@ -849,6 +871,20 @@
                                 </div>
                               {/if}
                             </div>
+                          </div>
+                        {/if}
+                        
+                        {#if $auth.user?.role === 'student' && presentation.status === 'scheduled'}
+                          <div class="mt-3">
+                            <a 
+                              href="/presentation-assignments/{presentation.id}"
+                              class="inline-flex items-center px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors"
+                            >
+                              <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM6 2h8l6 6v10a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" />
+                              </svg>
+                              Submit Materials & Comments
+                            </a>
                           </div>
                         {/if}
                       </div>
