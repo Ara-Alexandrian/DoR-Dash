@@ -404,26 +404,27 @@
         <h2 class="text-xl font-bold text-[rgb(var(--color-text-primary))]">DoR Dash Development Roadmap</h2>
         <div class="card hover:shadow-2xl transition-shadow duration-300 p-8 overflow-x-auto">
           <div class="mermaid min-w-[800px]">
-            gantt
-              title DoR Dash Feature Timeline
-              section Completed
-                Faculty Updates System           :done, core1, 1, 20
-                Student Submission Portal        :done, core2, 5, 15
-                Meeting Agenda Management        :done, core3, 10, 10
-                File Upload System              :done, core4, 15, 10
-                QA Validation Framework         :done, qa1, 20, 10
-                LLM Text Refinement Testing     :done, qa2, 25, 8
-                Automated Test Suite            :done, qa3, 30, 5
-              section In Progress
-                Auto-compiling Agenda           :active, prog1, 35, 10
-                Secretarial Login Layer         :active, prog2, 40, 15
-                Advanced Roster Management      :prog3, 50, 10
-              section Future Features
-                LLM Feedback Integration Phase 1 :fut1, 60, 20
-                LLM LoRA Fine-tuning            :fut2, 70, 15
-                LLM-Assisted Agenda Compiler    :fut3, 80, 20
-                Real-time Collaboration         :fut4, 90, 30
-                Mobile App Development          :fut5, 100, 40
+gantt
+    title DoR Dash Feature Timeline
+    dateFormat YYYY-MM-DD
+    section Completed
+        Faculty Updates System           :done, des1, 2024-01-01, 2024-01-20
+        Student Submission Portal        :done, des2, 2024-01-05, 2024-01-15
+        Meeting Agenda Management        :done, des3, 2024-01-10, 2024-01-20
+        File Upload System              :done, des4, 2024-01-15, 2024-01-25
+        QA Validation Framework         :done, des5, 2024-01-20, 2024-01-30
+        LLM Text Refinement Testing     :done, des6, 2024-01-25, 2024-02-02
+        Automated Test Suite            :done, des7, 2024-01-30, 2024-02-05
+    section In Progress
+        Auto-compiling Agenda           :active, des8, 2024-02-05, 2024-02-15
+        Secretarial Login Layer         :active, des9, 2024-02-10, 2024-02-25
+        Advanced Roster Management      :des10, 2024-02-20, 2024-03-01
+    section Future Features
+        LLM Feedback Integration Phase 1 :des11, 2024-03-01, 2024-03-20
+        LLM LoRA Fine-tuning            :des12, 2024-03-10, 2024-03-25
+        LLM-Assisted Agenda Compiler    :des13, 2024-03-20, 2024-04-10
+        Real-time Collaboration         :des14, 2024-04-01, 2024-05-01
+        Mobile App Development          :des15, 2024-05-01, 2024-06-10
           </div>
         </div>
       </div>
