@@ -241,7 +241,7 @@
             <div class="flex-shrink-0">
               {#if $auth.user.avatar_url}
                 <img 
-                  src={$auth.user.avatar_url} 
+                  src="{$auth.user.avatar_url}?v={$auth.user.avatar_updated || ''}" 
                   alt="{$auth.user.full_name || $auth.user.username}" 
                   class="h-10 w-10 rounded-full object-cover shadow-md"
                 />

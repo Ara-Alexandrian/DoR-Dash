@@ -506,8 +506,11 @@
       // Update user data with new avatar URL
       userData.avatar_url = result.avatar_url;
       
-      // Update auth store user data
-      auth.updateUser({ avatar_url: result.avatar_url });
+      // Update auth store user data with cache-busting timestamp
+      auth.updateUser({ 
+        avatar_url: result.avatar_url,
+        avatar_updated: Date.now()
+      });
       
       // Save crop settings for future use
       if (showCropper && avatarFile) {
@@ -565,7 +568,10 @@
       userData.avatar_url = null;
       
       // Update auth store user data
-      auth.updateUser({ avatar_url: null });
+      auth.updateUser({ 
+        avatar_url: null,
+        avatar_updated: Date.now()
+      });
       
       avatarSuccess = 'Profile picture removed successfully!';
       
