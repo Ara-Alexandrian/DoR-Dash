@@ -177,6 +177,8 @@ run_container() {
         --name "$CONTAINER_NAME" \
         --restart unless-stopped \
         -p 22:22 \
+        -p 8000:8000 \
+        -p 1717:1717 \
         $NETWORK_ARGS \
         -e POSTGRES_SERVER="${POSTGRES_SERVER:-172.30.98.213}" \
         -e POSTGRES_PORT="${POSTGRES_PORT:-5432}" \
