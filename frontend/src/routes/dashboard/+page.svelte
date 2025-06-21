@@ -634,36 +634,51 @@
                     Faculty Updates System
                   </div>
                 </button>
-                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                <button 
+                  on:click={() => openModal('Student Submission Portal')}
+                  class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-green-700 dark:text-green-300 font-medium">
                     <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                     Student Submission Portal
                   </div>
-                </div>
-                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                </button>
+                <button 
+                  on:click={() => openModal('Meeting Agenda Management')}
+                  class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-green-700 dark:text-green-300 font-medium">
                     <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                     Meeting Agenda Management
                   </div>
-                </div>
-                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                </button>
+                <button 
+                  on:click={() => openModal('File Upload System')}
+                  class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-green-700 dark:text-green-300 font-medium">
                     <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                     File Upload System
                   </div>
-                </div>
-                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                </button>
+                <button 
+                  on:click={() => openModal('QA Validation Framework')}
+                  class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-green-700 dark:text-green-300 font-medium">
                     <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                     QA Validation Framework
                   </div>
-                </div>
-                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                </button>
+                <button 
+                  on:click={() => openModal('LLM Text Refinement Testing')}
+                  class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-green-700 dark:text-green-300 font-medium">
                     <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                     LLM Text Refinement Testing
                   </div>
-                </div>
+                </button>
               </div>
             </div>
 
