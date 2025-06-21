@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_, or_
 
 from app.api.endpoints.auth import User, get_current_user
+from app.core.logging import logger
 from app.db.models.presentation_assignment import PresentationAssignment, PresentationType
 from app.db.models.user import User as DBUser, UserRole
 from app.db.models.meeting import Meeting
@@ -238,7 +239,7 @@ async def get_presentation_assignments(
     ]
     except Exception as e:
         # If table doesn't exist or there's a relationship issue, return empty list
-        print(f"Presentation assignments query error: {e}")
+        logger.error(f"Presentation assignments query error: {e}")
         return []
 
 @router.get("/{assignment_id}", response_model=PresentationAssignmentResponse)

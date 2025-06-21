@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.core.logging import logger
 from app.api.endpoints import text, auth, updates, faculty_updates, meetings, users, roster, presentations, registration, agenda_items, dashboard, text_testing, presentation_assignments
 
 # Safe import of knowledge base
@@ -7,7 +8,7 @@ try:
     from app.api.endpoints import knowledge_base
     KNOWLEDGE_BASE_AVAILABLE = True
 except Exception as e:
-    print(f"⚠️  Warning: Knowledge base router not available: {e}")
+    logger.warning(f"Knowledge base router not available: {e}")
     KNOWLEDGE_BASE_AVAILABLE = False
 
 api_router = APIRouter()
@@ -18,9 +19,9 @@ api_router.include_router(text.router, prefix="/text", tags=["text"])
 # Conditionally include knowledge base router
 if KNOWLEDGE_BASE_AVAILABLE:
     api_router.include_router(knowledge_base.router, prefix="/knowledge", tags=["knowledge"])
-    print("✅ Knowledge base router loaded successfully")
+    logger.info("Knowledge base router loaded successfully")
 else:
-    print("⚠️  Knowledge base router disabled due to import issues")
+    logger.warning("Knowledge base router disabled due to import issues")
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 
 # NEW: Unified agenda items endpoint

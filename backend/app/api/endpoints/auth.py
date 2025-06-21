@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.logging import logger
 from app.core.security import create_access_token, verify_password, get_password_hash
 from app.db.session import get_sync_db
 from app.db.models.user import User as UserModel, UserRole
@@ -35,23 +36,23 @@ class User(BaseModel):
 def get_user_by_username(db: Session, username: str):
     """Get user by username from database"""
     try:
-        print(f"DEBUG: Querying user by username: {username}")
+        logger.debug(f"Querying user by username: {username}")
         user = db.query(UserModel).filter(UserModel.username == username).first()
-        print(f"DEBUG: Query result: {user.username if user else 'None'}")
+        logger.debug(f"Query result: {user.username if user else 'None'}")
         return user
     except Exception as e:
-        print(f"ERROR in get_user_by_username: {e}")
-        print(f"ERROR details: {type(e).__name__}: {str(e)}")
+        logger.error(f"Error in get_user_by_username: {e}")
+        logger.error(f"Error details: {type(e).__name__}: {str(e)}")
         # Try again with a fresh session if the first query fails
         try:
             db.rollback()
-            print(f"DEBUG: Retrying query for username: {username}")
+            logger.debug(f"Retrying query for username: {username}")
             user = db.query(UserModel).filter(UserModel.username == username).first()
-            print(f"DEBUG: Retry result: {user.username if user else 'None'}")
+            logger.debug(f"Retry result: {user.username if user else 'None'}")
             return user
         except Exception as e2:
-            print(f"ERROR in get_user_by_username retry: {e2}")
-            print(f"ERROR retry details: {type(e2).__name__}: {str(e2)}")
+            logger.error(f"Error in get_user_by_username retry: {e2}")
+            logger.error(f"Error retry details: {type(e2).__name__}: {str(e2)}")
             return None
 
 def get_user_by_id(db: Session, user_id: int):
@@ -101,34 +102,34 @@ def update_user(db: Session, user_id: int, update_data: dict):
         if not db_user:
             return None
         
-        print(f"DEBUG: Updating user {user_id} with data: {update_data}")
+        logger.debug(f"Updating user {user_id} with data: {update_data}")
         
         for field, value in update_data.items():
             if value is not None:
-                print(f"DEBUG: Setting {field} = {value}")
+                logger.debug(f"Setting {field} = {value}")
                 if field == "password":
                     db_user.hashed_password = get_password_hash(value)
                 elif field == "role":
                     # The database enum uses uppercase values, but our Python enum uses lowercase
                     # Convert to uppercase to match database enum
                     role_value = value.upper() if isinstance(value, str) else value
-                    print(f"DEBUG: Setting role to {role_value} (converted from {value})")
+                    logger.debug(f"Setting role to {role_value} (converted from {value})")
                     
                     # Validate role before setting
                     valid_roles = ["STUDENT", "FACULTY", "SECRETARY", "ADMIN"]  # Database enum values
                     if role_value not in valid_roles:
-                        print(f"ERROR: Invalid role '{role_value}'. Valid roles: {valid_roles}")
+                        logger.error(f"Invalid role '{role_value}'. Valid roles: {valid_roles}")
                         raise ValueError(f"Invalid role '{role_value}'. Valid roles: {valid_roles}")
                     
                     # Set role directly as string - database expects uppercase
-                    print(f"DEBUG: Setting role directly as uppercase string: '{role_value}'")
+                    logger.debug(f"Setting role directly as uppercase string: '{role_value}'")
                     db_user.role = role_value
-                    print(f"DEBUG: Successfully set role to: {db_user.role}")
-                    print(f"DEBUG: Type of role after setting: {type(db_user.role)}")
+                    logger.debug(f"Successfully set role to: {db_user.role}")
+                    logger.debug(f"Type of role after setting: {type(db_user.role)}")
                 elif hasattr(db_user, field):
                     setattr(db_user, field, value)
                 else:
-                    print(f"DEBUG: Field {field} not found on user model")
+                    logger.debug(f"Field {field} not found on user model")
         
         db.commit()
         db.refresh(db_user)
@@ -145,13 +146,13 @@ def update_user(db: Session, user_id: int, update_data: dict):
             "avatar_url": getattr(db_user, 'avatar_url', None)  # Safe access for backward compatibility
         }
         
-        print(f"DEBUG: Successfully updated user: {result}")
+        logger.debug(f"Successfully updated user: {result}")
         return result
         
     except Exception as e:
-        print(f"ERROR in update_user: {e}")
-        print(f"ERROR: Full exception details: {type(e).__name__}: {str(e)}")
-        print(f"ERROR: Update data was: {update_data}")
+        logger.error(f"Error in update_user: {e}")
+        logger.error(f"Full exception details: {type(e).__name__}: {str(e)}")
+        logger.error(f"Update data was: {update_data}")
         db.rollback()
         raise e
 
@@ -185,7 +186,7 @@ def delete_user(db: Session, user_id: int):
             "role": db_user.role
         }
         
-        print(f"Deleting user {user_data['username']} and all associated data...")
+        logger.info(f"Deleting user {user_data['username']} and all associated data...")
         
         # Import models for cleanup
         from app.db.models.agenda_item import AgendaItem
@@ -218,7 +219,7 @@ def delete_user(db: Session, user_id: int):
                     file_paths_to_delete.append((file_upload.file_path, file_upload.filename))
                     
         except Exception as e:
-            print(f"Warning: Could not collect file paths: {e}")
+            logger.warning(f"Could not collect file paths: {e}")
             deleted_agenda_count = 0
         
         # 2. Count related records for reporting
@@ -226,38 +227,38 @@ def delete_user(db: Session, user_id: int):
             meetings = fresh_db.query(Meeting).filter(Meeting.created_by == user_id).all()
             deleted_meetings_count = len(meetings)
         except Exception as e:
-            print(f"Warning: Could not count meetings: {e}")
+            logger.warning(f"Could not count meetings: {e}")
             deleted_meetings_count = 0
         
         # 3. Delete legacy records that might not have CASCADE constraints
         try:
             deleted_student_updates = fresh_db.query(StudentUpdate).filter(StudentUpdate.student_id == user_id).delete()
-            print(f"  Deleted {deleted_student_updates} legacy student updates")
+            logger.info(f"Deleted {deleted_student_updates} legacy student updates")
         except Exception as e:
-            print(f"  Warning: Could not delete student updates: {e}")
+            logger.warning(f"Could not delete student updates: {e}")
             fresh_db.rollback()
             
         try:
             deleted_faculty_updates = fresh_db.query(FacultyUpdate).filter(FacultyUpdate.faculty_id == user_id).delete()
-            print(f"  Deleted {deleted_faculty_updates} legacy faculty updates")
+            logger.info(f"Deleted {deleted_faculty_updates} legacy faculty updates")
         except Exception as e:
-            print(f"  Warning: Could not delete faculty updates: {e}")
+            logger.warning(f"Could not delete faculty updates: {e}")
             fresh_db.rollback()
             
         try:
             deleted_presentations = fresh_db.query(AssignedPresentation).filter(AssignedPresentation.user_id == user_id).delete()
-            print(f"  Deleted {deleted_presentations} presentations")
+            logger.info(f"Deleted {deleted_presentations} presentations")
         except Exception as e:
-            print(f"  Warning: Could not delete presentations: {e}")
+            logger.warning(f"Could not delete presentations: {e}")
             fresh_db.rollback()
         
         # 4. Finally, delete the user (CASCADE will handle related records)
         try:
             fresh_db.delete(db_user)
             fresh_db.commit()
-            print(f"Successfully deleted user {user_data['username']} from database")
+            logger.info(f"Successfully deleted user {user_data['username']} from database")
         except Exception as e:
-            print(f"Error deleting user from database: {e}")
+            logger.error(f"Error deleting user from database: {e}")
             fresh_db.rollback()
             raise e
         
@@ -266,20 +267,20 @@ def delete_user(db: Session, user_id: int):
             if os.path.exists(file_path):
                 try:
                     os.remove(file_path)
-                    print(f"  Deleted file: {filename}")
+                    logger.info(f"Deleted file: {filename}")
                 except Exception as e:
-                    print(f"  Warning: Could not delete file {filename}: {e}")
+                    logger.warning(f"Could not delete file {filename}: {e}")
         
-        print(f"Successfully completed deletion of user {user_data['username']}:")
-        print(f"  - {deleted_agenda_count} agenda items (cascade deleted)")
-        print(f"  - {deleted_meetings_count} meetings (set to null created_by)")
-        print(f"  - {len(file_paths_to_delete)} physical files removed")
+        logger.info(f"Successfully completed deletion of user {user_data['username']}:")
+        logger.info(f"  - {deleted_agenda_count} agenda items (cascade deleted)")
+        logger.info(f"  - {deleted_meetings_count} meetings (set to null created_by)")
+        logger.info(f"  - {len(file_paths_to_delete)} physical files removed")
         
         return user_data
         
     except Exception as e:
-        print(f"ERROR in delete_user: {e}")
-        print(f"Exception type: {type(e).__name__}")
+        logger.error(f"Error in delete_user: {e}")
+        logger.error(f"Exception type: {type(e).__name__}")
         try:
             fresh_db.rollback()
             fresh_db.close()
@@ -309,7 +310,7 @@ def initialize_admin(db: Session):
             "password": "123"
         }
         create_user(db, admin_data)
-        print("Admin user 'cerebro' created")
+        logger.info("Admin user 'cerebro' created")
 
 @router.post("/login", response_model=Token)
 def login_for_access_token(
@@ -319,7 +320,7 @@ def login_for_access_token(
     """
     User login endpoint
     """
-    print(f"DEBUG: Login attempt for username: {form_data.username}")
+    logger.debug(f"Login attempt for username: {form_data.username}")
     
     # Ensure admin user exists
     initialize_admin(db)
@@ -328,7 +329,7 @@ def login_for_access_token(
     user = get_user_by_username(db, form_data.username)
     
     if not user:
-        print(f"DEBUG: User {form_data.username} not found")
+        logger.debug(f"User {form_data.username} not found")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -337,7 +338,7 @@ def login_for_access_token(
     
     # Verify password
     if not verify_password(form_data.password, user.hashed_password):
-        print(f"DEBUG: Invalid password for user {form_data.username}")
+        logger.debug(f"Invalid password for user {form_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -345,7 +346,7 @@ def login_for_access_token(
         )
     
     if not user.is_active:
-        print(f"DEBUG: User {form_data.username} is inactive")
+        logger.debug(f"User {form_data.username} is inactive")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Inactive user",
@@ -362,7 +363,7 @@ def login_for_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     
-    print(f"DEBUG: Login successful for user {form_data.username}")
+    logger.info(f"Login successful for user {form_data.username}")
     
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -405,10 +406,10 @@ def get_current_user(
     
     user = get_user_by_username(db, username)
     if user is None:
-        print(f"DEBUG: get_current_user - user not found for username: {username}")
+        logger.debug(f"get_current_user - user not found for username: {username}")
         raise credentials_exception
     
-    print(f"DEBUG: get_current_user - found user: {user.username}, role: {user.role}")
+    logger.debug(f"get_current_user - found user: {user.username}, role: {user.role}")
     
     return User(
         id=user.id,

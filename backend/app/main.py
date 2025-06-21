@@ -4,9 +4,11 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import RedirectResponse
 
 from app.core.config import settings
+from app.core.logging import logger
 from app.api.api import api_router
 # Import the relationship setup function
 from app.db.setup import setup_relationships
+from app.core.rate_limiter import RateLimitMiddleware, create_rate_limiters
 
 app = FastAPI(
     title="DoR-Dash API",
@@ -36,8 +38,11 @@ app.add_middleware(
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "X-Requested-With"],
 )
+
+# Add rate limiting middleware
+app.add_middleware(RateLimitMiddleware, rate_limiters=create_rate_limiters())
 
 # Add reverse proxy header handling middleware
 @app.middleware("http")
@@ -92,11 +97,11 @@ async def startup_event():
     try:
         from app.services.scheduler import start_background_tasks
         await start_background_tasks()
-        print("✅ Background tasks started successfully")
+        logger.info("Background tasks started successfully")
     except ImportError as e:
-        print(f"⚠️  Warning: Could not import background tasks module: {e}")
+        logger.warning(f"Could not import background tasks module: {e}")
     except Exception as e:
-        print(f"⚠️  Warning: Failed to start background tasks: {e}")
+        logger.warning(f"Failed to start background tasks: {e}")
         # Don't let background task failures crash the main application
 
 @app.on_event("shutdown")
@@ -105,9 +110,9 @@ async def shutdown_event():
     try:
         from app.services.scheduler import stop_background_tasks
         await stop_background_tasks()
-        print("✅ Background tasks stopped successfully")
+        logger.info("Background tasks stopped successfully")
     except ImportError as e:
-        print(f"⚠️  Warning: Could not import background tasks module: {e}")
+        logger.warning(f"Could not import background tasks module: {e}")
     except Exception as e:
-        print(f"⚠️  Warning: Failed to stop background tasks: {e}")
+        logger.warning(f"Failed to stop background tasks: {e}")
         # Don't let background task failures crash the shutdown

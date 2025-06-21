@@ -13,6 +13,7 @@ from dataclasses import dataclass, asdict
 import sqlite3
 import os
 from pathlib import Path
+from app.core.logging import logger
 
 # Scientific/Medical terminology patterns
 DOMAIN_PATTERNS = {
@@ -423,7 +424,7 @@ class KnowledgeBaseService:
                 return True
                 
         except Exception as e:
-            print(f"Warning: Could not store feedback in knowledge base: {e}")
+            logger.warning(f"Could not store feedback in knowledge base: {e}")
             return False
     
     def export_lora_training_data(self, output_file: str = None) -> dict:
@@ -481,7 +482,7 @@ class KnowledgeBaseService:
                         training_data.append(training_example)
                         
                     except Exception as parse_error:
-                        print(f"Error parsing feedback {feedback_id}: {parse_error}")
+                        logger.error(f"Error parsing feedback {feedback_id}: {parse_error}")
                         continue
                 
                 export_summary = {
@@ -505,7 +506,7 @@ class KnowledgeBaseService:
                 return export_summary
                 
         except Exception as e:
-            print(f"Error exporting LoRA training data: {e}")
+            logger.error(f"Error exporting LoRA training data: {e}")
             return {"error": str(e), "training_data": []}
 
 # Global instance

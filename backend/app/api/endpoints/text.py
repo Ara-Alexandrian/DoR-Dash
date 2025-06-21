@@ -7,6 +7,7 @@ import json
 import re
 import asyncio
 from app.core.config import settings
+from app.core.logging import logger
 from app.api.endpoints.auth import User, get_current_user
 
 # Safe import of knowledge base service
@@ -14,7 +15,7 @@ try:
     from app.services.knowledge_base import knowledge_service
     KNOWLEDGE_BASE_AVAILABLE = True
 except Exception as e:
-    print(f"⚠️  Warning: Knowledge base service not available in text endpoint: {e}")
+    logger.warning(f"Knowledge base service not available in text endpoint: {e}")
     KNOWLEDGE_BASE_AVAILABLE = False
     knowledge_service = None
 
@@ -169,7 +170,7 @@ async def refine_text(
             try:
                 enhanced_context = knowledge_service.get_enhanced_prompt_context(context)
             except Exception as e:
-                print(f"⚠️  Warning: Could not get enhanced context: {e}")
+                logger.warning(f"Could not get enhanced context: {e}")
         
         # Enhance the prompt with learned domain vocabulary
         enhanced_prompt = prompt_template.format(text=request.text)
@@ -393,7 +394,7 @@ async def submit_feedback(
             
         except Exception as kb_error:
             # Continue even if knowledge base storage fails
-            print(f"Warning: Could not store feedback in knowledge base: {kb_error}")
+            logger.warning(f"Could not store feedback in knowledge base: {kb_error}")
         
         # Always log feedback to a file for manual review
         import os

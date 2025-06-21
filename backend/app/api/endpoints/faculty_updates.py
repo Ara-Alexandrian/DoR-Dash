@@ -8,6 +8,7 @@ import os
 import tempfile
 
 from app.api.endpoints.auth import User, get_current_user
+from app.core.logging import logger
 from app.schemas.faculty_update import (
     FacultyUpdateCreate,
     FacultyUpdateUpdate,
@@ -119,7 +120,7 @@ async def create_faculty_update(
     announcement_type = content.get("announcement_type", "general")
     valid_types = ["general", "urgent", "deadline", "funding"]
     if announcement_type not in valid_types:
-        print(f"WARNING: Invalid announcement_type '{announcement_type}' for update {db_update.id}, defaulting to 'general'")
+        logger.warning(f"Invalid announcement_type '{announcement_type}' for update {db_update.id}, defaulting to 'general'")
         announcement_type = "general"
     
     return FacultyUpdate(
@@ -164,7 +165,7 @@ async def read_faculty_update(
     
     # Check permissions - faculty can see all faculty updates, students can see all faculty updates
     if current_user.role == "faculty" and agenda_item.user_id != current_user.id:
-        print(f"Faculty {current_user.id} accessed update from faculty {agenda_item.user_id}")
+        logger.info(f"Faculty {current_user.id} accessed update from faculty {agenda_item.user_id}")
     
     # Convert files to expected format
     files = []
@@ -185,7 +186,7 @@ async def read_faculty_update(
     announcement_type = content.get("announcement_type", "general")
     valid_types = ["general", "urgent", "deadline", "funding"]
     if announcement_type not in valid_types:
-        print(f"WARNING: Invalid announcement_type '{announcement_type}' for update {agenda_item.id}, defaulting to 'general'")
+        logger.warning(f"Invalid announcement_type '{announcement_type}' for update {agenda_item.id}, defaulting to 'general'")
         announcement_type = "general"
     
     return FacultyUpdate(
@@ -220,7 +221,7 @@ async def list_faculty_updates(
     List faculty updates with pagination and optional filtering - FROM DATABASE
     """
     try:
-        print(f"FACULTY UPDATES DEBUG - User: {current_user.id}, Role: {current_user.role}")
+        logger.debug(f"Faculty updates - User: {current_user.id}, Role: {current_user.role}")
         
         # Start with base query using AgendaItem
         query = db.query(AgendaItem).options(
@@ -246,11 +247,11 @@ async def list_faculty_updates(
         # Sort by creation date (newest first) and apply pagination
         agenda_items = query.order_by(AgendaItem.created_at.desc()).offset(skip).limit(limit).all()
         
-        print(f"FACULTY UPDATES DEBUG - Found {total} faculty updates for user {current_user.id}")
-        print(f"FACULTY UPDATES DEBUG - User {current_user.id} ({current_user.username}) is requesting faculty updates")
-        print(f"FACULTY UPDATES DEBUG - User role: {current_user.role}")
-        print(f"FACULTY UPDATES DEBUG - Query filters: user_id={current_user.id if current_user.role not in ['admin'] else 'ALL'}")
-        print(f"FACULTY UPDATES DEBUG - Database result count: {total}")
+        logger.debug(f"Found {total} faculty updates for user {current_user.id}")
+        logger.debug(f"User {current_user.id} ({current_user.username}) is requesting faculty updates")
+        logger.debug(f"User role: {current_user.role}")
+        logger.debug(f"Query filters: user_id={current_user.id if current_user.role not in ['admin'] else 'ALL'}")
+        logger.debug(f"Database result count: {total}")
         
         # Convert to response format
         result_items = []
@@ -274,7 +275,7 @@ async def list_faculty_updates(
             announcement_type = content.get("announcement_type", "general")
             valid_types = ["general", "urgent", "deadline", "funding"]
             if announcement_type not in valid_types:
-                print(f"WARNING: Invalid announcement_type '{announcement_type}' for update {agenda_item.id}, defaulting to 'general'")
+                logger.warning(f"Invalid announcement_type '{announcement_type}' for update {agenda_item.id}, defaulting to 'general'")
                 announcement_type = "general"
             
             faculty_update = FacultyUpdate(
@@ -302,7 +303,7 @@ async def list_faculty_updates(
         )
         
     except Exception as e:
-        print(f"FACULTY UPDATES ERROR - Endpoint failed: {str(e)}")
+        logger.error(f"Faculty updates endpoint failed: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve faculty updates: {str(e)}"
@@ -382,7 +383,7 @@ async def update_faculty_update(
     announcement_type = content.get("announcement_type", "general")
     valid_types = ["general", "urgent", "deadline", "funding"]
     if announcement_type not in valid_types:
-        print(f"WARNING: Invalid announcement_type '{announcement_type}' for update {agenda_item.id}, defaulting to 'general'")
+        logger.warning(f"Invalid announcement_type '{announcement_type}' for update {agenda_item.id}, defaulting to 'general'")
         announcement_type = "general"
     
     return FacultyUpdate(

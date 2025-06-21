@@ -9,6 +9,7 @@ import os
 import tempfile
 
 from app.api.endpoints.auth import User, get_current_user
+from app.core.logging import logger
 from app.schemas.agenda_item import (
     AgendaItem, 
     AgendaItemCreate,
@@ -603,7 +604,7 @@ async def delete_file_from_agenda_item(
             os.remove(file_upload.filepath)
     except Exception as e:
         # Log error but continue with database deletion
-        print(f"Warning: Could not delete file from disk: {e}")
+        logger.warning(f"Could not delete file from disk: {e}")
     
     # Delete from database
     db.delete(file_upload)

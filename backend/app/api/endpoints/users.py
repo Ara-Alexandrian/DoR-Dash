@@ -14,6 +14,7 @@ import io
 from sqlalchemy.orm import Session
 from app.api.endpoints.auth import User, get_current_user, create_user as auth_create_user, update_user as auth_update_user, delete_user as auth_delete_user, get_all_users
 from app.db.session import get_sync_db
+from app.core.logging import logger
 from app.core.permissions import get_admin_user, get_faculty_or_admin_user, is_owner_or_admin
 from app.core.security import get_password_hash
 from app.schemas.auth import UserCreate, UserUpdate, UserResponse
@@ -166,7 +167,7 @@ async def update_user(
         )
     except Exception as e:
         # Handle other database errors
-        print(f"ERROR in update_user endpoint: {e}")
+        logger.error(f"Error in update_user endpoint: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update user: {str(e)}"
@@ -213,7 +214,7 @@ async def delete_user(
         return None
         
     except Exception as e:
-        print(f"ERROR in delete_user endpoint: {e}")
+        logger.error(f"Error in delete_user endpoint: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to delete user: {str(e)}"
@@ -375,7 +376,7 @@ async def upload_avatar(
                 try:
                     os.remove(old_file_path)
                 except Exception as e:
-                    print(f"Warning: Could not delete old avatar file: {e}")
+                    logger.warning(f"Could not delete old avatar file: {e}")
         
         return {
             "message": "Avatar uploaded successfully",
@@ -385,7 +386,7 @@ async def upload_avatar(
         }
         
     except Exception as e:
-        print(f"Error processing avatar: {e}")
+        logger.error(f"Error processing avatar: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to process avatar image"
@@ -428,7 +429,7 @@ async def delete_avatar(
             try:
                 os.remove(file_path)
             except Exception as e:
-                print(f"Warning: Could not delete avatar file: {e}")
+                logger.warning(f"Could not delete avatar file: {e}")
     
     # Clear avatar_url in database
     auth_update_user(db, user_id, {"avatar_url": None})

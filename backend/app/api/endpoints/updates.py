@@ -8,6 +8,7 @@ import os
 import tempfile
 
 from app.api.endpoints.auth import User, get_current_user
+from app.core.logging import logger
 from app.schemas.student_update import (
     StudentUpdateCreate,
     StudentUpdateUpdate,
@@ -80,7 +81,7 @@ async def create_student_update(
         
         # Additional check: ensure meeting is not in the past (optional warning)
         if meeting.start_time < datetime.now():
-            print(f"WARNING: User {current_user.id} submitting update for past meeting {meeting.id} ({meeting.title})")
+            logger.warning(f"User {current_user.id} submitting update for past meeting {meeting.id} ({meeting.title})")
     else:
         # Use the most recent meeting as default for general student updates  
         default_meeting = db.query(DBMeeting).order_by(DBMeeting.id.desc()).first()
@@ -109,8 +110,8 @@ async def create_student_update(
     db.commit()
     db.refresh(db_update)
     
-    print(f"DEBUG: Created student update with ID {db_update.id}, meeting_id: {db_update.meeting_id}")
-    print(f"DEBUG: Update saved to PostgreSQL database")
+    logger.info(f"Created student update with ID {db_update.id}, meeting_id: {db_update.meeting_id}")
+    logger.info("Update saved to PostgreSQL database")
     
     # Convert to response format - use content JSON field
     content = db_update.content or {}
@@ -549,6 +550,6 @@ async def delete_student_update(
     db.delete(agenda_item)
     db.commit()
     
-    print(f"DEBUG: Deleted student update with ID {update_id} from PostgreSQL database")
+    logger.info(f"Deleted student update with ID {update_id} from PostgreSQL database")
     
     return None
