@@ -5,6 +5,12 @@
 
 set -e
 
+# Load environment variables from .env file if it exists
+if [ -f ".env" ]; then
+    echo "Loading environment variables from .env file..."
+    export $(grep -v '^#' .env | xargs)
+fi
+
 # Configuration
 IMAGE_NAME="dor-dash"
 CONTAINER_NAME="dor-dash"
@@ -172,14 +178,14 @@ run_container() {
         --restart unless-stopped \
         -p 22:22 \
         $NETWORK_ARGS \
-        -e POSTGRES_SERVER="172.30.98.213" \
-        -e POSTGRES_PORT="5432" \
-        -e POSTGRES_USER="DoRadmin" \
-        -e POSTGRES_PASSWORD="1232" \
-        -e POSTGRES_DB="DoR" \
-        -e REDIS_SERVER="172.30.98.214" \
-        -e REDIS_PORT="6379" \
-        -e SECRET_KEY="insecure_default_key_for_development_only" \
+        -e POSTGRES_SERVER="${POSTGRES_SERVER:-172.30.98.213}" \
+        -e POSTGRES_PORT="${POSTGRES_PORT:-5432}" \
+        -e POSTGRES_USER="${POSTGRES_USER:-DoRadmin}" \
+        -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-1232}" \
+        -e POSTGRES_DB="${POSTGRES_DB:-DoR}" \
+        -e REDIS_SERVER="${REDIS_SERVER:-172.30.98.214}" \
+        -e REDIS_PORT="${REDIS_PORT:-6379}" \
+        -e SECRET_KEY="${SECRET_KEY:-mMQO6Au8J3zP18JoRonUgaViCy4mMWt-qjL6kVjxFZ4S0BOiA_8gUXoK-Pm7bk6Yd6lXkin8IKUG_Dj6ZSNEsA}" \
         -e OLLAMA_API_URL="http://172.30.98.14:11434/api/generate" \
         -e AUTO_UPDATE="restart_only" \
         -e REPO_URL="https://github.com/Ara-Alexandrian/DoR-Dash.git" \
