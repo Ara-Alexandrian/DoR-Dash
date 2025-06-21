@@ -18,6 +18,8 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 log() {
@@ -245,31 +247,73 @@ show_logs() {
 main() {
     case "${1:-deploy}" in
         "deploy")
-            log "Starting DoR-Dash deployment..."
+            # Show cool header for deploy
+            clear
+            show_dor_header
+            
+            log "🚀 Starting DoR-Dash deployment..."
             check_unraid
             stop_existing
             build_image
             run_container
-            sleep 5  # Give container time to start
+            sleep 3
+            
+            # Final success display
+            echo
+            echo -e "${GREEN}╔════════════════════════════════════════════════╗${NC}"
+            echo -e "${GREEN}║${NC}            🎉 ${YELLOW}Deployment Complete!${NC}           ${GREEN}║${NC}"
+            echo -e "${GREEN}╚════════════════════════════════════════════════╝${NC}"
+            echo
             show_status
             ;;
         "stop")
-            log "Stopping DoR-Dash..."
+            echo -e "${RED}╔══════════════════════════════════════╗${NC}"
+            echo -e "${RED}║${NC}      ⏹️  ${YELLOW}Stopping DoR-Dash${NC}        ${RED}║${NC}"
+            echo -e "${RED}╚══════════════════════════════════════╝${NC}"
+            
             stop_existing
-            success "Container stopped"
+            
+            echo -e "${RED}🔴 Container stopped successfully${NC}"
             ;;
         "restart")
-            log "Restarting DoR-Dash..."
+            echo -e "${YELLOW}╔══════════════════════════════════════╗${NC}"
+            echo -e "${YELLOW}║${NC}      🔄 ${YELLOW}Restarting DoR-Dash${NC}       ${YELLOW}║${NC}"
+            echo -e "${YELLOW}╚══════════════════════════════════════╝${NC}"
+            
             stop_existing
             run_container
-            sleep 5
+            sleep 3
+            
+            echo
+            echo -e "${GREEN}╔════════════════════════════════════════════════╗${NC}"
+            echo -e "${GREEN}║${NC}            🎉 ${YELLOW}Restart Complete!${NC}            ${GREEN}║${NC}"
+            echo -e "${GREEN}╚════════════════════════════════════════════════╝${NC}"
+            echo
             show_status
             ;;
         "status")
             show_status
             ;;
         "logs")
-            show_logs
+            echo -e "${CYAN}╔══════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║${NC}      📝 ${YELLOW}Container Logs${NC}           ${CYAN}║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════╝${NC}"
+            echo
+            
+            # Check if container is running first
+            if docker ps --filter "name=$CONTAINER_NAME" --format "{{.Names}}" | grep -q "$CONTAINER_NAME"; then
+                log "📄 Showing last 50 lines of container logs..."
+                echo -e "${BLUE}╭─────────────────────────────────────────────────╮${NC}"
+                echo -e "${BLUE}│${NC}                    📊 ${YELLOW}Live Logs${NC}                    ${BLUE}│${NC}"
+                echo -e "${BLUE}╰─────────────────────────────────────────────────╯${NC}"
+                echo
+                docker logs --tail 50 "$CONTAINER_NAME" 2>/dev/null || {
+                    warn "❌ Unable to retrieve logs"
+                }
+            else
+                echo -e "${RED}🔴 Container is not running${NC}"
+                echo -e "${YELLOW}💡 Try running: ${NC}${GREEN}dorstart${NC} ${YELLOW}to start the container${NC}"
+            fi
             ;;
         "rebuild")
             # Show cool header for rebuild
@@ -302,15 +346,37 @@ main() {
             show_status
             ;;
         *)
-            echo "Usage: $0 {deploy|stop|restart|status|logs|rebuild}"
-            echo ""
-            echo "Commands:"
-            echo "  deploy   - Deploy the application (default)"
-            echo "  stop     - Stop the running container"
-            echo "  restart  - Restart the container"
-            echo "  status   - Show container status and access URLs"
-            echo "  logs     - Show container logs"
-            echo "  rebuild [--no-cache] - Rebuild image and redeploy"
+            clear
+            show_dor_header
+            
+            echo -e "${RED}╔══════════════════════════════════════╗${NC}"
+            echo -e "${RED}║${NC}        ❓ ${YELLOW}Command Help${NC}            ${RED}║${NC}"
+            echo -e "${RED}╚══════════════════════════════════════╝${NC}"
+            echo
+            
+            echo -e "${YELLOW}Usage:${NC} $0 {deploy|stop|restart|status|logs|rebuild}"
+            echo
+            
+            echo -e "${BLUE}╭─────────────────────────────────────────────────╮${NC}"
+            echo -e "${BLUE}│${NC}                 🛠️  ${YELLOW}Available Commands${NC}            ${BLUE}│${NC}"
+            echo -e "${BLUE}╰─────────────────────────────────────────────────╯${NC}"
+            
+            commands=(
+                "🚀 ${GREEN}deploy${NC}   - Deploy the application (default)"
+                "⏹️  ${RED}stop${NC}     - Stop the running container"
+                "🔄 ${YELLOW}restart${NC}  - Restart the container"
+                "📊 ${BLUE}status${NC}   - Show container status and access URLs"
+                "📝 ${CYAN}logs${NC}     - Show container logs"
+                "🔧 ${PURPLE}rebuild${NC}  - Rebuild image and redeploy [--no-cache]"
+            )
+            
+            for cmd in "${commands[@]}"; do
+                echo -e "  ${cmd}"
+                sleep 0.1
+            done
+            
+            echo
+            echo -e "${YELLOW}💡 Pro Tip:${NC} Use ${GREEN}dorhelp${NC} to see all available DoR-Dash aliases!"
             exit 1
             ;;
     esac
