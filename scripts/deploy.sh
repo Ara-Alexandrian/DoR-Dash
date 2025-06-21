@@ -57,38 +57,115 @@ stop_existing() {
     fi
 }
 
+# ASCII Art Functions
+show_build_animation() {
+    local frames=(
+        "🔧 [    ] Building..."
+        "🔧 [█   ] Building..."
+        "🔧 [██  ] Building..."
+        "🔧 [███ ] Building..."
+        "🔧 [████] Building..."
+        "🎉 [████] Complete!"
+    )
+    
+    for frame in "${frames[@]}"; do
+        echo -ne "\r${frame}"
+        sleep 0.3
+    done
+    echo
+}
+
+show_docker_whale() {
+    echo -e "${BLUE}"
+    cat << 'EOF'
+         ##         .
+   ## ## ##        ==
+## ## ## ## ##    ===
+/"""""""""""""""""\___/ ===
+{                       /  ===-
+\______ O           __/
+ \    \         __/
+  \____\_______/
+EOF
+    echo -e "${NC}"
+}
+
 # Function to build image
 build_image() {
-    log "Building Docker image..."
     local BUILD_ARGS="$1"
     
     # Enable BuildKit for faster builds with parallel processing
     export DOCKER_BUILDKIT=1
-    export BUILDKIT_PROGRESS=plain
+    # Use auto progress for cleaner output (or plain for verbose)
+    export BUILDKIT_PROGRESS=auto
+    
+    echo -e "${BLUE}╔══════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}     🐳 ${YELLOW}Docker Build Starting${NC}     ${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════╝${NC}"
     
     if [ -n "$BUILD_ARGS" ]; then
-        log "Using build arguments: $BUILD_ARGS"
+        warn "🔥 Force rebuild mode (--no-cache)"
     else
-        log "Using cached build (no --no-cache flag)"
+        success "⚡ Smart build mode (using cache)"
     fi
     
-    log "Docker build command: docker build $BUILD_ARGS -t $IMAGE_NAME:latest -f docker/Dockerfile ."
-    docker build $BUILD_ARGS -t "$IMAGE_NAME:latest" -f docker/Dockerfile . || {
-        error "Failed to build Docker image"
+    # Show Docker whale animation
+    show_docker_whale
+    
+    # Build with suppressed output for cleaner display
+    log "🔨 Building $IMAGE_NAME:latest..."
+    if docker build $BUILD_ARGS -t "$IMAGE_NAME:latest" -f docker/Dockerfile . >/dev/null 2>&1; then
+        show_build_animation
+        success "✅ Docker image built successfully!"
+    else
+        error "❌ Docker build failed!"
+        log "Re-running build with verbose output for debugging..."
+        docker build $BUILD_ARGS -t "$IMAGE_NAME:latest" -f docker/Dockerfile .
         exit 1
-    }
-    success "Docker image built successfully"
+    fi
+}
+
+# Container startup animation
+show_startup_animation() {
+    local spinner="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+    local count=0
+    
+    while [ $count -lt 20 ]; do
+        local i=$(($count % ${#spinner}))
+        printf "\r🚀 Starting container... ${spinner:$i:1} "
+        sleep 0.1
+        count=$((count + 1))
+    done
+    printf "\r🚀 Starting container... ✅ \n"
+}
+
+show_dor_header() {
+    echo -e "${GREEN}"
+    cat << 'EOF'
+ ____        ____        ____            _     
+|  _ \  ___ |  _ \      |  _ \  __ _ ___| |__  
+| | | |/ _ \| |_) |_____| | | |/ _` / __| '_ \ 
+| |_| | (_) |  _ <______| |_| | (_| \__ \ | | |
+|____/ \___/|_| \_\     |____/ \__,_|___/_| |_|
+                                              
+EOF
+    echo -e "${NC}${YELLOW}     🏥 Mary Bird Perkins Research Dashboard${NC}"
+    echo -e "${BLUE}     ═══════════════════════════════════════${NC}"
+    echo
 }
 
 # Function to run container
 run_container() {
-    log "Starting DoR-Dash container..."
+    echo -e "${BLUE}╔══════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}    🚀 ${YELLOW}Container Deployment${NC}        ${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════╝${NC}"
     
     # Use br0 network with dedicated IP for webapp
-    log "Using br0 network with dedicated IP $CONTAINER_IP"
+    log "🌐 Network: br0 bridge → $CONTAINER_IP"
     NETWORK_ARGS="--network br0 --ip $CONTAINER_IP"
     
-    docker run -d \
+    # Run container with suppressed output
+    if docker run -d \
         --name "$CONTAINER_NAME" \
         --restart unless-stopped \
         -p 22:22 \
@@ -110,32 +187,50 @@ run_container() {
         -e VITE_USE_MOCK="false" \
         -v dor-dash-uploads:/app/uploads \
         -v dor-dash-logs:/app/logs \
-        "$IMAGE_NAME:latest" || {
-        error "Failed to start container"
+        "$IMAGE_NAME:latest" >/dev/null 2>&1; then
+        
+        show_startup_animation
+        success "✅ Container deployed successfully!"
+    else
+        error "❌ Container deployment failed!"
         exit 1
-    }
-    
-    success "Container started successfully"
+    fi
 }
 
 # Function to show status
 show_status() {
-    log "Container status:"
-    docker ps --filter "name=$CONTAINER_NAME" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+    # Container status in a nice box
+    echo -e "${BLUE}╭─────────────────────────────────────────────────╮${NC}"
+    echo -e "${BLUE}│${NC}                📊 ${YELLOW}System Status${NC}                 ${BLUE}│${NC}"
+    echo -e "${BLUE}╰─────────────────────────────────────────────────╯${NC}"
     
-    echo ""
-    log "Access URLs:"
-    echo -e "${GREEN}Frontend:${NC} http://$CONTAINER_IP:1717"
-    echo -e "${GREEN}Backend API:${NC} http://$CONTAINER_IP:8000"
-    echo -e "${GREEN}Health Check:${NC} http://$CONTAINER_IP:8000/health"
-    echo -e "${GREEN}SSH Access:${NC} ssh root@$CONTAINER_IP (password: dor-ssh-password-2024)"
+    # Check if container is running
+    if docker ps --filter "name=$CONTAINER_NAME" --format "{{.Names}}" | grep -q "$CONTAINER_NAME"; then
+        echo -e "${GREEN}🟢 Container Status: ${NC}${GREEN}RUNNING${NC}"
+        echo -e "${GREEN}📅 Started: ${NC}$(docker inspect --format='{{.State.StartedAt}}' $CONTAINER_NAME | cut -d'T' -f1)"
+    else
+        echo -e "${RED}🔴 Container Status: ${NC}${RED}STOPPED${NC}"
+        return
+    fi
     
-    echo ""
-    log "Nginx Reverse Proxy Configuration:"
-    echo -e "${YELLOW}Frontend:${NC} http://$CONTAINER_IP:1717"
-    echo -e "${YELLOW}Backend API:${NC} http://$CONTAINER_IP:8000/api/v1/"
-    echo ""
-    echo -e "${BLUE}Use the nginx.conf file provided for reverse proxy setup${NC}"
+    echo
+    echo -e "${BLUE}╭─────────────────────────────────────────────────╮${NC}"
+    echo -e "${BLUE}│${NC}                🌐 ${YELLOW}Access URLs${NC}                   ${BLUE}│${NC}"
+    echo -e "${BLUE}╰─────────────────────────────────────────────────╯${NC}"
+    echo -e "${GREEN}🌍 Production:${NC}  https://dd.kronisto.net"
+    echo -e "${GREEN}🖥️  Frontend:${NC}   http://$CONTAINER_IP:1717"
+    echo -e "${GREEN}⚡ Backend:${NC}    http://$CONTAINER_IP:8000"
+    echo -e "${GREEN}💓 Health:${NC}     http://$CONTAINER_IP:8000/health"
+    echo -e "${GREEN}🔐 SSH:${NC}       ssh root@$CONTAINER_IP"
+    
+    echo
+    echo -e "${BLUE}╭─────────────────────────────────────────────────╮${NC}"
+    echo -e "${BLUE}│${NC}                🎯 ${YELLOW}Quick Commands${NC}                ${BLUE}│${NC}"
+    echo -e "${BLUE}╰─────────────────────────────────────────────────╯${NC}"
+    echo -e "${YELLOW}dorlogs${NC}      - View live container logs"
+    echo -e "${YELLOW}dorexec${NC}      - SSH into container"
+    echo -e "${YELLOW}dorhealth${NC}    - Check health status"
+    echo -e "${YELLOW}dorstatus${NC}    - Show this status"
 }
 
 # Function to show logs
@@ -177,21 +272,33 @@ main() {
             show_logs
             ;;
         "rebuild")
-            log "Rebuilding and redeploying DoR-Dash..."
-            log "Arguments received: $@"
+            # Show cool header for rebuild
+            clear
+            show_dor_header
+            
+            log "🔄 Rebuilding and redeploying DoR-Dash..."
             stop_existing
-            log "Removing existing Docker image..."
-            docker rmi "$IMAGE_NAME:latest" 2>/dev/null || true
+            
+            # Clean removal of old image
+            log "🗑️  Removing existing Docker image..."
+            docker rmi "$IMAGE_NAME:latest" >/dev/null 2>&1 || true
+            
             # Check if --no-cache was passed as second argument
             if [ "$2" = "--no-cache" ]; then
-                log "Found --no-cache flag, forcing fresh build"
                 build_image "--no-cache"
             else
-                log "No --no-cache flag found, using cached build"
                 build_image
             fi
+            
             run_container
-            sleep 5
+            sleep 3
+            
+            # Final success display
+            echo
+            echo -e "${GREEN}╔════════════════════════════════════════════════╗${NC}"
+            echo -e "${GREEN}║${NC}            🎉 ${YELLOW}Deployment Complete!${NC}           ${GREEN}║${NC}"
+            echo -e "${GREEN}╚════════════════════════════════════════════════╝${NC}"
+            echo
             show_status
             ;;
         *)
