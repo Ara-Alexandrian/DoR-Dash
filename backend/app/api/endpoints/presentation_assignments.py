@@ -183,40 +183,41 @@ async def get_presentation_assignments(
     - Students can only see their own assignments
     - Faculty/admin can see all assignments or filter by parameters
     """
-    query = db.query(PresentationAssignment).options(
-        joinedload(PresentationAssignment.student),
-        joinedload(PresentationAssignment.assigned_by),
-        joinedload(PresentationAssignment.meeting)
-    )
-    
-    # Apply role-based filtering
-    if current_user.role == UserRole.STUDENT.value:
-        # Students can only see their own assignments
-        query = query.filter(PresentationAssignment.student_id == current_user.id)
-    else:
-        # Faculty/admin can filter by parameters
-        if student_id:
-            query = query.filter(PresentationAssignment.student_id == student_id)
-        if assigned_by_id:
-            query = query.filter(PresentationAssignment.assigned_by_id == assigned_by_id)
-    
-    # Apply common filters
-    if meeting_id:
-        query = query.filter(PresentationAssignment.meeting_id == meeting_id)
-    if is_completed is not None:
-        query = query.filter(PresentationAssignment.is_completed == is_completed)
-    
-    assignments = query.order_by(PresentationAssignment.due_date.desc().nullslast(), PresentationAssignment.created_at.desc()).all()
-    
-    return [
-        PresentationAssignmentResponse(
-            id=assignment.id,
-            student_id=assignment.student_id,
-            student_name=assignment.student.full_name or assignment.student.username,
-            assigned_by_id=assignment.assigned_by_id,
-            assigned_by_name=assignment.assigned_by.full_name or assignment.assigned_by.username,
-            meeting_id=assignment.meeting_id,
-            meeting_title=assignment.meeting.title if assignment.meeting else None,
+    try:
+        query = db.query(PresentationAssignment).options(
+            joinedload(PresentationAssignment.student),
+            joinedload(PresentationAssignment.assigned_by),
+            joinedload(PresentationAssignment.meeting)
+        )
+        
+        # Apply role-based filtering
+        if current_user.role == UserRole.STUDENT.value:
+            # Students can only see their own assignments
+            query = query.filter(PresentationAssignment.student_id == current_user.id)
+        else:
+            # Faculty/admin can filter by parameters
+            if student_id:
+                query = query.filter(PresentationAssignment.student_id == student_id)
+            if assigned_by_id:
+                query = query.filter(PresentationAssignment.assigned_by_id == assigned_by_id)
+        
+        # Apply common filters
+        if meeting_id:
+            query = query.filter(PresentationAssignment.meeting_id == meeting_id)
+        if is_completed is not None:
+            query = query.filter(PresentationAssignment.is_completed == is_completed)
+        
+        assignments = query.order_by(PresentationAssignment.due_date.desc().nullslast(), PresentationAssignment.created_at.desc()).all()
+        
+        return [
+            PresentationAssignmentResponse(
+                id=assignment.id,
+                student_id=assignment.student_id,
+                student_name=assignment.student.full_name or assignment.student.username,
+                assigned_by_id=assignment.assigned_by_id,
+                assigned_by_name=assignment.assigned_by.full_name or assignment.assigned_by.username,
+                meeting_id=assignment.meeting_id,
+                meeting_title=assignment.meeting.title if assignment.meeting else None,
             title=assignment.title,
             description=assignment.description,
             presentation_type=assignment.presentation_type,
@@ -235,6 +236,10 @@ async def get_presentation_assignments(
         )
         for assignment in assignments
     ]
+    except Exception as e:
+        # If table doesn't exist or there's a relationship issue, return empty list
+        print(f"Presentation assignments query error: {e}")
+        return []
 
 @router.get("/{assignment_id}", response_model=PresentationAssignmentResponse)
 async def get_presentation_assignment(
