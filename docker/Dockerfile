@@ -6,7 +6,7 @@ WORKDIR /app/frontend
 
 # Copy frontend package files
 COPY frontend/package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Install serve for production frontend serving (fallback)
 RUN npm install -g serve
