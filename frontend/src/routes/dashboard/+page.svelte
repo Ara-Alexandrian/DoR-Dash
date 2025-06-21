@@ -691,24 +691,33 @@
                 In Progress
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <button 
+                  on:click={() => openModal('Auto-compiling Agenda')}
+                  class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-blue-700 dark:text-blue-300 font-medium">
                     <div class="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
                     Auto-compiling Agenda
                   </div>
-                </div>
-                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                </button>
+                <button 
+                  on:click={() => openModal('Profile Picture System')}
+                  class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-blue-700 dark:text-blue-300 font-medium">
                     <div class="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
                     Profile Picture System
                   </div>
-                </div>
-                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                </button>
+                <button 
+                  on:click={() => openModal('Advanced Roster Management')}
+                  class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-blue-700 dark:text-blue-300 font-medium">
                     <div class="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
                     Advanced Roster Management
                   </div>
-                </div>
+                </button>
               </div>
             </div>
 
@@ -721,42 +730,60 @@
                 Future Features
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                <button 
+                  on:click={() => openModal('LLM Feedback Integration')}
+                  class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-purple-700 dark:text-purple-300 font-medium">
                     <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
                     LLM Feedback Integration
                   </div>
-                </div>
-                <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                </button>
+                <button 
+                  on:click={() => openModal('LLM LoRA Fine-tuning')}
+                  class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-purple-700 dark:text-purple-300 font-medium">
                     <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
                     LLM LoRA Fine-tuning
                   </div>
-                </div>
-                <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                </button>
+                <button 
+                  on:click={() => openModal('LLM-Assisted Agenda Compiler')}
+                  class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-purple-700 dark:text-purple-300 font-medium">
                     <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
                     LLM-Assisted Agenda Compiler
                   </div>
-                </div>
-                <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                </button>
+                <button 
+                  on:click={() => openModal('Real-time Collaboration')}
+                  class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-purple-700 dark:text-purple-300 font-medium">
                     <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
                     Real-time Collaboration
                   </div>
-                </div>
-                <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                </button>
+                <button 
+                  on:click={() => openModal('Mobile App Development')}
+                  class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-purple-700 dark:text-purple-300 font-medium">
                     <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
                     Mobile App Development
                   </div>
-                </div>
-                <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                </button>
+                <button 
+                  on:click={() => openModal('Secretarial Login Layer')}
+                  class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors cursor-pointer w-full text-left"
+                >
                   <div class="flex items-center text-purple-700 dark:text-purple-300 font-medium">
                     <div class="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
                     Secretarial Login Layer
                   </div>
-                </div>
+                </button>
               </div>
             </div>
           </div>
@@ -1029,6 +1056,90 @@
     </div>
   {/if}
 </div>
+
+<!-- Roadmap Feature Modal -->
+{#if showModal && selectedFeature}
+  <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <!-- Background overlay -->
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" on:click={closeModal}></div>
+
+      <!-- This element is to trick the browser into centering the modal contents. -->
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+      <!-- Modal panel -->
+      <div class="inline-block align-bottom bg-white dark:bg-slate-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+        <div class="absolute top-0 right-0 pt-4 pr-4">
+          <button type="button" class="bg-white dark:bg-slate-800 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500" on:click={closeModal}>
+            <span class="sr-only">Close</span>
+            <!-- Heroicon name: outline/x -->
+            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="sm:flex sm:items-start">
+          <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white mb-4" id="modal-title">
+              {Object.keys(featureDetails).find(key => featureDetails[key] === selectedFeature)}
+            </h3>
+            
+            <!-- Status badge -->
+            <div class="mb-4">
+              {#if selectedFeature.status === 'completed'}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  Completed
+                </span>
+              {:else if selectedFeature.status === 'in_progress'}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                  <svg class="w-4 h-4 mr-1 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  </svg>
+                  In Progress
+                </span>
+              {:else}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                  </svg>
+                  Future
+                </span>
+              {/if}
+            </div>
+            
+            <!-- Description -->
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+              {selectedFeature.description}
+            </p>
+            
+            <!-- Details list -->
+            <div class="space-y-2">
+              <h4 class="text-sm font-medium text-gray-900 dark:text-white">Key Features:</h4>
+              <ul class="space-y-2">
+                {#each selectedFeature.details as detail}
+                  <li class="flex items-start text-sm text-gray-600 dark:text-gray-300">
+                    <svg class="h-4 w-4 text-primary-500 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{detail}</span>
+                  </li>
+                {/each}
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+          <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary-600 text-base font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 sm:ml-3 sm:w-auto sm:text-sm" on:click={closeModal}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{/if}
 
 <style>
   /* Custom animations */

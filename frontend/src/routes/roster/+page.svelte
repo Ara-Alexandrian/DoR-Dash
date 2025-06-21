@@ -325,7 +325,7 @@
                   <div class="flex items-center">
                     {#if user.avatar_url}
                       <img 
-                        src={user.avatar_url} 
+                        src="{user.avatar_url}" 
                         alt="{user.full_name || user.username}" 
                         class="flex-shrink-0 h-10 w-10 rounded-full object-cover"
                       />

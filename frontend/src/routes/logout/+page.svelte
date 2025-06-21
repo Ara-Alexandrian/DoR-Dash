@@ -32,7 +32,7 @@
 </script>
 
 <div class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 via-primary-50 to-secondary-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dracula:from-gray-900 dracula:via-slate-900 dracula:to-gray-900 mbp:from-gray-950 mbp:via-red-950/80 mbp:to-gray-900 lsu:from-purple-950 lsu:via-purple-900/80 lsu:to-purple-950 px-4">
-  <div class="w-full max-w-md backdrop-blur-sm rounded-lg shadow-2xl overflow-hidden" style="background-color: {currentTheme === 'mbp' ? 'rgb(17, 24, 39)' : currentTheme === 'lsu' ? 'rgb(88, 28, 135)' : 'rgba(249, 250, 251, 0.95)'}; border-color: {currentTheme === 'mbp' ? 'rgba(239, 68, 68, 0.5)' : currentTheme === 'lsu' ? 'rgba(147, 51, 234, 0.2)' : 'rgb(229, 231, 235)'};">"
+  <div class="w-full max-w-md backdrop-blur-sm rounded-lg shadow-2xl overflow-hidden bg-white dark:bg-slate-800 dracula:bg-gray-800 mbp:bg-gray-900 lsu:bg-purple-900/90 border border-gray-200 dark:border-slate-700 dracula:border-gray-700 mbp:border-red-900/50 lsu:border-purple-800/50">
     <div class="px-8 py-10">
       <div class="flex justify-center mb-6">
         <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="w-20 h-20 object-contain" />
@@ -47,7 +47,7 @@
           <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary-600"></div>
         </div>
       {:else}
-        <p class="text-center mb-8 text-gray-700 dark:text-gray-200 dracula:text-gray-200 mbp:text-red-100 lsu:text-purple-100">
+        <p class="text-center mb-8 text-gray-700 dark:text-gray-300 dracula:text-gray-300 mbp:text-gray-300 lsu:text-purple-200">
           Thank you for using the Dose of Reality Dashboard. You have been successfully logged out of your account.
         </p>
         
