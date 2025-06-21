@@ -251,6 +251,24 @@ show_logs() {
     }
 }
 
+# Function to update DoR-Dash aliases
+update_aliases() {
+    log "🔧 Updating DoR-Dash aliases..."
+    
+    if [ -f "./scripts/unraid-aliases.sh" ]; then
+        chmod +x ./scripts/unraid-aliases.sh
+        ./scripts/unraid-aliases.sh
+        
+        # Source the updated bashrc
+        log "♻️  Refreshing shell aliases..."
+        source ~/.bashrc 2>/dev/null || true
+        
+        success "✅ Aliases updated successfully!"
+    else
+        warn "⚠️  Alias setup script not found, skipping alias update"
+    fi
+}
+
 # Main execution
 main() {
     case "${1:-deploy}" in
@@ -297,6 +315,11 @@ main() {
             echo -e "${GREEN}║${NC}            🎉 ${YELLOW}Restart Complete!${NC}            ${GREEN}║${NC}"
             echo -e "${GREEN}╚════════════════════════════════════════════════╝${NC}"
             echo
+            
+            # Update aliases and return to directory
+            update_aliases
+            cd "$(dirname "$0")/.." 2>/dev/null || true  # Return to DoR-Dash directory
+            
             show_status
             ;;
         "status")

@@ -44,7 +44,7 @@ alias dorhelp='echo "DoR-Dash Commands:
 alias dorlive='docker logs -f dor-dash'
 alias dorexec='docker exec -it dor-dash /bin/bash'
 alias dorinspect='docker inspect dor-dash'
-alias dorhealth='echo "🔍 Checking DoR-Dash health..." && curl -s -w "\\nStatus: %{http_code}\\nResponse time: %{time_total}s\\n" http://172.30.98.177:8000/health || echo "❌ Backend health check failed"'
+alias dorhealth='echo "🔍 Checking DoR-Dash health..." && curl -s -w "\\nStatus: %{http_code}\\nResponse time: %{time_total}s\\n" http://localhost:8000/health || echo "❌ Backend health check failed"'
 EOF
 
 echo "✅ DoR-Dash aliases added to $BASHRC"
