@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import JSON
 import enum
 
-from app.db.base import Base
+from app.db.base_class import Base
 
 
 class PresentationType(enum.Enum):
@@ -24,9 +24,9 @@ class PresentationAssignment(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     
     # Relationships
-    student_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
-    assigned_by_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
-    meeting_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("meetings.id"), nullable=True)
+    student_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
+    assigned_by_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
+    meeting_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("meeting.id"), nullable=True)
     
     # Assignment details
     title: Mapped[str] = mapped_column(String(500), nullable=False)

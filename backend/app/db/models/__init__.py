@@ -7,3 +7,4 @@ from .agenda_item import AgendaItem, AgendaItemType
 from .student_update import StudentUpdate
 from .faculty_update import FacultyUpdate, AnnouncementType
 from .presentation import AssignedPresentation
+from .presentation_assignment import PresentationAssignment, PresentationType

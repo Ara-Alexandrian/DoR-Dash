@@ -1,0 +1,63 @@
+{
+  "mcpServers": {
+    "ssh-dor-dash": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-ssh"],
+      "env": {
+        "SSH_CONFIG": "/config/workspace/gitea/DoR-Dash/ssh-config.json"
+      }
+    },
+    "ssh-postgres": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-ssh"],
+      "env": {
+        "SSH_CONFIG": "/config/workspace/gitea/DoR-Dash/ssh-postgres-config.json"
+      }
+    },
+    "ssh-redis": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-ssh"],
+      "env": {
+        "SSH_CONFIG": "/config/workspace/gitea/DoR-Dash/ssh-redis-config.json"
+      }
+    },
+    "ssh-ollama": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-ssh"],
+      "env": {
+        "SSH_CONFIG": "/config/workspace/gitea/DoR-Dash/ssh-ollama-config.json"
+      }
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-postgres"],
+      "env": {
+        "POSTGRES_HOST": "172.30.98.213",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_USER": "DoRadmin",
+        "POSTGRES_PASSWORD": "1232",
+        "POSTGRES_DATABASE": "DoR"
+      }
+    },
+    "redis": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-redis"],
+      "env": {
+        "REDIS_HOST": "172.30.98.214",
+        "REDIS_PORT": "6379"
+      }
+    },
+    "mermaid": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-mermaid"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_OWNER": "kronisto",
+        "GITHUB_REPO": "DoR-Dash"
+      }
+    }
+  }
+}

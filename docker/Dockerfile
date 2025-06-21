@@ -95,11 +95,11 @@ RUN echo 'export PS1="\\[\\033[01;31m\\]root@dor-dash\\[\\033[00m\\]:\\[\\033[01
 # Set working directory
 WORKDIR /app
 
-# Copy backend requirements and install dependencies
-COPY backend/requirements.txt /app/backend/
-RUN pip install --no-cache-dir -r backend/requirements.txt
+# Copy backend requirements and install dependencies FIRST (for better caching)
+COPY backend/requirements.txt /app/backend/requirements.txt
+RUN pip install --no-cache-dir --disable-pip-version-check -r /app/backend/requirements.txt
 
-# Copy backend source code
+# Copy backend source code AFTER dependencies (so code changes don't invalidate pip cache)
 COPY backend/ /app/backend/
 
 # Copy built frontend from previous stage

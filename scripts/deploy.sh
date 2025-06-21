@@ -11,7 +11,7 @@ CONTAINER_NAME="dor-dash"
 UNRAID_HOST="172.30.98.10"
 CONTAINER_IP="172.30.98.177"
 FRONTEND_PORT="1717"
-BACKEND_PORT="1718"
+BACKEND_PORT="8000"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -61,6 +61,10 @@ stop_existing() {
 build_image() {
     log "Building Docker image..."
     local BUILD_ARGS="$1"
+    
+    # Enable BuildKit for faster builds with parallel processing
+    export DOCKER_BUILDKIT=1
+    export BUILDKIT_PROGRESS=plain
     
     if [ -n "$BUILD_ARGS" ]; then
         log "Using build arguments: $BUILD_ARGS"

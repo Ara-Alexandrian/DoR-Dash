@@ -9,7 +9,6 @@ export default defineConfig({
 		strictPort: true,
 		allowedHosts: [
 			'localhost',
-			'172.30.98.21',
 			'172.30.98.177',
 			'dd.kronisto.net',
 			'.kronisto.net' // Allow all subdomains
@@ -32,7 +31,7 @@ export default defineConfig({
 	},
 	preview: {
 		host: '0.0.0.0',
-		port: 7117,
+		port: 1717,
 		strictPort: true
 	}
 });

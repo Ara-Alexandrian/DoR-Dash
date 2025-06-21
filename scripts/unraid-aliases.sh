@@ -22,6 +22,8 @@ alias dorstatus='cd /mnt/user/appdata/DoR-Dash && ./scripts/deploy.sh status'
 alias dorlogs='cd /mnt/user/appdata/DoR-Dash && ./scripts/deploy.sh logs'
 alias dorupdate='cd /mnt/user/appdata/DoR-Dash && git pull origin master && ./scripts/deploy.sh restart'
 alias dorfullrebuild='cd /mnt/user/appdata/DoR-Dash && git pull origin master && ./scripts/deploy.sh rebuild'
+alias dorsmartrebuild='cd /mnt/user/appdata/DoR-Dash && git pull origin master && ./scripts/deploy.sh rebuild'
+alias dorforcebuild='cd /mnt/user/appdata/DoR-Dash && git pull origin master && ./scripts/deploy.sh rebuild --no-cache'
 alias dorhelp='echo "DoR-Dash Commands:
   dorcd        - Navigate to DoR-Dash directory
   dorpull      - Pull latest code from repository
@@ -31,7 +33,9 @@ alias dorhelp='echo "DoR-Dash Commands:
   dorstatus    - Show container status
   dorlogs      - Show container logs
   dorupdate    - Pull code and restart (quick update)
-  dorfullrebuild - Pull code and full rebuild
+  dorfullrebuild - Pull code and full rebuild (same as dorsmartrebuild)
+  dorsmartrebuild - Smart cached rebuild with git pull (FASTEST)
+  dorforcebuild - Force rebuild with --no-cache (SLOWEST but most thorough)
   dorhelp      - Show this help"'
 
 # Quick docker commands for DoR-Dash
