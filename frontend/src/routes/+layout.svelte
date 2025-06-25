@@ -63,8 +63,7 @@
     { title: 'Your Updates', path: '/updates', icon: 'document-duplicate' },
     { title: 'Presentation Assignments', path: '/presentation-assignments', icon: 'academic-cap' },
     { title: 'Calendar', path: '/calendar', icon: 'calendar' },
-    { title: 'Agenda', path: '/agenda', icon: 'calendar-days' },
-    { title: 'About', path: '/about', icon: 'information-circle' }
+    { title: 'Agenda', path: '/agenda', icon: 'calendar-days' }
   ];
 
   // Faculty/Admin only items
@@ -177,11 +176,25 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center">
             <img src="/images/MBP Torch.png" alt="MBP Torch" class="w-8 h-8 object-contain mr-2"/>
-            <h1 class="text-2xl font-bold text-white tracking-tight">DoR-Dash</h1>
+            <div class="flex items-center gap-2">
+              <h1 class="text-2xl font-bold text-white tracking-tight">DoR-Dash</h1>
+              <!-- Brain with lightbulb easter egg to About page -->
+              <button 
+                on:click={() => window.location.href = '/about'}
+                class="group relative p-1 rounded-full hover:bg-white/10 transition-colors duration-200"
+                title="Learn more about DoR-Dash"
+                aria-label="About DoR-Dash"
+              >
+                <svg class="w-5 h-5 text-gold-400 dark:text-yellow-400 dracula:text-cyan-400 mbp:text-red-300 lsu:text-yellow-400 group-hover:text-gold-300 dark:group-hover:text-yellow-300 dracula:group-hover:text-cyan-300 mbp:group-hover:text-red-200 lsu:group-hover:text-yellow-300 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <!-- Brain outline -->
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                  <!-- Lightbulb inside brain -->
+                  <circle cx="12" cy="10" r="2" stroke-width="1.5" fill="currentColor" opacity="0.6"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v1M10.5 9.5l.5.5M13.5 9.5l-.5.5" opacity="0.8"/>
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
-        <div class="text-xs text-gold-400 dark:text-yellow-400 dracula:text-cyan-400 mbp:text-red-300 lsu:text-yellow-400 mt-1 font-medium">
-          Dose of Reality Dashboard
         </div>
       </div>
       
@@ -212,8 +225,6 @@
                 <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zM5 5.5a.5.5 0 01.5-.5h2a.5.5 0 01.5.5V6a.5.5 0 01-.5.5h-2A.5.5 0 015 6v-.5zm3 5.5a.5.5 0 01.5-.5h2a.5.5 0 010 1h-2a.5.5 0 01-.5-.5z" />
               {:else if item.icon === 'users'}
                 <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-              {:else if item.icon === 'information-circle'}
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
               {/if}
             </svg>
             
