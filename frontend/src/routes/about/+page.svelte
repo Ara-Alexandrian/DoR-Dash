@@ -352,7 +352,7 @@ graph TB
             <div class="mermaid bg-white dark:bg-gray-800 p-6 rounded-lg border">
 graph LR
     Login[User Login] --> Dashboard[Dashboard View]
-    Dashboard --> Choice{User Role?}
+    Dashboard --> Choice["User Role?"]
     
     Choice -->|Student| StudentFlow[Student Workflow]
     Choice -->|Faculty| FacultyFlow[Faculty Workflow]
@@ -389,7 +389,7 @@ graph TD
     Input[User Input] --> Validation[Data Validation]
     Validation --> Processing[Business Logic Processing]
     
-    Processing --> Cache{Cache Available?}
+    Processing --> Cache["Cache Available?"]
     Cache -->|Yes| ServeCache[Serve from Redis]
     Cache -->|No| Database[Query PostgreSQL]
     
@@ -397,7 +397,7 @@ graph TD
     UpdateCache --> Response[Send Response]
     ServeCache --> Response
     
-    Processing --> LLM{Text Refinement?}
+    Processing --> LLM["Text Refinement?"]
     LLM -->|Yes| Ollama[Process with Ollama]
     LLM -->|No| Direct[Direct Processing]
     
