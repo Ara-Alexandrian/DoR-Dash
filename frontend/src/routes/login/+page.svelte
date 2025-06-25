@@ -146,7 +146,7 @@
             </div>
             {#if error.includes('credentials')}
               <div class="mt-2 text-xs text-gray-600 dark:text-slate-400 dracula:text-cyan-300/70">
-                <p>Development credentials: <code class="bg-black/10 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-900/95 lsu:bg-purple-900/95 px-1 py-0.5 rounded text-gray-800 dark:text-slate-200 dracula:text-cyan-300 mbp:text-red-200 lsu:text-purple-200">admin / password</code></p>
+                <p>Development credentials: <code class="bg-black/10 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-gray-900/95 lsu:bg-purple-900/95 px-1 py-0.5 rounded text-gray-800 dark:text-slate-200 dracula:text-cyan-300 mbp:text-red-200 lsu:text-purple-200">cerebro / 123</code></p>
               </div>
             {/if}
           </div>
