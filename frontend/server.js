@@ -8,6 +8,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -32,6 +33,20 @@ app.use(express.static(BUILD_DIR, {
 app.get('/health', (req, res) => {
     res.json({ status: 'healthy', message: 'Frontend server is running' });
 });
+
+// Proxy /uploads/ requests to backend for uploaded files
+app.use('/uploads', createProxyMiddleware({
+    target: 'http://172.30.98.177:8000',
+    changeOrigin: true,
+    logLevel: 'debug',
+    onProxyReq: (proxyReq, req, res) => {
+        console.log(`Proxying upload request: ${req.originalUrl} -> http://172.30.98.177:8000${req.originalUrl}`);
+    },
+    onError: (err, req, res) => {
+        console.error('Proxy error:', err);
+        res.status(500).send('Proxy error');
+    }
+}));
 
 // SPA fallback - serve index.html for all other routes
 app.get('*', (req, res) => {
