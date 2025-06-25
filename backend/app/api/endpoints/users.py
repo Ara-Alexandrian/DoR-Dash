@@ -356,34 +356,52 @@ async def upload_avatar(
         # Re-open the image since verify() closes it
         image = Image.open(io.BytesIO(content))
         
-        # Convert to RGB if necessary (for JPG compatibility)
-        if image.mode in ('RGBA', 'LA', 'P'):
-            # Create white background for transparency
-            background = Image.new('RGB', image.size, (255, 255, 255))
-            if image.mode == 'P':
-                image = image.convert('RGBA')
-            background.paste(image, mask=image.split()[-1] if image.mode == 'RGBA' else None)
-            image = background
-        elif image.mode not in ('RGB', 'L'):
-            # Convert any other modes to RGB
-            image = image.convert('RGB')
-        
-        # Resize to 200x200 with smart cropping
-        # First, resize to make the smallest dimension 200px
+        # Check if image is already properly sized (from frontend cropper)
         img_w, img_h = image.size
-        if img_w < img_h:
-            new_w = 200
-            new_h = int((200 * img_h) / img_w)
+        is_already_cropped = (img_w == 200 and img_h == 200)
+        
+        if is_already_cropped:
+            # Image is already cropped by frontend with user's preferred positioning and soft edges
+            # Just ensure it's in RGB mode for JPEG compatibility
+            if image.mode in ('RGBA', 'LA', 'P'):
+                # Convert RGBA to RGB with white background, preserving soft edges
+                background = Image.new('RGB', image.size, (255, 255, 255))
+                if image.mode == 'P':
+                    image = image.convert('RGBA')
+                # Use alpha compositing to preserve soft edges
+                background.paste(image, (0, 0), image if image.mode == 'RGBA' else None)
+                image = background
+            elif image.mode not in ('RGB', 'L'):
+                image = image.convert('RGB')
         else:
-            new_h = 200
-            new_w = int((200 * img_w) / img_h)
-        
-        image = image.resize((new_w, new_h), Image.Resampling.LANCZOS)
-        
-        # Crop to 200x200 from center
-        left = (new_w - 200) // 2
-        top = (new_h - 200) // 2
-        image = image.crop((left, top, left + 200, top + 200))
+            # Image needs processing - do smart cropping as fallback
+            # Convert to RGB if necessary (for JPG compatibility)
+            if image.mode in ('RGBA', 'LA', 'P'):
+                # Create white background for transparency
+                background = Image.new('RGB', image.size, (255, 255, 255))
+                if image.mode == 'P':
+                    image = image.convert('RGBA')
+                background.paste(image, mask=image.split()[-1] if image.mode == 'RGBA' else None)
+                image = background
+            elif image.mode not in ('RGB', 'L'):
+                # Convert any other modes to RGB
+                image = image.convert('RGB')
+            
+            # Resize to 200x200 with smart cropping
+            # First, resize to make the smallest dimension 200px
+            if img_w < img_h:
+                new_w = 200
+                new_h = int((200 * img_h) / img_w)
+            else:
+                new_h = 200
+                new_w = int((200 * img_w) / img_h)
+            
+            image = image.resize((new_w, new_h), Image.Resampling.LANCZOS)
+            
+            # Crop to 200x200 from center
+            left = (new_w - 200) // 2
+            top = (new_h - 200) // 2
+            image = image.crop((left, top, left + 200, top + 200))
         
         # Save processed image to memory buffer for database storage
         image_buffer = io.BytesIO()
