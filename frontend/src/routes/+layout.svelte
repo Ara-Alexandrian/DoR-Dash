@@ -61,15 +61,14 @@
     { title: 'Dashboard', path: '/dashboard', icon: 'home' },
     { title: 'Submit Update', path: '/submit-update', icon: 'document-text' },
     { title: 'Your Updates', path: '/updates', icon: 'document-duplicate' },
-    { title: 'Support Request (Beta)', path: '/requests/support', icon: 'support' },
+    { title: 'Presentation Assignments', path: '/presentation-assignments', icon: 'academic-cap' },
     { title: 'Calendar', path: '/calendar', icon: 'calendar' },
     { title: 'Agenda', path: '/agenda', icon: 'calendar-days' }
   ];
 
   // Faculty/Admin only items
   const facultyAdminNav = [
-    { title: 'Roster', path: '/roster', icon: 'users' },
-    { title: 'Presentation Assignments', path: '/presentation-assignments', icon: 'academic-cap' }
+    { title: 'Roster', path: '/roster', icon: 'users' }
   ];
 
   // Computed navigation based on user role
