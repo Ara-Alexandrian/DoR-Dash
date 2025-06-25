@@ -474,11 +474,36 @@
       if (showCropper) {
         const croppedCanvas = getCroppedImage();
         if (croppedCanvas) {
-          // Convert canvas to blob
-          const blob = await new Promise(resolve => {
-            croppedCanvas.toBlob(resolve, 'image/jpeg', 0.9);
+          console.log('Avatar cropping debug:', {
+            canvasSize: `${croppedCanvas.width}x${croppedCanvas.height}`,
+            cropData: cropData,
+            featherRadius: featherRadius,
+            originalImageSize: `${cropImage.naturalWidth}x${cropImage.naturalHeight}`
           });
-          fileToUpload = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
+          
+          // Convert canvas to blob
+          // Use PNG format when soft edges are applied to preserve alpha channel
+          const usesPNG = featherRadius > 0;
+          const mimeType = usesPNG ? 'image/png' : 'image/jpeg';
+          const fileName = usesPNG ? 'avatar.png' : 'avatar.jpg';
+          const quality = usesPNG ? undefined : 0.9;
+          
+          const blob = await new Promise(resolve => {
+            if (usesPNG) {
+              croppedCanvas.toBlob(resolve, mimeType);
+            } else {
+              croppedCanvas.toBlob(resolve, mimeType, quality);
+            }
+          });
+          
+          console.log('Avatar blob created:', {
+            size: blob.size,
+            type: blob.type,
+            format: usesPNG ? 'PNG (soft edges)' : 'JPEG',
+            featherRadius: featherRadius
+          });
+          
+          fileToUpload = new File([blob], fileName, { type: mimeType });
         }
       }
       
@@ -502,6 +527,8 @@
       }
       
       const result = await response.json();
+      
+      console.log('Avatar upload response:', result);
       
       // Update user data with new avatar URL
       userData.avatar_url = result.avatar_url;

@@ -360,6 +360,10 @@ async def upload_avatar(
         img_w, img_h = image.size
         is_already_cropped = (img_w == 200 and img_h == 200)
         
+        # Debug logging
+        logger.info(f"Avatar upload for user {user_id}: received image size {img_w}x{img_h}, mode: {image.mode}")
+        logger.info(f"Is already cropped: {is_already_cropped}")
+        
         if is_already_cropped:
             # Image is already cropped by frontend with user's preferred positioning and soft edges
             # Just ensure it's in RGB mode for JPEG compatibility
@@ -368,8 +372,21 @@ async def upload_avatar(
                 background = Image.new('RGB', image.size, (255, 255, 255))
                 if image.mode == 'P':
                     image = image.convert('RGBA')
-                # Use alpha compositing to preserve soft edges
-                background.paste(image, (0, 0), image if image.mode == 'RGBA' else None)
+                
+                # Use proper alpha compositing to preserve soft edges
+                if image.mode == 'RGBA':
+                    # Split channels for better soft edge preservation
+                    r, g, b, a = image.split()
+                    rgb_image = Image.merge('RGB', (r, g, b))
+                    background.paste(rgb_image, (0, 0), a)
+                elif image.mode == 'LA':
+                    # Grayscale with alpha
+                    l, a = image.split()
+                    background.paste(image.convert('RGB'), (0, 0), a)
+                else:
+                    # Fallback for other modes
+                    background.paste(image, (0, 0), image if hasattr(image, 'mode') and 'A' in image.mode else None)
+                    
                 image = background
             elif image.mode not in ('RGB', 'L'):
                 image = image.convert('RGB')
@@ -421,7 +438,8 @@ async def upload_avatar(
             "avatar_url": f"/api/v1/users/{user_id}/avatar/image",
             "file_size": len(content),
             "processed_size": f"{image.size[0]}x{image.size[1]}",
-            "storage": "database"
+            "storage": "database",
+            "processing": "preserved" if is_already_cropped else "cropped"
         }
         
     except Exception as e:
