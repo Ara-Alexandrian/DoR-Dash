@@ -611,8 +611,186 @@
         </div>
       </div>
 
-      <!-- Roadmap Section -->
+      <!-- Presentation Assignments Section -->
       <div class="space-y-4" in:fly={{y: 20, duration: 400, delay: 300}}>
+        <div class="card hover:shadow-2xl transition-shadow duration-300">
+          <div class="bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-700 dark:to-primary-800 px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center">
+              <svg class="h-6 w-6 text-white mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <h2 class="text-lg font-bold text-white">Presentation Assignments</h2>
+            </div>
+            <span class="bg-white/20 text-white text-sm px-3 py-1 rounded-full">
+              {presentations.filter(p => p.status === 'scheduled').length} pending
+            </span>
+          </div>
+          
+          <div class="p-6">
+            {#if presentations.length > 0}
+              <div class="space-y-4">
+                {#each presentations as presentation, i}
+                  <div class="group relative bg-[rgb(var(--color-bg-secondary))] rounded-xl p-5 hover:shadow-lg transition-all duration-300 border border-[rgb(var(--color-border))] hover:border-primary-300 dark:hover:border-primary-600" in:scale={{duration: 300, delay: i * 50}}>
+                    <div class="flex items-start justify-between">
+                      <div class="flex-1">
+                        <h3 class="font-semibold text-[rgb(var(--color-text-primary))] group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
+                          {presentation.title || 'Presentation'}
+                        </h3>
+                        <div class="text-sm text-[rgb(var(--color-text-secondary))] mt-1 space-y-1">
+                          {#if presentation.meeting_date}
+                            <p class="flex items-center">
+                              <svg class="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              Due: {formatDate(presentation.meeting_date)}
+                            </p>
+                          {:else}
+                            <p class="flex items-center text-yellow-600 dark:text-yellow-400">
+                              <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              No due date set
+                            </p>
+                          {/if}
+                          
+                          {#if presentation.assigned_by}
+                            <p class="flex items-center">
+                              <svg class="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                              </svg>
+                              Assigned by: {presentation.assigned_by}
+                            </p>
+                          {/if}
+                          
+                          {#if presentation.presentation_type}
+                            <p class="flex items-center">
+                              <svg class="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m3 0h-4m-8 0H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2z" />
+                              </svg>
+                              Type: {presentation.presentation_type.replace('_', ' ')}
+                            </p>
+                          {/if}
+                        </div>
+                        
+                        {#if presentation.files && presentation.files.length > 0}
+                          <div class="mt-3">
+                            <p class="text-xs font-medium text-[rgb(var(--color-text-tertiary))] mb-2">Attached Materials:</p>
+                            <div class="flex flex-wrap gap-2">
+                              {#each presentation.files as file}
+                                <a 
+                                  href={file.url || '#'} 
+                                  download
+                                  class="inline-flex items-center px-3 py-1.5 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-lg text-xs hover:bg-primary-100 dark:hover:bg-primary-900/50 transition-colors group"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                  </svg>
+                                  {file.name || 'Download'}
+                                </a>
+                              {/each}
+                            </div>
+                          </div>
+                        {/if}
+                        
+                        {#if $auth.user?.role !== 'student' && presentation.grillometer && (presentation.grillometer.novelty || presentation.grillometer.methodology || presentation.grillometer.delivery)}
+                          <div class="mt-3 bg-[rgb(var(--color-bg-primary))] rounded-lg p-3 border border-[rgb(var(--color-border))]">
+                            <p class="text-xs font-medium text-[rgb(var(--color-text-tertiary))] mb-2 flex items-center">
+                              🔥 Grillometer Settings
+                              <span class="ml-1 text-[rgb(var(--color-text-secondary))]">(Faculty feedback focus)</span>
+                            </p>
+                            <div class="grid grid-cols-3 gap-3 text-xs">
+                              {#if presentation.grillometer.novelty}
+                                <div class="text-center">
+                                  <div class="text-base mb-1">
+                                    {presentation.grillometer.novelty === 1 ? '🧊' : presentation.grillometer.novelty === 2 ? '🔥' : '🔥🔥🔥'}
+                                  </div>
+                                  <div class="font-medium text-[rgb(var(--color-text-primary))]">Novelty</div>
+                                  <div class="text-[rgb(var(--color-text-secondary))]">
+                                    {presentation.grillometer.novelty === 1 ? 'Relaxed' : presentation.grillometer.novelty === 2 ? 'Moderate' : 'Intense'}
+                                  </div>
+                                </div>
+                              {/if}
+                              {#if presentation.grillometer.methodology}
+                                <div class="text-center">
+                                  <div class="text-base mb-1">
+                                    {presentation.grillometer.methodology === 1 ? '🧊' : presentation.grillometer.methodology === 2 ? '🔥' : '🔥🔥🔥'}
+                                  </div>
+                                  <div class="font-medium text-[rgb(var(--color-text-primary))]">Methodology</div>
+                                  <div class="text-[rgb(var(--color-text-secondary))]">
+                                    {presentation.grillometer.methodology === 1 ? 'Relaxed' : presentation.grillometer.methodology === 2 ? 'Moderate' : 'Intense'}
+                                  </div>
+                                </div>
+                              {/if}
+                              {#if presentation.grillometer.delivery}
+                                <div class="text-center">
+                                  <div class="text-base mb-1">
+                                    {presentation.grillometer.delivery === 1 ? '🧊' : presentation.grillometer.delivery === 2 ? '🔥' : '🔥🔥🔥'}
+                                  </div>
+                                  <div class="font-medium text-[rgb(var(--color-text-primary))]">Delivery</div>
+                                  <div class="text-[rgb(var(--color-text-secondary))]">
+                                    {presentation.grillometer.delivery === 1 ? 'Relaxed' : presentation.grillometer.delivery === 2 ? 'Moderate' : 'Intense'}
+                                  </div>
+                                </div>
+                              {/if}
+                            </div>
+                          </div>
+                        {/if}
+                        
+                        {#if $auth.user?.role === 'student' && presentation.status === 'scheduled'}
+                          <div class="mt-3">
+                            <a 
+                              href="/presentation-assignments/{presentation.id}"
+                              class="inline-flex items-center px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors"
+                            >
+                              <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM6 2h8l6 6v10a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" />
+                              </svg>
+                              Submit Materials & Comments
+                            </a>
+                          </div>
+                        {/if}
+                      </div>
+                      
+                      {#if presentation.status === 'scheduled'}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                          <span class="w-2 h-2 bg-yellow-400 rounded-full mr-1.5 animate-pulse"></span>
+                          Upcoming
+                        </span>
+                      {:else if presentation.status === 'completed'}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                          <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                          </svg>
+                          Completed
+                        </span>
+                      {:else}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                          <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                          </svg>
+                          Cancelled
+                        </span>
+                      {/if}
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            {:else}
+              <!-- Empty state -->
+              <div class="text-center py-12">
+                <svg class="mx-auto h-16 w-16 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p class="mt-4 text-[rgb(var(--color-text-secondary))] font-medium">No presentation assignments</p>
+                <p class="mt-1 text-sm text-[rgb(var(--color-text-tertiary))]">Faculty will assign presentations that appear here</p>
+              </div>
+            {/if}
+          </div>
+        </div>
+      </div>
+
+      <!-- Roadmap Section -->
+      <div class="space-y-4" in:fly={{y: 20, duration: 400, delay: 400}}>
         <h2 class="text-xl font-bold text-[rgb(var(--color-text-primary))]">DoR Dash Development Roadmap</h2>
         <div class="card hover:shadow-2xl transition-shadow duration-300 p-8">
           <div class="space-y-8">
@@ -790,185 +968,9 @@
         </div>
       </div>
 
-      <!-- Main Content Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" in:fly={{y: 20, duration: 400, delay: 400}}>
-        <!-- Upcoming Presentations Section -->
-        <div class="card hover:shadow-2xl transition-shadow duration-300">
-          <div class="bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-700 dark:to-primary-800 px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center">
-              <svg class="h-6 w-6 text-white mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <h2 class="text-lg font-bold text-white">Presentation Assignments</h2>
-            </div>
-            <span class="bg-white/20 text-white text-sm px-3 py-1 rounded-full">
-              {presentations.filter(p => p.status === 'scheduled').length} pending
-            </span>
-          </div>
-          
-          <div class="p-6">
-            {#if presentations.length > 0}
-              <div class="space-y-4">
-                {#each presentations as presentation, i}
-                  <div class="group relative bg-[rgb(var(--color-bg-secondary))] rounded-xl p-5 hover:shadow-lg transition-all duration-300 border border-[rgb(var(--color-border))] hover:border-primary-300 dark:hover:border-primary-600" in:scale={{duration: 300, delay: i * 50}}>
-                    <div class="flex items-start justify-between">
-                      <div class="flex-1">
-                        <h3 class="font-semibold text-[rgb(var(--color-text-primary))] group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
-                          {presentation.title || 'Presentation'}
-                        </h3>
-                        <div class="text-sm text-[rgb(var(--color-text-secondary))] mt-1 space-y-1">
-                          {#if presentation.meeting_date}
-                            <p class="flex items-center">
-                              <svg class="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                              Due: {formatDate(presentation.meeting_date)}
-                            </p>
-                          {:else}
-                            <p class="flex items-center text-yellow-600 dark:text-yellow-400">
-                              <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              No due date set
-                            </p>
-                          {/if}
-                          
-                          {#if presentation.assigned_by}
-                            <p class="flex items-center">
-                              <svg class="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                              </svg>
-                              Assigned by: {presentation.assigned_by}
-                            </p>
-                          {/if}
-                          
-                          {#if presentation.presentation_type}
-                            <p class="flex items-center">
-                              <svg class="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m3 0h-4m-8 0H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2z" />
-                              </svg>
-                              Type: {presentation.presentation_type.replace('_', ' ')}
-                            </p>
-                          {/if}
-                        </div>
-                        
-                        {#if presentation.files && presentation.files.length > 0}
-                          <div class="mt-3">
-                            <p class="text-xs font-medium text-[rgb(var(--color-text-tertiary))] mb-2">Attached Materials:</p>
-                            <div class="flex flex-wrap gap-2">
-                              {#each presentation.files as file}
-                                <a 
-                                  href={file.url || '#'} 
-                                  download
-                                  class="inline-flex items-center px-3 py-1.5 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-lg text-xs hover:bg-primary-100 dark:hover:bg-primary-900/50 transition-colors group"
-                                >
-                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                  </svg>
-                                  {file.name || 'Download'}
-                                </a>
-                              {/each}
-                            </div>
-                          </div>
-                        {/if}
-                        
-                        {#if $auth.user?.role !== 'student' && presentation.grillometer && (presentation.grillometer.novelty || presentation.grillometer.methodology || presentation.grillometer.delivery)}
-                          <div class="mt-3 bg-[rgb(var(--color-bg-primary))] rounded-lg p-3 border border-[rgb(var(--color-border))]">
-                            <p class="text-xs font-medium text-[rgb(var(--color-text-tertiary))] mb-2 flex items-center">
-                              🔥 Grillometer Settings
-                              <span class="ml-1 text-[rgb(var(--color-text-secondary))]">(Faculty feedback focus)</span>
-                            </p>
-                            <div class="grid grid-cols-3 gap-3 text-xs">
-                              {#if presentation.grillometer.novelty}
-                                <div class="text-center">
-                                  <div class="text-base mb-1">
-                                    {presentation.grillometer.novelty === 1 ? '🧊' : presentation.grillometer.novelty === 2 ? '🔥' : '🔥🔥🔥'}
-                                  </div>
-                                  <div class="font-medium text-[rgb(var(--color-text-primary))]">Novelty</div>
-                                  <div class="text-[rgb(var(--color-text-secondary))]">
-                                    {presentation.grillometer.novelty === 1 ? 'Relaxed' : presentation.grillometer.novelty === 2 ? 'Moderate' : 'Intense'}
-                                  </div>
-                                </div>
-                              {/if}
-                              {#if presentation.grillometer.methodology}
-                                <div class="text-center">
-                                  <div class="text-base mb-1">
-                                    {presentation.grillometer.methodology === 1 ? '🧊' : presentation.grillometer.methodology === 2 ? '🔥' : '🔥🔥🔥'}
-                                  </div>
-                                  <div class="font-medium text-[rgb(var(--color-text-primary))]">Methodology</div>
-                                  <div class="text-[rgb(var(--color-text-secondary))]">
-                                    {presentation.grillometer.methodology === 1 ? 'Relaxed' : presentation.grillometer.methodology === 2 ? 'Moderate' : 'Intense'}
-                                  </div>
-                                </div>
-                              {/if}
-                              {#if presentation.grillometer.delivery}
-                                <div class="text-center">
-                                  <div class="text-base mb-1">
-                                    {presentation.grillometer.delivery === 1 ? '🧊' : presentation.grillometer.delivery === 2 ? '🔥' : '🔥🔥🔥'}
-                                  </div>
-                                  <div class="font-medium text-[rgb(var(--color-text-primary))]">Delivery</div>
-                                  <div class="text-[rgb(var(--color-text-secondary))]">
-                                    {presentation.grillometer.delivery === 1 ? 'Relaxed' : presentation.grillometer.delivery === 2 ? 'Moderate' : 'Intense'}
-                                  </div>
-                                </div>
-                              {/if}
-                            </div>
-                          </div>
-                        {/if}
-                        
-                        {#if $auth.user?.role === 'student' && presentation.status === 'scheduled'}
-                          <div class="mt-3">
-                            <a 
-                              href="/presentation-assignments/{presentation.id}"
-                              class="inline-flex items-center px-3 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors"
-                            >
-                              <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM6 2h8l6 6v10a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" />
-                              </svg>
-                              Submit Materials & Comments
-                            </a>
-                          </div>
-                        {/if}
-                      </div>
-                      
-                      {#if presentation.status === 'scheduled'}
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                          <span class="w-2 h-2 bg-yellow-400 rounded-full mr-1.5 animate-pulse"></span>
-                          Upcoming
-                        </span>
-                      {:else if presentation.status === 'completed'}
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">
-                          <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                          </svg>
-                          Completed
-                        </span>
-                      {:else}
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                          <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                          </svg>
-                          Cancelled
-                        </span>
-                      {/if}
-                    </div>
-                  </div>
-                {/each}
-              </div>
-            {:else}
-              <!-- Empty state -->
-              <div class="text-center py-12">
-                <svg class="mx-auto h-16 w-16 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <p class="mt-4 text-[rgb(var(--color-text-secondary))] font-medium">No presentation assignments</p>
-                <p class="mt-1 text-sm text-[rgb(var(--color-text-tertiary))]">Faculty will assign presentations that appear here</p>
-              </div>
-            {/if}
-          </div>
-        </div>
-        
-        <!-- Platform Updates Section -->
+      <!-- Platform Updates Section -->
+      <div class="space-y-4" in:fly={{y: 20, duration: 400, delay: 500}}>
+        <h2 class="text-xl font-bold text-[rgb(var(--color-text-primary))]">DoR Dash Updates</h2>
         <div class="card hover:shadow-2xl transition-shadow duration-300">
           <div class="bg-gradient-to-r from-purple-600 to-purple-700 dark:from-purple-700 dark:to-purple-800 px-6 py-4 flex items-center justify-between">
             <div class="flex items-center">

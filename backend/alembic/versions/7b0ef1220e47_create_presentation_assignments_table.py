@@ -47,9 +47,9 @@ def upgrade() -> None:
         sa.Column('extra_data', postgresql.JSON(astext_type=sa.Text()), nullable=True),
         sa.Column('created_at', sa.DateTime(), nullable=False, server_default=sa.text('now()')),
         sa.Column('updated_at', sa.DateTime(), nullable=False, server_default=sa.text('now()')),
-        sa.ForeignKeyConstraint(['assigned_by_id'], ['users.id'], ),
-        sa.ForeignKeyConstraint(['meeting_id'], ['meetings.id'], ),
-        sa.ForeignKeyConstraint(['student_id'], ['users.id'], ),
+        sa.ForeignKeyConstraint(['assigned_by_id'], ['user.id'], ),
+        sa.ForeignKeyConstraint(['meeting_id'], ['meeting.id'], ),
+        sa.ForeignKeyConstraint(['student_id'], ['user.id'], ),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_presentation_assignments_id'), 'presentation_assignments', ['id'], unique=False)

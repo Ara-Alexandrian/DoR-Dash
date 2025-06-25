@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Avatar Crop Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        canvas {
+            border: 1px solid #333;
+            margin: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .info {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .result-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: #e8f4ff;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Frontend Avatar Crop Test</h1>
+    
+    <div class="container">
+        <h2>Step 1: Select Image</h2>
+        <input type="file" id="fileInput" accept="image/*">
+        <div id="originalInfo" class="info"></div>
+    </div>
+
+    <div class="container">
+        <h2>Step 2: Preview Crop (200x200)</h2>
+        <canvas id="previewCanvas" width="200" height="200"></canvas>
+        <canvas id="resultCanvas" width="200" height="200"></canvas>
+        <div>
+            <button onclick="applySoftCrop()">Apply Soft Edge Crop</button>
+            <button onclick="applyHardCrop()">Apply Hard Edge Crop</button>
+        </div>
+        <div>
+            <label>Feather Radius: <input type="range" id="featherRadius" min="0" max="20" value="5"> <span id="featherValue">5</span>px</label>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Step 3: Test Upload</h2>
+        <button onclick="testUpload()">Simulate Upload (200x200 JPEG)</button>
+        <div id="uploadInfo" class="info"></div>
+    </div>
+
+    <div id="results" class="container">
+        <h2>Results</h2>
+        <div id="resultsList"></div>
+    </div>
+
+    <script>
+        let originalImage = null;
+        let cropData = { x: 0, y: 0, scale: 1 };
+        
+        // File input handler
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    originalImage = img;
+                    document.getElementById('originalInfo').textContent = 
+                        `Original: ${img.width}x${img.height}, Type: ${file.type}, Size: ${(file.size/1024).toFixed(2)}KB`;
+                    
+                    // Reset crop and show preview
+                    cropData = { x: 0, y: 0, scale: 1 };
+                    showPreview();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        // Feather radius slider
+        document.getElementById('featherRadius').addEventListener('input', function(e) {
+            document.getElementById('featherValue').textContent = e.target.value;
+        });
+        
+        function showPreview() {
+            if (!originalImage) return;
+            
+            const canvas = document.getElementById('previewCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, 200, 200);
+            
+            // Draw scaled image
+            const scale = Math.max(200 / originalImage.width, 200 / originalImage.height);
+            const w = originalImage.width * scale;
+            const h = originalImage.height * scale;
+            const x = (200 - w) / 2;
+            const y = (200 - h) / 2;
+            
+            ctx.drawImage(originalImage, x, y, w, h);
+            
+            // Draw crop circle overlay
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(100, 100, 98, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        
+        function applySoftCrop() {
+            if (!originalImage) return;
+            
+            const canvas = document.getElementById('resultCanvas');
+            const ctx = canvas.getContext('2d');
+            const featherRadius = parseInt(document.getElementById('featherRadius').value);
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, 200, 200);
+            
+            // Step 1: Draw image to temp canvas
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = 200;
+            tempCanvas.height = 200;
+            
+            // Draw scaled image
+            const scale = Math.max(200 / originalImage.width, 200 / originalImage.height);
+            const w = originalImage.width * scale;
+            const h = originalImage.height * scale;
+            const x = (200 - w) / 2;
+            const y = (200 - h) / 2;
+            
+            tempCtx.drawImage(originalImage, x, y, w, h);
+            
+            // Step 2: Create mask with soft edges
+            const maskCanvas = document.createElement('canvas');
+            const maskCtx = maskCanvas.getContext('2d');
+            maskCanvas.width = 200;
+            maskCanvas.height = 200;
+            
+            // Create radial gradient
+            const gradient = maskCtx.createRadialGradient(
+                100, 100, Math.max(0, 100 - featherRadius),
+                100, 100, 100
+            );
+            gradient.addColorStop(0, 'rgba(0,0,0,1)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            
+            // Fill circle with gradient
+            maskCtx.fillStyle = gradient;
+            maskCtx.beginPath();
+            maskCtx.arc(100, 100, 100, 0, Math.PI * 2);
+            maskCtx.fill();
+            
+            // Step 3: Apply mask
+            ctx.drawImage(tempCanvas, 0, 0);
+            ctx.globalCompositeOperation = 'destination-in';
+            ctx.drawImage(maskCanvas, 0, 0);
+            ctx.globalCompositeOperation = 'source-over';
+            
+            addResult('Soft crop applied', `Feather radius: ${featherRadius}px`);
+        }
+        
+        function applyHardCrop() {
+            if (!originalImage) return;
+            
+            const canvas = document.getElementById('resultCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, 200, 200);
+            
+            // Save context state
+            ctx.save();
+            
+            // Create circular clip
+            ctx.beginPath();
+            ctx.arc(100, 100, 100, 0, Math.PI * 2);
+            ctx.clip();
+            
+            // Draw scaled image
+            const scale = Math.max(200 / originalImage.width, 200 / originalImage.height);
+            const w = originalImage.width * scale;
+            const h = originalImage.height * scale;
+            const x = (200 - w) / 2;
+            const y = (200 - h) / 2;
+            
+            ctx.drawImage(originalImage, x, y, w, h);
+            
+            // Restore context
+            ctx.restore();
+            
+            addResult('Hard crop applied', 'No feathering');
+        }
+        
+        function testUpload() {
+            const canvas = document.getElementById('resultCanvas');
+            
+            canvas.toBlob(function(blob) {
+                // Simulate what would be sent to backend
+                const info = {
+                    size: blob.size,
+                    type: blob.type,
+                    dimensions: '200x200',
+                    wouldTriggerBackendCrop: false // Since it's already 200x200
+                };
+                
+                document.getElementById('uploadInfo').textContent = JSON.stringify(info, null, 2);
+                
+                // Create object URL for download
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'test_avatar_200x200.jpg';
+                
+                addResult('Upload simulation', 
+                    `Size: ${(blob.size/1024).toFixed(2)}KB, Type: ${blob.type}`, 
+                    `<a href="${url}" download="test_avatar_200x200.jpg">Download result</a>`);
+                    
+            }, 'image/jpeg', 0.9);
+        }
+        
+        function addResult(title, detail, extra = '') {
+            const div = document.createElement('div');
+            div.className = 'result-item';
+            div.innerHTML = `
+                <strong>${title}</strong><br>
+                ${detail}<br>
+                ${extra}
+                <small>${new Date().toLocaleTimeString()}</small>
+            `;
+            document.getElementById('resultsList').appendChild(div);
+        }
+    </script>
+</body>
+</html>

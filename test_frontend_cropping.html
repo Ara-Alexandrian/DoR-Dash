@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Frontend Avatar Cropping</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-area { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .crop-container { 
+            width: 300px; 
+            height: 300px; 
+            border: 2px solid #333; 
+            position: relative; 
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .crop-image { 
+            position: absolute; 
+            cursor: move; 
+        }
+        .controls { margin: 10px 0; }
+        .preview { 
+            width: 200px; 
+            height: 200px; 
+            border: 1px solid #ccc; 
+            margin: 10px 0;
+        }
+        input[type="range"] { width: 200px; margin: 5px; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Frontend Avatar Cropping Test</h1>
+    
+    <div class="test-area">
+        <h2>Step 1: Load Test Image</h2>
+        <input type="file" id="fileInput" accept="image/*">
+        <div id="imageInfo"></div>
+    </div>
+    
+    <div class="test-area">
+        <h2>Step 2: Crop Image</h2>
+        <div class="crop-container" id="cropContainer">
+            <img id="cropImage" class="crop-image" style="display: none;">
+        </div>
+        
+        <div class="controls">
+            <label>X Position: <input type="range" id="xSlider" min="-200" max="200" value="0"></label>
+            <span id="xValue">0</span><br>
+            <label>Y Position: <input type="range" id="ySlider" min="-200" max="200" value="0"></label>
+            <span id="yValue">0</span><br>
+            <label>Scale: <input type="range" id="scaleSlider" min="0.5" max="3" step="0.1" value="1"></label>
+            <span id="scaleValue">1</span><br>
+            <label>Feather Radius: <input type="range" id="featherSlider" min="0" max="20" value="5"></label>
+            <span id="featherValue">5</span><br>
+        </div>
+        
+        <button onclick="updatePreview()">Update Preview</button>
+        <button onclick="testCropping()">Test Cropping</button>
+    </div>
+    
+    <div class="test-area">
+        <h2>Step 3: Preview Results</h2>
+        <h3>Live Preview:</h3>
+        <canvas id="previewCanvas" class="preview"></canvas>
+        
+        <h3>Final Cropped Result:</h3>
+        <canvas id="finalCanvas" class="preview"></canvas>
+        
+        <div id="cropInfo"></div>
+    </div>
+
+    <script>
+        let cropImage = null;
+        let cropContainer = null;
+        let cropData = { x: 0, y: 0, scale: 1 };
+        let featherRadius = 5;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            cropContainer = document.getElementById('cropContainer');
+            cropImage = document.getElementById('cropImage');
+            
+            // Set up file input
+            document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+            
+            // Set up sliders
+            document.getElementById('xSlider').addEventListener('input', updateFromSliders);
+            document.getElementById('ySlider').addEventListener('input', updateFromSliders);
+            document.getElementById('scaleSlider').addEventListener('input', updateFromSliders);
+            document.getElementById('featherSlider').addEventListener('input', updateFromSliders);
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            document.getElementById('imageInfo').innerHTML = `
+                File: ${file.name}<br>
+                Size: ${file.size} bytes<br>
+                Type: ${file.type}
+            `;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                cropImage.src = e.target.result;
+                cropImage.style.display = 'block';
+                
+                cropImage.onload = function() {
+                    console.log('Image loaded:', cropImage.naturalWidth, 'x', cropImage.naturalHeight);
+                    centerImage();
+                    updatePreview();
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function centerImage() {
+            const containerRect = cropContainer.getBoundingClientRect();
+            const imageSize = Math.max(cropImage.naturalWidth, cropImage.naturalHeight);
+            const containerSize = Math.min(containerRect.width, containerRect.height) - 40;
+            const initialScale = containerSize / imageSize;
+            
+            cropData.x = 0;
+            cropData.y = 0;
+            cropData.scale = Math.max(initialScale, 0.5);
+            
+            updateSliders();
+            updateImagePosition();
+        }
+
+        function updateFromSliders() {
+            cropData.x = parseInt(document.getElementById('xSlider').value);
+            cropData.y = parseInt(document.getElementById('ySlider').value);
+            cropData.scale = parseFloat(document.getElementById('scaleSlider').value);
+            featherRadius = parseInt(document.getElementById('featherSlider').value);
+            
+            document.getElementById('xValue').textContent = cropData.x;
+            document.getElementById('yValue').textContent = cropData.y;
+            document.getElementById('scaleValue').textContent = cropData.scale;
+            document.getElementById('featherValue').textContent = featherRadius;
+            
+            updateImagePosition();
+            updatePreview();
+        }
+
+        function updateSliders() {
+            document.getElementById('xSlider').value = cropData.x;
+            document.getElementById('ySlider').value = cropData.y;
+            document.getElementById('scaleSlider').value = cropData.scale;
+            document.getElementById('featherSlider').value = featherRadius;
+            
+            document.getElementById('xValue').textContent = cropData.x;
+            document.getElementById('yValue').textContent = cropData.y;
+            document.getElementById('scaleValue').textContent = cropData.scale;
+            document.getElementById('featherValue').textContent = featherRadius;
+        }
+
+        function updateImagePosition() {
+            if (!cropImage) return;
+            
+            const scale = cropData.scale;
+            const x = cropData.x;
+            const y = cropData.y;
+            
+            cropImage.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+            cropImage.style.transformOrigin = 'center center';
+        }
+
+        function updatePreview() {
+            if (!cropImage) return;
+            
+            const canvas = getCroppedImage();
+            if (canvas) {
+                const previewCanvas = document.getElementById('previewCanvas');
+                const ctx = previewCanvas.getContext('2d');
+                previewCanvas.width = 200;
+                previewCanvas.height = 200;
+                ctx.drawImage(canvas, 0, 0);
+            }
+        }
+
+        function testCropping() {
+            if (!cropImage) {
+                alert('Please load an image first');
+                return;
+            }
+            
+            const canvas = getCroppedImage();
+            if (canvas) {
+                const finalCanvas = document.getElementById('finalCanvas');
+                const ctx = finalCanvas.getContext('2d');
+                finalCanvas.width = 200;
+                finalCanvas.height = 200;
+                ctx.drawImage(canvas, 0, 0);
+                
+                // Convert to blob and show info
+                canvas.toBlob(function(blob) {
+                    document.getElementById('cropInfo').innerHTML = `
+                        Canvas Size: ${canvas.width}x${canvas.height}<br>
+                        Blob Size: ${blob.size} bytes<br>
+                        Blob Type: ${blob.type}<br>
+                        Crop Data: x=${cropData.x}, y=${cropData.y}, scale=${cropData.scale}<br>
+                        Feather Radius: ${featherRadius}<br>
+                        Image Natural Size: ${cropImage.naturalWidth}x${cropImage.naturalHeight}
+                    `;
+                }, 'image/jpeg', 0.9);
+            }
+        }
+
+        // Copy of the exact getCroppedImage function from your profile page
+        function getCroppedImage() {
+            if (!cropImage) return null;
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const size = 200; // Final avatar size
+            
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Calculate crop area (200x200 px in the center of the crop container)
+            const cropSize = 200;
+            const containerRect = cropContainer.getBoundingClientRect();
+            const centerX = containerRect.width / 2;
+            const centerY = containerRect.height / 2;
+            
+            // Calculate source coordinates on the original image
+            const sourceX = (centerX - cropSize/2 - cropData.x) / cropData.scale;
+            const sourceY = (centerY - cropSize/2 - cropData.y) / cropData.scale;
+            const sourceSize = cropSize / cropData.scale;
+            
+            console.log('Cropping params:', {
+                sourceX, sourceY, sourceSize,
+                cropData, featherRadius,
+                containerSize: { w: containerRect.width, h: containerRect.height }
+            });
+            
+            const radius = size / 2;
+            const centerPoint = radius;
+            
+            if (featherRadius > 0) {
+                // Soft circular crop using multiple steps
+                
+                // Step 1: Draw the image to a temporary canvas
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = size;
+                tempCanvas.height = size;
+                
+                tempCtx.drawImage(
+                    cropImage,
+                    sourceX, sourceY, sourceSize, sourceSize,
+                    0, 0, size, size
+                );
+                
+                // Step 2: Create circular mask with soft edges
+                const maskCanvas = document.createElement('canvas');
+                const maskCtx = maskCanvas.getContext('2d');
+                maskCanvas.width = size;
+                maskCanvas.height = size;
+                
+                // Create radial gradient for the mask
+                const gradient = maskCtx.createRadialGradient(
+                    centerPoint, centerPoint, Math.max(0, radius - featherRadius),
+                    centerPoint, centerPoint, radius
+                );
+                gradient.addColorStop(0, 'rgba(0,0,0,1)'); // Fully opaque center
+                gradient.addColorStop(1, 'rgba(0,0,0,0)'); // Fully transparent edge
+                
+                // Fill circle with gradient
+                maskCtx.fillStyle = gradient;
+                maskCtx.beginPath();
+                maskCtx.arc(centerPoint, centerPoint, radius, 0, Math.PI * 2);
+                maskCtx.fill();
+                
+                // Step 3: Apply mask to image
+                ctx.drawImage(tempCanvas, 0, 0);
+                ctx.globalCompositeOperation = 'destination-in';
+                ctx.drawImage(maskCanvas, 0, 0);
+                
+            } else {
+                // Hard circular crop (no feathering)
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(centerPoint, centerPoint, radius, 0, Math.PI * 2);
+                ctx.clip();
+                
+                ctx.drawImage(
+                    cropImage,
+                    sourceX, sourceY, sourceSize, sourceSize,
+                    0, 0, size, size
+                );
+                
+                ctx.restore();
+            }
+            
+            return canvas;
+        }
+    </script>
+</body>
+</html>
