@@ -299,12 +299,16 @@ async def upload_avatar(
             detail=f"User with ID {user_id} not found"
         )
     
-    # Validate file type
-    allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
-    if file.content_type not in allowed_types:
+    # Validate file type - be more lenient with MIME types and check file extension too
+    allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/bmp', 'image/tiff']
+    file_ext = file.filename.lower().split('.')[-1] if file.filename and '.' in file.filename else ''
+    allowed_extensions = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'tiff', 'tif']
+    
+    # Check either MIME type or file extension
+    if file.content_type not in allowed_types and file_ext not in allowed_extensions:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid file type. Only JPG, PNG, and WebP are allowed"
+            detail=f"Invalid file type. Allowed formats: {', '.join(allowed_extensions).upper()}"
         )
     
     # Read and validate file size
@@ -326,6 +330,11 @@ async def upload_avatar(
         # Process the image with PIL
         image = Image.open(io.BytesIO(content))
         
+        # Verify it's actually an image
+        image.verify()
+        # Re-open the image since verify() closes it
+        image = Image.open(io.BytesIO(content))
+        
         # Convert to RGB if necessary (for JPG compatibility)
         if image.mode in ('RGBA', 'LA', 'P'):
             # Create white background for transparency
@@ -334,6 +343,9 @@ async def upload_avatar(
                 image = image.convert('RGBA')
             background.paste(image, mask=image.split()[-1] if image.mode == 'RGBA' else None)
             image = background
+        elif image.mode not in ('RGB', 'L'):
+            # Convert any other modes to RGB
+            image = image.convert('RGB')
         
         # Resize to 200x200 with smart cropping
         # First, resize to make the smallest dimension 200px

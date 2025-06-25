@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException, Depends, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
+import os
 
 from app.core.config import settings
 from app.core.logging import logger
@@ -43,6 +45,13 @@ app.add_middleware(
 
 # Add rate limiting middleware
 app.add_middleware(RateLimitMiddleware, rate_limiters=create_rate_limiters())
+
+# Ensure upload directory exists and mount static files
+upload_dir = "/app/uploads"
+os.makedirs(upload_dir, exist_ok=True)
+
+# Mount static files for uploads with proper MIME type handling
+app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")
 
 # Add reverse proxy header handling middleware
 @app.middleware("http")
