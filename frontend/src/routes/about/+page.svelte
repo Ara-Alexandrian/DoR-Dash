@@ -415,9 +415,9 @@ graph TD
 
           <!-- Key Components -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 dracula:from-blue-900/30 dracula:to-blue-800/30 mbp:from-blue-900/40 mbp:to-blue-800/40 lsu:from-blue-900/40 lsu:to-blue-800/40 border border-blue-200 dark:border-blue-800 dracula:border-blue-700 mbp:border-blue-600 lsu:border-blue-600 rounded-lg p-6">
-              <h4 class="font-semibold text-blue-800 dark:text-blue-100 dracula:text-white mbp:text-white lsu:text-white mb-3">Frontend (SvelteKit)</h4>
-              <ul class="text-sm text-blue-700 dark:text-blue-200 dracula:text-gray-100 mbp:text-gray-100 lsu:text-gray-100 space-y-1">
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 dracula:from-slate-800 dracula:to-slate-700 mbp:from-gray-800 mbp:to-gray-700 lsu:from-slate-800 lsu:to-slate-700 border border-blue-200 dark:border-blue-800 dracula:border-slate-600 mbp:border-gray-600 lsu:border-slate-600 rounded-lg p-6">
+              <h4 class="font-semibold text-blue-800 dark:text-blue-100 dracula:text-blue-300 mbp:text-blue-300 lsu:text-blue-300 mb-3">Frontend (SvelteKit)</h4>
+              <ul class="text-sm text-blue-700 dark:text-blue-200 dracula:text-blue-200 mbp:text-blue-200 lsu:text-blue-200 space-y-1">
                 <li>• Reactive user interfaces</li>
                 <li>• Server-side rendering</li>
                 <li>• Progressive enhancement</li>
@@ -426,9 +426,9 @@ graph TD
               </ul>
             </div>
             
-            <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 dracula:from-green-900/30 dracula:to-green-800/30 mbp:from-green-900/40 mbp:to-green-800/40 lsu:from-green-900/40 lsu:to-green-800/40 border border-green-200 dark:border-green-800 dracula:border-green-700 mbp:border-green-600 lsu:border-green-600 rounded-lg p-6">
-              <h4 class="font-semibold text-green-800 dark:text-green-100 dracula:text-white mbp:text-white lsu:text-white mb-3">Backend (FastAPI)</h4>
-              <ul class="text-sm text-green-700 dark:text-green-200 dracula:text-gray-100 mbp:text-gray-100 lsu:text-gray-100 space-y-1">
+            <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 dracula:from-slate-800 dracula:to-slate-700 mbp:from-gray-800 mbp:to-gray-700 lsu:from-slate-800 lsu:to-slate-700 border border-green-200 dark:border-green-800 dracula:border-slate-600 mbp:border-gray-600 lsu:border-slate-600 rounded-lg p-6">
+              <h4 class="font-semibold text-green-800 dark:text-green-100 dracula:text-green-300 mbp:text-green-300 lsu:text-green-300 mb-3">Backend (FastAPI)</h4>
+              <ul class="text-sm text-green-700 dark:text-green-200 dracula:text-green-200 mbp:text-green-200 lsu:text-green-200 space-y-1">
                 <li>• RESTful API design</li>
                 <li>• Automatic API documentation</li>
                 <li>• JWT authentication</li>
@@ -437,9 +437,9 @@ graph TD
               </ul>
             </div>
             
-            <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 dracula:from-purple-900/30 dracula:to-purple-800/30 mbp:from-purple-900/40 mbp:to-purple-800/40 lsu:from-purple-900/40 lsu:to-purple-800/40 border border-purple-200 dark:border-purple-800 dracula:border-purple-700 mbp:border-purple-600 lsu:border-purple-600 rounded-lg p-6">
-              <h4 class="font-semibold text-purple-800 dark:text-purple-100 dracula:text-white mbp:text-white lsu:text-white mb-3">Database (PostgreSQL)</h4>
-              <ul class="text-sm text-purple-700 dark:text-purple-200 dracula:text-gray-100 mbp:text-gray-100 lsu:text-gray-100 space-y-1">
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 dracula:from-slate-800 dracula:to-slate-700 mbp:from-gray-800 mbp:to-gray-700 lsu:from-slate-800 lsu:to-slate-700 border border-purple-200 dark:border-purple-800 dracula:border-slate-600 mbp:border-gray-600 lsu:border-slate-600 rounded-lg p-6">
+              <h4 class="font-semibold text-purple-800 dark:text-purple-100 dracula:text-purple-300 mbp:text-purple-300 lsu:text-purple-300 mb-3">Database (PostgreSQL)</h4>
+              <ul class="text-sm text-purple-700 dark:text-purple-200 dracula:text-purple-200 mbp:text-purple-200 lsu:text-purple-200 space-y-1">
                 <li>• Relational data modeling</li>
                 <li>• ACID compliance</li>
                 <li>• Advanced querying</li>
@@ -448,9 +448,9 @@ graph TD
               </ul>
             </div>
             
-            <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 dracula:from-red-900/30 dracula:to-red-800/30 mbp:from-red-900/40 mbp:to-red-800/40 lsu:from-red-900/40 lsu:to-red-800/40 border border-red-200 dark:border-red-800 dracula:border-red-700 mbp:border-red-600 lsu:border-red-600 rounded-lg p-6">
-              <h4 class="font-semibold text-red-800 dark:text-red-100 dracula:text-white mbp:text-white lsu:text-white mb-3">Caching (Redis)</h4>
-              <ul class="text-sm text-red-700 dark:text-red-200 dracula:text-gray-100 mbp:text-gray-100 lsu:text-gray-100 space-y-1">
+            <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 dracula:from-slate-800 dracula:to-slate-700 mbp:from-gray-800 mbp:to-gray-700 lsu:from-slate-800 lsu:to-slate-700 border border-red-200 dark:border-red-800 dracula:border-slate-600 mbp:border-gray-600 lsu:border-slate-600 rounded-lg p-6">
+              <h4 class="font-semibold text-red-800 dark:text-red-100 dracula:text-red-300 mbp:text-red-300 lsu:text-red-300 mb-3">Caching (Redis)</h4>
+              <ul class="text-sm text-red-700 dark:text-red-200 dracula:text-red-200 mbp:text-red-200 lsu:text-red-200 space-y-1">
                 <li>• Session management</li>
                 <li>• Query result caching</li>
                 <li>• Real-time data storage</li>
@@ -459,9 +459,9 @@ graph TD
               </ul>
             </div>
             
-            <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 dracula:from-yellow-900/30 dracula:to-yellow-800/30 mbp:from-yellow-900/40 mbp:to-yellow-800/40 lsu:from-yellow-900/40 lsu:to-yellow-800/40 border border-yellow-200 dark:border-yellow-800 dracula:border-yellow-700 mbp:border-yellow-600 lsu:border-yellow-600 rounded-lg p-6">
-              <h4 class="font-semibold text-yellow-800 dark:text-yellow-100 dracula:text-white mbp:text-white lsu:text-white mb-3">AI/ML (Ollama)</h4>
-              <ul class="text-sm text-yellow-700 dark:text-yellow-200 dracula:text-gray-100 mbp:text-gray-100 lsu:text-gray-100 space-y-1">
+            <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 dracula:from-slate-800 dracula:to-slate-700 mbp:from-gray-800 mbp:to-gray-700 lsu:from-slate-800 lsu:to-slate-700 border border-yellow-200 dark:border-yellow-800 dracula:border-slate-600 mbp:border-gray-600 lsu:border-slate-600 rounded-lg p-6">
+              <h4 class="font-semibold text-yellow-800 dark:text-yellow-100 dracula:text-yellow-300 mbp:text-yellow-300 lsu:text-yellow-300 mb-3">AI/ML (Ollama)</h4>
+              <ul class="text-sm text-yellow-700 dark:text-yellow-200 dracula:text-yellow-200 mbp:text-yellow-200 lsu:text-yellow-200 space-y-1">
                 <li>• Local LLM inference</li>
                 <li>• Text refinement</li>
                 <li>• Grammar correction</li>
@@ -470,9 +470,9 @@ graph TD
               </ul>
             </div>
             
-            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 dracula:from-indigo-900/30 dracula:to-indigo-800/30 mbp:from-indigo-900/40 mbp:to-indigo-800/40 lsu:from-indigo-900/40 lsu:to-indigo-800/40 border border-indigo-200 dark:border-indigo-800 dracula:border-indigo-700 mbp:border-indigo-600 lsu:border-indigo-600 rounded-lg p-6">
-              <h4 class="font-semibold text-indigo-800 dark:text-indigo-100 dracula:text-white mbp:text-white lsu:text-white mb-3">Security</h4>
-              <ul class="text-sm text-indigo-700 dark:text-indigo-200 dracula:text-gray-100 mbp:text-gray-100 lsu:text-gray-100 space-y-1">
+            <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 dracula:from-slate-800 dracula:to-slate-700 mbp:from-gray-800 mbp:to-gray-700 lsu:from-slate-800 lsu:to-slate-700 border border-indigo-200 dark:border-indigo-800 dracula:border-slate-600 mbp:border-gray-600 lsu:border-slate-600 rounded-lg p-6">
+              <h4 class="font-semibold text-indigo-800 dark:text-indigo-100 dracula:text-indigo-300 mbp:text-indigo-300 lsu:text-indigo-300 mb-3">Security</h4>
+              <ul class="text-sm text-indigo-700 dark:text-indigo-200 dracula:text-indigo-200 mbp:text-indigo-200 lsu:text-indigo-200 space-y-1">
                 <li>• JWT token authentication</li>
                 <li>• Role-based permissions</li>
                 <li>• Input validation</li>
