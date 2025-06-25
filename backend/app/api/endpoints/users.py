@@ -433,6 +433,16 @@ async def upload_avatar(
             "avatar_url": f"/api/v1/users/{user_id}/avatar/image"  # New endpoint for serving avatars
         })
         
+        # Clear Redis cache for this user's avatar so new image is served immediately
+        cache_key = f"avatar:{user_id}"
+        redis_client = get_redis_client()
+        if redis_client:
+            try:
+                redis_client.delete(cache_key)
+                logger.info(f"Cleared avatar cache for user {user_id} after upload")
+            except Exception as e:
+                logger.warning(f"Failed to clear avatar cache: {e}")
+        
         return {
             "message": "Avatar uploaded successfully",
             "avatar_url": f"/api/v1/users/{user_id}/avatar/image",
