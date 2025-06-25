@@ -1,5 +1,5 @@
 from typing import List, Annotated, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, Path, status, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, Query, Path, status, UploadFile, File, Request
 from pydantic import EmailStr
 import os
 from datetime import datetime
@@ -377,13 +377,21 @@ async def upload_avatar(
         # Save processed image
         image.save(file_path, 'JPEG', quality=90, optimize=True)
         
-        # Update user's avatar_url in database
-        avatar_url = f"/uploads/avatars/{filename}"
+        # Use direct backend URL to bypass reverse proxy issues
+        avatar_url = f"http://172.30.98.177:8000/uploads/avatars/{filename}"
         auth_update_user(db, user_id, {"avatar_url": avatar_url})
         
         # Clean up old avatar file if it exists
         if user.get("avatar_url"):
-            old_file_path = f"/app{user['avatar_url']}"
+            # Extract filename from URL (handle both relative and absolute URLs)
+            if user["avatar_url"].startswith("http"):
+                # Full URL: extract just the path part
+                old_filename = user["avatar_url"].split("/uploads/avatars/")[-1]
+                old_file_path = f"/app/uploads/avatars/{old_filename}"
+            else:
+                # Relative URL
+                old_file_path = f"/app{user['avatar_url']}"
+            
             if os.path.exists(old_file_path):
                 try:
                     os.remove(old_file_path)
