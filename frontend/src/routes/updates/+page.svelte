@@ -34,6 +34,21 @@
   
   onMount(async () => {
     try {
+      // Wait for user data to be available if we're authenticated
+      if ($auth.isAuthenticated && !$auth.user) {
+        console.log('UPDATES DEBUG - Waiting for user profile to load...');
+        // Give the layout time to fetch the user profile
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // If still no user data, we have a problem
+        if (!$auth.user) {
+          console.error('UPDATES DEBUG - No user data available after waiting');
+          error = 'Unable to load user profile. Please try logging in again.';
+          loading = false;
+          return;
+        }
+      }
+      
       const currentUserId = $auth.user?.id;
       const isAdmin = $auth.user?.role === 'admin';
       

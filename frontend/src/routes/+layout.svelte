@@ -106,7 +106,7 @@
   // Check if route is authentication related
   $: isAuthRoute = $page?.url?.pathname === '/login' || $page?.url?.pathname === '/register' || $page?.url?.pathname === '/logout' || $page?.url?.pathname === '/';
   
-  onMount(() => {
+  onMount(async () => {
     if (browser) {
       // Apply theme immediately on mount
       const savedTheme = localStorage.getItem('theme') || 'light';
@@ -117,6 +117,22 @@
       const currentRoute = $page.url.pathname;
       const isProtected = protectedRoutes.some(route => currentRoute.startsWith(route));
       const isAdminRoute = adminRoutes.some(route => currentRoute.startsWith(route));
+      
+      // If we have a token but no user data, try to fetch the profile
+      if ($auth.isAuthenticated && $auth.token && !$auth.user && !isAuthRoute) {
+        try {
+          const { authApi } = await import('$lib/api');
+          const userProfile = await authApi.getProfile();
+          console.log('Fetched user profile:', userProfile);
+          auth.updateUser(userProfile);
+        } catch (error) {
+          console.error('Failed to fetch user profile:', error);
+          // If profile fetch fails, logout and redirect to login
+          auth.clearAuthState();
+          goto('/login');
+          return;
+        }
+      }
       
       if (isProtected && !$auth.isAuthenticated) {
         // Redirect to login if not authenticated

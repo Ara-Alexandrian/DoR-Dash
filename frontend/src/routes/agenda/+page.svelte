@@ -141,6 +141,21 @@
 
   // Load meetings on mount and handle filter parameter
   onMount(async () => {
+    // Wait for user data to be available if we're authenticated
+    if ($auth.isAuthenticated && !$auth.user) {
+      console.log('Agenda - Waiting for user profile to load...');
+      // Give the layout time to fetch the user profile
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // If still no user data, we have a problem
+      if (!$auth.user) {
+        console.error('Agenda - No user data available after waiting');
+        error = 'Unable to load user profile. Please try logging in again.';
+        isLoading = false;
+        return;
+      }
+    }
+    
     // Check for filter parameter
     const urlParams = new URLSearchParams(window.location.search);
     const filter = urlParams.get('filter');

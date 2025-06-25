@@ -60,8 +60,11 @@ def setup_logging(
     return logger
 
 # Global logger instance
+# Use local path for development instead of /app/logs
+import os
+log_dir = os.environ.get('LOG_DIR', './logs')
 logger = setup_logging(
     log_level="INFO",
-    log_file="/app/logs/dor_dash.log",
+    log_file=f"{log_dir}/dor_dash.log",
     enable_console=True
 )

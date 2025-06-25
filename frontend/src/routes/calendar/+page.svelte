@@ -56,6 +56,21 @@
   
   // Component initialization
   onMount(async () => {
+    // Wait for user data to be available if we're authenticated
+    if ($auth.isAuthenticated && !$auth.user) {
+      console.log('Calendar - Waiting for user profile to load...');
+      // Give the layout time to fetch the user profile
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // If still no user data, we have a problem
+      if (!$auth.user) {
+        console.error('Calendar - No user data available after waiting');
+        error = 'Unable to load user profile. Please try logging in again.';
+        isLoading = false;
+        return;
+      }
+    }
+    
     isAdmin = $auth.user?.role === 'admin';
     isFaculty = $auth.user?.role === 'faculty';
     await loadMeetings();
