@@ -25,6 +25,8 @@ class User(Base):
     preferred_email: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     phone: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     avatar_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    avatar_data: Mapped[Optional[bytes]] = mapped_column(nullable=True)
+    avatar_content_type: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     
     # Role and status
     role: Mapped[str] = mapped_column(

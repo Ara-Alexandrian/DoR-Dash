@@ -144,7 +144,9 @@ def update_user(db: Session, user_id: int, update_data: dict):
             "phone": db_user.phone,
             "role": db_user.role.lower() if isinstance(db_user.role, str) else db_user.role,
             "is_active": db_user.is_active,
-            "avatar_url": getattr(db_user, 'avatar_url', None)  # Safe access for backward compatibility
+            "avatar_url": getattr(db_user, 'avatar_url', None),  # Safe access for backward compatibility
+            "avatar_data": getattr(db_user, 'avatar_data', None),  # Avatar binary data
+            "avatar_content_type": getattr(db_user, 'avatar_content_type', None)  # Avatar MIME type
         }
         
         logger.debug(f"Successfully updated user: {result}")
@@ -453,6 +455,8 @@ def get_all_users(db: Session):
             "role": user.role.lower() if isinstance(user.role, str) else user.role,
             "is_active": user.is_active,
             "avatar_url": getattr(user, 'avatar_url', None),  # Safe access for backward compatibility
+            "avatar_data": getattr(user, 'avatar_data', None),  # Avatar binary data
+            "avatar_content_type": getattr(user, 'avatar_content_type', None),  # Avatar MIME type
             "password": "***"  # Don't expose passwords
         }
         for user in users

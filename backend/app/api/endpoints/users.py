@@ -1,7 +1,11 @@
 from typing import List, Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Path, status, UploadFile, File, Request
+from fastapi.responses import Response
 from pydantic import EmailStr
 import os
+import redis
+import json
+import base64
 from datetime import datetime
 try:
     from PIL import Image
@@ -17,9 +21,26 @@ from app.db.session import get_sync_db
 from app.core.logging import logger
 from app.core.permissions import get_admin_user, get_faculty_or_admin_user, is_owner_or_admin
 from app.core.security import get_password_hash
+from app.core.config import settings
 from app.schemas.auth import UserCreate, UserUpdate, UserResponse
 
 router = APIRouter()
+
+# Redis connection for avatar caching
+def get_redis_client():
+    """Get Redis client for avatar caching"""
+    try:
+        r = redis.Redis(
+            host=settings.REDIS_SERVER,
+            port=settings.REDIS_PORT,
+            db=0,
+            decode_responses=False
+        )
+        r.ping()  # Test connection
+        return r
+    except Exception as e:
+        logger.warning(f"Redis not available for avatar caching: {e}")
+        return None
 
 # Function to generate a new user ID - no longer needed with database auto-increment
 
@@ -364,45 +385,25 @@ async def upload_avatar(
         top = (new_h - 200) // 2
         image = image.crop((left, top, left + 200, top + 200))
         
-        # Ensure upload directory exists
-        upload_dir = "/app/uploads/avatars"
-        os.makedirs(upload_dir, exist_ok=True)
+        # Save processed image to memory buffer for database storage
+        image_buffer = io.BytesIO()
+        image.save(image_buffer, 'JPEG', quality=90, optimize=True)
+        avatar_data = image_buffer.getvalue()
+        content_type = 'image/jpeg'
         
-        # Generate unique filename
-        timestamp = int(datetime.now().timestamp() * 1000)
-        file_extension = '.jpg'  # Always save as JPG for consistency
-        filename = f"avatar_{user_id}_{timestamp}{file_extension}"
-        file_path = os.path.join(upload_dir, filename)
-        
-        # Save processed image
-        image.save(file_path, 'JPEG', quality=90, optimize=True)
-        
-        # Use direct backend URL to bypass reverse proxy issues
-        avatar_url = f"http://172.30.98.177:8000/uploads/avatars/{filename}"
-        auth_update_user(db, user_id, {"avatar_url": avatar_url})
-        
-        # Clean up old avatar file if it exists
-        if user.get("avatar_url"):
-            # Extract filename from URL (handle both relative and absolute URLs)
-            if user["avatar_url"].startswith("http"):
-                # Full URL: extract just the path part
-                old_filename = user["avatar_url"].split("/uploads/avatars/")[-1]
-                old_file_path = f"/app/uploads/avatars/{old_filename}"
-            else:
-                # Relative URL
-                old_file_path = f"/app{user['avatar_url']}"
-            
-            if os.path.exists(old_file_path):
-                try:
-                    os.remove(old_file_path)
-                except Exception as e:
-                    logger.warning(f"Could not delete old avatar file: {e}")
+        # Store avatar in database instead of file system
+        auth_update_user(db, user_id, {
+            "avatar_data": avatar_data,
+            "avatar_content_type": content_type,
+            "avatar_url": f"/api/v1/users/{user_id}/avatar/image"  # New endpoint for serving avatars
+        })
         
         return {
             "message": "Avatar uploaded successfully",
-            "avatar_url": avatar_url,
+            "avatar_url": f"/api/v1/users/{user_id}/avatar/image",
             "file_size": len(content),
-            "processed_size": f"{image.size[0]}x{image.size[1]}"
+            "processed_size": f"{image.size[0]}x{image.size[1]}",
+            "storage": "database"
         }
         
     except Exception as e:
@@ -411,6 +412,88 @@ async def upload_avatar(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to process avatar image"
         )
+
+
+# Get user avatar (with Redis caching)
+@router.get("/{user_id}/avatar/image")
+async def get_avatar(
+    user_id: int = Path(..., description="The ID of the user"),
+    db: Session = Depends(get_sync_db)
+):
+    """
+    Get a user's avatar image from database with Redis caching.
+    - Cached avatars are served from Redis for performance
+    - Falls back to database if cache miss
+    - Returns 404 if user has no avatar
+    """
+    cache_key = f"avatar:{user_id}"
+    redis_client = get_redis_client()
+    
+    # Try to get from Redis cache first
+    if redis_client:
+        try:
+            cached_data = redis_client.get(cache_key)
+            if cached_data:
+                avatar_info = json.loads(cached_data)
+                avatar_data = base64.b64decode(avatar_info['data'])
+                content_type = avatar_info['content_type']
+                
+                logger.info(f"Avatar served from Redis cache for user {user_id}")
+                return Response(
+                    content=avatar_data,
+                    media_type=content_type,
+                    headers={
+                        "Cache-Control": "public, max-age=3600",
+                        "X-Avatar-Source": "redis-cache"
+                    }
+                )
+        except Exception as e:
+            logger.warning(f"Redis cache error for avatar {user_id}: {e}")
+    
+    # Get user from database
+    all_users = get_all_users(db)
+    user = next((u for u in all_users if u["id"] == user_id), None)
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with ID {user_id} not found"
+        )
+    
+    # Check if user has avatar data in database
+    if not user.get("avatar_data") or not user.get("avatar_content_type"):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User has no avatar"
+        )
+    
+    avatar_data = user["avatar_data"]
+    content_type = user["avatar_content_type"]
+    
+    # Cache avatar in Redis for future requests
+    if redis_client:
+        try:
+            avatar_cache_data = {
+                'data': base64.b64encode(avatar_data).decode('utf-8'),
+                'content_type': content_type,
+                'cached_at': datetime.now().isoformat(),
+                'size': len(avatar_data)
+            }
+            # Cache for 1 hour
+            redis_client.setex(cache_key, 3600, json.dumps(avatar_cache_data))
+            logger.info(f"Avatar cached in Redis for user {user_id}")
+        except Exception as e:
+            logger.warning(f"Failed to cache avatar in Redis: {e}")
+    
+    logger.info(f"Avatar served from database for user {user_id}")
+    return Response(
+        content=avatar_data,
+        media_type=content_type,
+        headers={
+            "Cache-Control": "public, max-age=3600",
+            "X-Avatar-Source": "database"
+        }
+    )
 
 
 # Delete user avatar
@@ -442,16 +525,21 @@ async def delete_avatar(
             detail=f"User with ID {user_id} not found"
         )
     
-    # Remove avatar file if it exists
-    if user.get("avatar_url"):
-        file_path = f"/app{user['avatar_url']}"
-        if os.path.exists(file_path):
-            try:
-                os.remove(file_path)
-            except Exception as e:
-                logger.warning(f"Could not delete avatar file: {e}")
+    # Clear avatar data from Redis cache
+    cache_key = f"avatar:{user_id}"
+    redis_client = get_redis_client()
+    if redis_client:
+        try:
+            redis_client.delete(cache_key)
+            logger.info(f"Avatar cache cleared for user {user_id}")
+        except Exception as e:
+            logger.warning(f"Failed to clear avatar cache: {e}")
     
-    # Clear avatar_url in database
-    auth_update_user(db, user_id, {"avatar_url": None})
+    # Clear avatar data from database
+    auth_update_user(db, user_id, {
+        "avatar_url": None,
+        "avatar_data": None,
+        "avatar_content_type": None
+    })
     
     return {"message": "Avatar deleted successfully"}
