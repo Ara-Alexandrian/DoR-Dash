@@ -30,6 +30,7 @@ class User(BaseModel):
     full_name: str
     preferred_email: Optional[str] = None
     phone: Optional[str] = None
+    avatar_url: Optional[str] = None
     role: str
     is_active: bool
 
@@ -418,6 +419,7 @@ def get_current_user(
         full_name=user.full_name,
         preferred_email=user.preferred_email,
         phone=user.phone,
+        avatar_url=user.avatar_url,
         role=user.role.lower() if isinstance(user.role, str) else user.role,
         is_active=user.is_active
     )
