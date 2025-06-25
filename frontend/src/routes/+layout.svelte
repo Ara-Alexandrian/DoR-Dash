@@ -63,7 +63,8 @@
     { title: 'Your Updates', path: '/updates', icon: 'document-duplicate' },
     { title: 'Presentation Assignments', path: '/presentation-assignments', icon: 'academic-cap' },
     { title: 'Calendar', path: '/calendar', icon: 'calendar' },
-    { title: 'Agenda', path: '/agenda', icon: 'calendar-days' }
+    { title: 'Agenda', path: '/agenda', icon: 'calendar-days' },
+    { title: 'About', path: '/about', icon: 'information-circle' }
   ];
 
   // Faculty/Admin only items
