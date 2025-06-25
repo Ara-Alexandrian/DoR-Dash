@@ -416,8 +416,8 @@ graph TD
           <!-- Key Components -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-              <h4 class="font-semibold text-blue-800 dark:text-blue-200 mb-3">Frontend (SvelteKit)</h4>
-              <ul class="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+              <h4 class="font-semibold text-blue-800 dark:text-blue-100 mb-3">Frontend (SvelteKit)</h4>
+              <ul class="text-sm text-blue-700 dark:text-blue-200 space-y-1">
                 <li>• Reactive user interfaces</li>
                 <li>• Server-side rendering</li>
                 <li>• Progressive enhancement</li>
@@ -427,8 +427,8 @@ graph TD
             </div>
             
             <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
-              <h4 class="font-semibold text-green-800 dark:text-green-200 mb-3">Backend (FastAPI)</h4>
-              <ul class="text-sm text-green-700 dark:text-green-300 space-y-1">
+              <h4 class="font-semibold text-green-800 dark:text-green-100 mb-3">Backend (FastAPI)</h4>
+              <ul class="text-sm text-green-700 dark:text-green-200 space-y-1">
                 <li>• RESTful API design</li>
                 <li>• Automatic API documentation</li>
                 <li>• JWT authentication</li>
@@ -438,8 +438,8 @@ graph TD
             </div>
             
             <div class="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border border-purple-200 dark:border-purple-800 rounded-lg p-6">
-              <h4 class="font-semibold text-purple-800 dark:text-purple-200 mb-3">Database (PostgreSQL)</h4>
-              <ul class="text-sm text-purple-700 dark:text-purple-300 space-y-1">
+              <h4 class="font-semibold text-purple-800 dark:text-purple-100 mb-3">Database (PostgreSQL)</h4>
+              <ul class="text-sm text-purple-700 dark:text-purple-200 space-y-1">
                 <li>• Relational data modeling</li>
                 <li>• ACID compliance</li>
                 <li>• Advanced querying</li>
@@ -449,8 +449,8 @@ graph TD
             </div>
             
             <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-              <h4 class="font-semibold text-red-800 dark:text-red-200 mb-3">Caching (Redis)</h4>
-              <ul class="text-sm text-red-700 dark:text-red-300 space-y-1">
+              <h4 class="font-semibold text-red-800 dark:text-red-100 mb-3">Caching (Redis)</h4>
+              <ul class="text-sm text-red-700 dark:text-red-200 space-y-1">
                 <li>• Session management</li>
                 <li>• Query result caching</li>
                 <li>• Real-time data storage</li>
@@ -460,8 +460,8 @@ graph TD
             </div>
             
             <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
-              <h4 class="font-semibold text-yellow-800 dark:text-yellow-200 mb-3">AI/ML (Ollama)</h4>
-              <ul class="text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
+              <h4 class="font-semibold text-yellow-800 dark:text-yellow-100 mb-3">AI/ML (Ollama)</h4>
+              <ul class="text-sm text-yellow-700 dark:text-yellow-200 space-y-1">
                 <li>• Local LLM inference</li>
                 <li>• Text refinement</li>
                 <li>• Grammar correction</li>
@@ -471,8 +471,8 @@ graph TD
             </div>
             
             <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/20 dark:to-indigo-800/20 border border-indigo-200 dark:border-indigo-800 rounded-lg p-6">
-              <h4 class="font-semibold text-indigo-800 dark:text-indigo-200 mb-3">Security</h4>
-              <ul class="text-sm text-indigo-700 dark:text-indigo-300 space-y-1">
+              <h4 class="font-semibold text-indigo-800 dark:text-indigo-100 mb-3">Security</h4>
+              <ul class="text-sm text-indigo-700 dark:text-indigo-200 space-y-1">
                 <li>• JWT token authentication</li>
                 <li>• Role-based permissions</li>
                 <li>• Input validation</li>
