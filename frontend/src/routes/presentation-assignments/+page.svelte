@@ -77,9 +77,6 @@
             })
           ]);
           
-          console.log('Loaded meetings:', meetingsData.length, 'meetings');
-          console.log('Meetings:', meetingsData.map(m => `${m.title} (${new Date(m.start_time).toLocaleDateString()})`));
-          
           students = studentsData;
           meetings = meetingsData;
         } catch (permErr) {

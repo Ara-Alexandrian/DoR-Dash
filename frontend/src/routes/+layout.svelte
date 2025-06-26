@@ -7,6 +7,7 @@
   import { onMount } from 'svelte';
   import ErrorFallback from '$lib/components/ErrorFallback.svelte';
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+  import SessionRecovery from '$lib/components/SessionRecovery.svelte';
   import { theme } from '$lib/stores/theme';
   import { cacheBuster } from '$lib/utils/cache-buster';
   
@@ -371,4 +372,7 @@
       </main>
     </div>
   </div>
+  
+  <!-- Session Recovery Component - handles auth failures and reconnection -->
+  <SessionRecovery />
 {/if}
