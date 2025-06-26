@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 from fastapi import APIRouter, HTTPException, Depends, status
 from pydantic import BaseModel, Field, validator
@@ -154,7 +154,7 @@ async def create_presentation_assignment(
         )
     
     # Ensure meeting is current or upcoming (not past)
-    if meeting.start_time < datetime.utcnow():
+    if meeting.start_time < datetime.now():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot assign presentations to past meetings"
@@ -385,11 +385,11 @@ async def update_presentation_assignment(
     
     # Set completion date if marking as completed
     if assignment_data.is_completed is True and not assignment.completion_date:
-        assignment.completion_date = datetime.utcnow()
+        assignment.completion_date = datetime.now()
     elif assignment_data.is_completed is False:
         assignment.completion_date = None
     
-    assignment.updated_at = datetime.utcnow()
+    assignment.updated_at = datetime.now()
     
     db.commit()
     db.refresh(assignment)
