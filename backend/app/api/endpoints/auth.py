@@ -440,6 +440,17 @@ async def get_user_profile(current_user: User = Depends(get_current_user)):
     """
     return current_user
 
+def get_admin_user(current_user: User = Depends(get_current_user)) -> User:
+    """
+    Get current user and verify admin privileges
+    """
+    if current_user.role.lower() != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    return current_user
+
 # Function to get all users (for compatibility with existing code)
 def get_all_users(db: Session):
     """Get all users from database as list of dicts for compatibility"""
