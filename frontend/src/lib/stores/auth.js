@@ -17,7 +17,8 @@ function createAuthStore() {
         lastActivity: null
     };
 
-    const { subscribe, set, update } = writable(initialAuth);
+    const authStore = writable(initialAuth);
+    const { subscribe, set, update } = authStore;
 
     let refreshTimer = null;
     let activityTimer = null;
@@ -84,7 +85,7 @@ function createAuthStore() {
 
         // Check for inactivity every minute
         activityTimer = setInterval(() => {
-            const auth = get(authStore);
+            const auth = getCurrentAuth();
             if (auth.token && auth.lastActivity) {
                 const inactiveTime = new Date().getTime() - auth.lastActivity;
                 const maxInactiveTime = 60 * 60 * 1000; // 1 hour
@@ -99,7 +100,7 @@ function createAuthStore() {
 
     // Refresh token function
     async function refreshToken() {
-        const currentAuth = get(authStore);
+        const currentAuth = getCurrentAuth();
         if (!currentAuth.token) return;
 
         try {
@@ -131,7 +132,7 @@ function createAuthStore() {
             });
 
             // Reset refresh timer
-            setupTokenRefresh(get(authStore));
+            setupTokenRefresh(getCurrentAuth());
             
         } catch (error) {
             console.error('Token refresh failed:', error);
@@ -140,9 +141,9 @@ function createAuthStore() {
     }
 
     // Helper to get current store value
-    function get(store) {
+    function getCurrentAuth() {
         let value;
-        store.subscribe(v => value = v)();
+        authStore.subscribe(v => value = v)();
         return value;
     }
 
@@ -234,7 +235,7 @@ function createAuthStore() {
         },
 
         async checkAuth() {
-            const currentAuth = get(authStore);
+            const currentAuth = getCurrentAuth();
             
             // Check if we have a token
             if (!currentAuth.token) {
@@ -263,7 +264,7 @@ function createAuthStore() {
                     
                     // Save updated auth
                     if (browser) {
-                        localStorage.setItem('dor-dash-auth', JSON.stringify(get(authStore)));
+                        localStorage.setItem('dor-dash-auth', JSON.stringify(getCurrentAuth()));
                     }
                 } catch (error) {
                     console.error('Failed to fetch user profile:', error);
@@ -278,7 +279,7 @@ function createAuthStore() {
         async initialize() {
             if (!browser) return;
 
-            const currentAuth = get(authStore);
+            const currentAuth = getCurrentAuth();
             
             if (currentAuth.token) {
                 // Verify token is still valid
@@ -286,7 +287,7 @@ function createAuthStore() {
                 
                 if (isValid) {
                     // Set up refresh timer
-                    setupTokenRefresh(get(authStore));
+                    setupTokenRefresh(getCurrentAuth());
                     
                     // Start activity tracking
                     trackActivity();
@@ -308,7 +309,7 @@ function createAuthStore() {
         },
 
         isTokenValid() {
-            const currentAuth = get(authStore);
+            const currentAuth = getCurrentAuth();
             return currentAuth.token && !isTokenExpired(currentAuth);
         }
     };
