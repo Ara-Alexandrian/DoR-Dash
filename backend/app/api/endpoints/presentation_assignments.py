@@ -22,7 +22,7 @@ router.include_router(presentation_assignment_files.router, prefix="", tags=["pr
 # Pydantic models for request/response
 class PresentationAssignmentCreate(BaseModel):
     student_id: int
-    meeting_id: Optional[int] = None
+    meeting_id: int
     title: str = Field(..., min_length=1, max_length=500)
     description: Optional[str] = None
     presentation_type: PresentationType
@@ -145,15 +145,20 @@ async def create_presentation_assignment(
             detail="Can only assign presentations to students"
         )
     
-    # Verify meeting exists if provided
-    meeting = None
-    if assignment_data.meeting_id:
-        meeting = db.query(Meeting).filter(Meeting.id == assignment_data.meeting_id).first()
-        if not meeting:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Meeting not found"
-            )
+    # Verify meeting exists and is current/upcoming
+    meeting = db.query(Meeting).filter(Meeting.id == assignment_data.meeting_id).first()
+    if not meeting:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Meeting not found"
+        )
+    
+    # Ensure meeting is current or upcoming (not past)
+    if meeting.start_time < datetime.utcnow():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot assign presentations to past meetings"
+        )
     
     # Create the assignment
     assignment = PresentationAssignment(

@@ -26,7 +26,7 @@ class PresentationAssignment(Base):
     # Relationships
     student_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
     assigned_by_id: Mapped[int] = mapped_column(Integer, ForeignKey("user.id"), nullable=False)
-    meeting_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("meeting.id"), nullable=True)
+    meeting_id: Mapped[int] = mapped_column(Integer, ForeignKey("meeting.id"), nullable=False)
     
     # Assignment details
     title: Mapped[str] = mapped_column(String(500), nullable=False)
