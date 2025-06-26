@@ -22,8 +22,15 @@
     description: '',
     presentation_type: 'casual',
     duration_minutes: null,
-    requirements: '',
-    due_date: '',
+    requirements: {
+      slides: false,
+      presentation: false,
+      data_results: false,
+      aims: false,
+      time_management: false,
+      other: false,
+      other_custom: ''
+    },
     notes: '',
     grillometer_novelty: 2,
     grillometer_methodology: 2,
@@ -95,8 +102,15 @@
       description: '',
       presentation_type: 'casual',
       duration_minutes: null,
-      requirements: '',
-      due_date: '',
+      requirements: {
+        slides: false,
+        presentation: false,
+        data_results: false,
+        aims: false,
+        time_management: false,
+        other: false,
+        other_custom: ''
+      },
       notes: '',
       grillometer_novelty: 2,
       grillometer_methodology: 2,
@@ -113,6 +127,36 @@
   
   function showEdit(assignment) {
     editingAssignment = assignment;
+    
+    // Parse requirements if it's a string, otherwise use checkbox format
+    let requirementsObj = {
+      slides: false,
+      presentation: false,
+      data_results: false,
+      aims: false,
+      time_management: false,
+      other: false,
+      other_custom: ''
+    };
+    
+    if (assignment.requirements) {
+      if (typeof assignment.requirements === 'string') {
+        // Convert old string format to checkbox format for backward compatibility
+        const reqText = assignment.requirements.toLowerCase();
+        requirementsObj.slides = reqText.includes('slide');
+        requirementsObj.presentation = reqText.includes('presentation');
+        requirementsObj.data_results = reqText.includes('data') || reqText.includes('result');
+        requirementsObj.aims = reqText.includes('aim') || reqText.includes('goal');
+        requirementsObj.time_management = reqText.includes('time');
+        if (!Object.values(requirementsObj).some(v => v === true)) {
+          requirementsObj.other = true;
+          requirementsObj.other_custom = assignment.requirements;
+        }
+      } else {
+        requirementsObj = { ...requirementsObj, ...assignment.requirements };
+      }
+    }
+    
     formData = {
       student_id: assignment.student_id,
       meeting_id: assignment.meeting_id || '',
@@ -120,8 +164,7 @@
       description: assignment.description || '',
       presentation_type: assignment.presentation_type,
       duration_minutes: assignment.duration_minutes || null,
-      requirements: assignment.requirements || '',
-      due_date: assignment.due_date ? assignment.due_date.split('T')[0] : '',
+      requirements: requirementsObj,
       notes: assignment.notes || '',
       grillometer_novelty: assignment.grillometer_novelty || 2,
       grillometer_methodology: assignment.grillometer_methodology || 2,
@@ -140,12 +183,33 @@
   
   async function submitForm() {
     try {
+      // Convert requirements checkboxes to a readable string
+      const selectedRequirements = [];
+      if (formData.requirements.slides) selectedRequirements.push('Slides');
+      if (formData.requirements.presentation) selectedRequirements.push('Presentation');
+      if (formData.requirements.data_results) selectedRequirements.push('Data/Results');
+      if (formData.requirements.aims) selectedRequirements.push('Aims/Goals');
+      if (formData.requirements.time_management) selectedRequirements.push('Time Management');
+      if (formData.requirements.other && formData.requirements.other_custom) {
+        selectedRequirements.push(formData.requirements.other_custom);
+      }
+      
+      const requirementsString = selectedRequirements.length > 0 
+        ? selectedRequirements.join(', ') 
+        : '';
+      
       const payload = {
         ...formData,
         student_id: parseInt(formData.student_id),
         meeting_id: formData.meeting_id ? parseInt(formData.meeting_id) : null,
-        due_date: formData.due_date || null
+        requirements: requirementsString,
+        // Remove due_date since we're using meeting date
+        due_date: null
       };
+      
+      // Remove the requirements object from payload since we converted it to string
+      delete payload.requirements;
+      payload.requirements = requirementsString;
       
       if (showEditForm) {
         await presentationAssignmentApi.updateAssignment(editingAssignment.id, payload);
@@ -305,9 +369,9 @@
           </div>
         </div>
         
-        <!-- Title -->
+        <!-- Tentative Title -->
         <div>
-          <label for="title" class="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Title *</label>
+          <label for="title" class="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Tentative Title *</label>
           <input
             type="text"
             id="title"
@@ -338,7 +402,7 @@
           {/if}
         </div>
         
-        <!-- Duration and Due Date -->
+        <!-- Duration -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label for="duration" class="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Duration (minutes)</label>
@@ -352,15 +416,10 @@
               placeholder="e.g., 15"
             />
           </div>
-          
           <div>
-            <label for="due_date" class="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Due Date</label>
-            <input
-              type="date"
-              id="due_date"
-              bind:value={formData.due_date}
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-            />
+            <p class="text-sm text-[rgb(var(--color-text-secondary))] mt-6">
+              Due date will be set to the meeting date when a meeting is selected.
+            </p>
           </div>
         </div>
         
@@ -378,14 +437,73 @@
         
         <!-- Requirements -->
         <div>
-          <label for="requirements" class="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Requirements</label>
-          <textarea
-            id="requirements"
-            bind:value={formData.requirements}
-            rows="2"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-            placeholder="Specific requirements or materials needed"
-          ></textarea>
+          <label class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Requirements</label>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input 
+                type="checkbox" 
+                bind:checked={formData.requirements.slides}
+                class="rounded text-primary-600 focus:ring-primary-500"
+              />
+              <span class="text-sm text-[rgb(var(--color-text-primary))]">Slides</span>
+            </label>
+            
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input 
+                type="checkbox" 
+                bind:checked={formData.requirements.presentation}
+                class="rounded text-primary-600 focus:ring-primary-500"
+              />
+              <span class="text-sm text-[rgb(var(--color-text-primary))]">Presentation</span>
+            </label>
+            
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input 
+                type="checkbox" 
+                bind:checked={formData.requirements.data_results}
+                class="rounded text-primary-600 focus:ring-primary-500"
+              />
+              <span class="text-sm text-[rgb(var(--color-text-primary))]">Data/Results</span>
+            </label>
+            
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input 
+                type="checkbox" 
+                bind:checked={formData.requirements.aims}
+                class="rounded text-primary-600 focus:ring-primary-500"
+              />
+              <span class="text-sm text-[rgb(var(--color-text-primary))]">Aims/Goals</span>
+            </label>
+            
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input 
+                type="checkbox" 
+                bind:checked={formData.requirements.time_management}
+                class="rounded text-primary-600 focus:ring-primary-500"
+              />
+              <span class="text-sm text-[rgb(var(--color-text-primary))]">Time Management</span>
+            </label>
+            
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input 
+                type="checkbox" 
+                bind:checked={formData.requirements.other}
+                class="rounded text-primary-600 focus:ring-primary-500"
+              />
+              <span class="text-sm text-[rgb(var(--color-text-primary))]">Other</span>
+            </label>
+          </div>
+          
+          {#if formData.requirements.other}
+            <div class="mt-3">
+              <input
+                type="text"
+                bind:value={formData.requirements.other_custom}
+                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                placeholder="Specify other requirements..."
+              />
+            </div>
+          {/if}
         </div>
         
         <!-- Grillometer Section -->
