@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoR-Dash Theme Contrast Test</title>
+    <style>
+        /* Copy the theme CSS variables from app.css */
+        :root {
+            --color-bg-primary: 255 255 255;
+            --color-bg-secondary: 249 250 251;
+            --color-bg-tertiary: 243 244 246;
+            --color-text-primary: 17 24 39;
+            --color-text-secondary: 75 85 99;
+            --color-text-tertiary: 107 114 128;
+            --color-border: 229 231 235;
+            --color-border-secondary: 209 213 219;
+        }
+
+        .dark {
+            --color-bg-primary: 15 23 42;
+            --color-bg-secondary: 30 41 59;
+            --color-bg-tertiary: 51 65 85;
+            --color-text-primary: 248 250 252;
+            --color-text-secondary: 226 232 240;
+            --color-text-tertiary: 148 163 184;
+            --color-border: 51 65 85;
+            --color-border-secondary: 71 85 105;
+        }
+
+        .dracula {
+            --color-bg-primary: 30 32 43;
+            --color-bg-secondary: 40 42 54;
+            --color-bg-tertiary: 50 52 63;
+            --color-text-primary: 248 248 242;
+            --color-text-secondary: 189 147 249;
+            --color-text-tertiary: 139 233 253;
+            --color-border: 68 71 90;
+            --color-border-secondary: 98 114 164;
+        }
+
+        .mbp {
+            --color-bg-primary: 18 18 20;
+            --color-bg-secondary: 25 25 28;
+            --color-bg-tertiary: 35 35 38;
+            --color-text-primary: 245 245 247;
+            --color-text-secondary: 205 205 210;
+            --color-text-tertiary: 161 161 170;
+            --color-border: 68 68 75;
+            --color-border-secondary: 82 82 91;
+        }
+
+        .lsu {
+            --color-bg-primary: 15 10 25;
+            --color-bg-secondary: 22 15 35;
+            --color-bg-tertiary: 30 20 45;
+            --color-text-primary: 248 245 255;
+            --color-text-secondary: 215 205 230;
+            --color-text-tertiary: 180 165 200;
+            --color-border: 65 55 85;
+            --color-border-secondary: 85 70 110;
+        }
+
+        body { 
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: rgb(var(--color-bg-primary));
+            color: rgb(var(--color-text-primary));
+            transition: all 0.3s ease;
+        }
+
+        .theme-selector {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgb(var(--color-bg-secondary));
+            border-radius: 8px;
+            border: 1px solid rgb(var(--color-border));
+        }
+
+        .theme-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .theme-btn {
+            padding: 8px 16px;
+            border: 2px solid rgb(var(--color-border));
+            background: rgb(var(--color-bg-tertiary));
+            color: rgb(var(--color-text-primary));
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-btn:hover {
+            opacity: 0.8;
+        }
+
+        .theme-btn.active {
+            border-color: #8b5cf6;
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        /* Frontend Card */
+        .card-frontend {
+            background: linear-gradient(135deg, rgb(239, 246, 255) 0%, rgb(219, 234, 254) 100%);
+            border: 1px solid rgb(147, 197, 253);
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .dark .card-frontend {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.2) 0%, rgba(30, 64, 175, 0.2) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.8);
+        }
+
+        .dracula .card-frontend,
+        .mbp .card-frontend,
+        .lsu .card-frontend {
+            background: linear-gradient(135deg, rgb(51, 65, 85) 0%, rgb(71, 85, 105) 100%);
+            border: 1px solid rgb(100, 116, 139);
+        }
+
+        .mbp .card-frontend {
+            background: linear-gradient(135deg, rgb(55, 65, 81) 0%, rgb(75, 85, 99) 100%);
+            border: 1px solid rgb(107, 114, 128);
+        }
+
+        /* Backend Card */
+        .card-backend {
+            background: linear-gradient(135deg, rgb(240, 253, 244) 0%, rgb(220, 252, 231) 100%);
+            border: 1px solid rgb(134, 239, 172);
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .dark .card-backend {
+            background: linear-gradient(135deg, rgba(20, 83, 45, 0.2) 0%, rgba(22, 101, 52, 0.2) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.8);
+        }
+
+        .dracula .card-backend,
+        .mbp .card-backend,
+        .lsu .card-backend {
+            background: linear-gradient(135deg, rgb(51, 65, 85) 0%, rgb(71, 85, 105) 100%);
+            border: 1px solid rgb(100, 116, 139);
+        }
+
+        .mbp .card-backend {
+            background: linear-gradient(135deg, rgb(55, 65, 81) 0%, rgb(75, 85, 99) 100%);
+            border: 1px solid rgb(107, 114, 128);
+        }
+
+        /* Database Card */
+        .card-database {
+            background: linear-gradient(135deg, rgb(245, 243, 255) 0%, rgb(237, 233, 254) 100%);
+            border: 1px solid rgb(196, 181, 253);
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .dark .card-database {
+            background: linear-gradient(135deg, rgba(88, 28, 135, 0.2) 0%, rgba(107, 33, 168, 0.2) 100%);
+            border: 1px solid rgba(147, 51, 234, 0.8);
+        }
+
+        .dracula .card-database,
+        .mbp .card-database,
+        .lsu .card-database {
+            background: linear-gradient(135deg, rgb(51, 65, 85) 0%, rgb(71, 85, 105) 100%);
+            border: 1px solid rgb(100, 116, 139);
+        }
+
+        .mbp .card-database {
+            background: linear-gradient(135deg, rgb(55, 65, 81) 0%, rgb(75, 85, 99) 100%);
+            border: 1px solid rgb(107, 114, 128);
+        }
+
+        /* Text Colors */
+        .card-frontend h4 {
+            color: rgb(30, 64, 175); /* blue-800 */
+        }
+
+        .dark .card-frontend h4 {
+            color: rgb(219, 234, 254); /* blue-100 */
+        }
+
+        .dracula .card-frontend h4,
+        .mbp .card-frontend h4,
+        .lsu .card-frontend h4 {
+            color: white;
+        }
+
+        .card-backend h4 {
+            color: rgb(22, 101, 52); /* green-800 */
+        }
+
+        .dark .card-backend h4 {
+            color: rgb(187, 247, 208); /* green-100 */
+        }
+
+        .dracula .card-backend h4,
+        .mbp .card-backend h4,
+        .lsu .card-backend h4 {
+            color: white;
+        }
+
+        .card-database h4 {
+            color: rgb(91, 33, 182); /* purple-800 */
+        }
+
+        .dark .card-database h4 {
+            color: rgb(221, 214, 254); /* purple-100 */
+        }
+
+        .dracula .card-database h4,
+        .mbp .card-database h4,
+        .lsu .card-database h4 {
+            color: white;
+        }
+
+        /* Bullet text colors */
+        .card-frontend ul li {
+            color: rgb(29, 78, 216); /* blue-700 */
+        }
+
+        .dark .card-frontend ul li {
+            color: rgb(191, 219, 254); /* blue-200 */
+        }
+
+        .dracula .card-frontend ul li,
+        .mbp .card-frontend ul li,
+        .lsu .card-frontend ul li {
+            color: rgb(229, 231, 235); /* gray-200 */
+        }
+
+        .card-backend ul li {
+            color: rgb(21, 128, 61); /* green-700 */
+        }
+
+        .dark .card-backend ul li {
+            color: rgb(134, 239, 172); /* green-200 */
+        }
+
+        .dracula .card-backend ul li,
+        .mbp .card-backend ul li,
+        .lsu .card-backend ul li {
+            color: rgb(229, 231, 235); /* gray-200 */
+        }
+
+        .card-database ul li {
+            color: rgb(109, 40, 217); /* purple-700 */
+        }
+
+        .dark .card-database ul li {
+            color: rgb(196, 181, 253); /* purple-200 */
+        }
+
+        .dracula .card-database ul li,
+        .mbp .card-database ul li,
+        .lsu .card-database ul li {
+            color: rgb(229, 231, 235); /* gray-200 */
+        }
+    </style>
+</head>
+<body class="light">
+    <div class="theme-selector">
+        <h2>DoR-Dash Theme Contrast Test</h2>
+        <p>Click the buttons below to switch themes and test the text contrast on the technical breakdown cards:</p>
+        <div class="theme-buttons">
+            <button class="theme-btn active" onclick="setTheme('light')">☀️ Light</button>
+            <button class="theme-btn" onclick="setTheme('dark')">🌙 Dark</button>
+            <button class="theme-btn" onclick="setTheme('dracula')">🦇 Sweet Dracula</button>
+            <button class="theme-btn" onclick="setTheme('mbp')">🔥 MBP Dark Fire</button>
+            <button class="theme-btn" onclick="setTheme('lsu')">⚡ LSU Dark Storm</button>
+        </div>
+    </div>
+
+    <div class="cards-container">
+        <div class="card-frontend">
+            <h4>Frontend (SvelteKit)</h4>
+            <ul>
+                <li>• Reactive user interfaces</li>
+                <li>• Server-side rendering</li>
+                <li>• Progressive enhancement</li>
+                <li>• Mobile-first design</li>
+                <li>• Dark mode support</li>
+            </ul>
+        </div>
+
+        <div class="card-backend">
+            <h4>Backend (FastAPI)</h4>
+            <ul>
+                <li>• RESTful API design</li>
+                <li>• Automatic API documentation</li>
+                <li>• JWT authentication</li>
+                <li>• Role-based access control</li>
+                <li>• Async request handling</li>
+            </ul>
+        </div>
+
+        <div class="card-database">
+            <h4>Database (PostgreSQL)</h4>
+            <ul>
+                <li>• Relational data modeling</li>
+                <li>• ACID compliance</li>
+                <li>• Advanced querying</li>
+                <li>• Data integrity constraints</li>
+                <li>• Performance optimization</li>
+            </ul>
+        </div>
+    </div>
+
+    <div style="margin-top: 40px; padding: 20px; background: rgb(var(--color-bg-secondary)); border-radius: 8px; border: 1px solid rgb(var(--color-border));">
+        <h3>Testing Instructions:</h3>
+        <ol>
+            <li>Switch between different themes using the buttons above</li>
+            <li>Check if the card headings (Frontend, Backend, Database) are clearly readable</li>
+            <li>Verify that the bullet point text has sufficient contrast</li>
+            <li>Look for any text that appears too faint or hard to read</li>
+        </ol>
+        <p><strong>Expected Results:</strong> All text should be clearly readable with good contrast in all themes.</p>
+    </div>
+
+    <script>
+        function setTheme(theme) {
+            // Remove all theme classes
+            document.body.classList.remove('light', 'dark', 'dracula', 'mbp', 'lsu');
+            
+            // Add the selected theme class
+            document.body.classList.add(theme);
+            
+            // Update active button
+            document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

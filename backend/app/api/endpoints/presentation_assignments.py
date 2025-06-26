@@ -8,11 +8,34 @@ from sqlalchemy import and_, or_
 from app.api.endpoints.auth import User, get_current_user
 from app.core.logging import logger
 from app.db.models.presentation_assignment import PresentationAssignment, PresentationType
+from app.db.models.presentation_assignment_file import PresentationAssignmentFile
 from app.db.models.user import User as DBUser, UserRole
 from app.db.models.meeting import Meeting
 from app.db.session import get_sync_db
 
 router = APIRouter()
+
+# Import file management endpoints
+from app.api.endpoints import presentation_assignment_files
+router.include_router(presentation_assignment_files.router, prefix="", tags=["presentation-assignment-files"])
+
+def build_file_info_list(assignment_files) -> List[FileInfo]:
+    """Helper function to build file info list"""
+    return [
+        FileInfo(
+            id=file.id,
+            filename=file.filename,
+            original_filename=file.original_filename,
+            file_type=file.file_type,
+            file_size=file.file_size,
+            file_category=file.file_category,
+            description=file.description,
+            upload_date=file.upload_date,
+            uploaded_by_name=file.uploaded_by.full_name or file.uploaded_by.username,
+            download_url=f"/api/v1/presentation-assignments/{file.presentation_assignment_id}/files/{file.id}/download"
+        )
+        for file in assignment_files
+    ]
 
 # Pydantic models for request/response
 class PresentationAssignmentCreate(BaseModel):
@@ -46,6 +69,18 @@ class PresentationAssignmentUpdate(BaseModel):
     grillometer_methodology: Optional[int] = Field(None, ge=1, le=3)
     grillometer_delivery: Optional[int] = Field(None, ge=1, le=3)
 
+class FileInfo(BaseModel):
+    id: int
+    filename: str
+    original_filename: str
+    file_type: str
+    file_size: int
+    file_category: Optional[str]
+    description: Optional[str]
+    upload_date: datetime
+    uploaded_by_name: str
+    download_url: str
+
 class PresentationAssignmentResponse(BaseModel):
     id: int
     student_id: int
@@ -69,6 +104,9 @@ class PresentationAssignmentResponse(BaseModel):
     grillometer_novelty: Optional[int]
     grillometer_methodology: Optional[int]
     grillometer_delivery: Optional[int]
+    
+    # File attachments
+    files: List[FileInfo] = []
     
     # Timestamps
     created_at: datetime
@@ -142,7 +180,8 @@ async def create_presentation_assignment(
     assignment_with_relations = db.query(PresentationAssignment).options(
         joinedload(PresentationAssignment.student),
         joinedload(PresentationAssignment.assigned_by),
-        joinedload(PresentationAssignment.meeting)
+        joinedload(PresentationAssignment.meeting),
+        joinedload(PresentationAssignment.files).joinedload(PresentationAssignmentFile.uploaded_by)
     ).filter(PresentationAssignment.id == assignment.id).first()
     
     return PresentationAssignmentResponse(
@@ -166,6 +205,7 @@ async def create_presentation_assignment(
         grillometer_novelty=assignment_with_relations.grillometer_novelty,
         grillometer_methodology=assignment_with_relations.grillometer_methodology,
         grillometer_delivery=assignment_with_relations.grillometer_delivery,
+        files=build_file_info_list(assignment_with_relations.files),
         created_at=assignment_with_relations.created_at,
         updated_at=assignment_with_relations.updated_at
     )
@@ -377,6 +417,7 @@ async def update_presentation_assignment(
         grillometer_novelty=assignment_with_relations.grillometer_novelty,
         grillometer_methodology=assignment_with_relations.grillometer_methodology,
         grillometer_delivery=assignment_with_relations.grillometer_delivery,
+        files=build_file_info_list(assignment_with_relations.files),
         created_at=assignment_with_relations.created_at,
         updated_at=assignment_with_relations.updated_at
     )

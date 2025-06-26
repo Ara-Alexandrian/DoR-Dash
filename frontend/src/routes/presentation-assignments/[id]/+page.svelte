@@ -12,6 +12,8 @@
   let submissionNote = '';
   let uploadedFiles = [];
   let isSubmitting = false;
+  let uploading = false;
+  let dragOver = false;
 
   $: assignmentId = $page.params.id;
 
@@ -22,6 +24,7 @@
     }
     
     await loadAssignment();
+    await loadFiles();
   });
 
   async function loadAssignment() {
@@ -40,27 +43,63 @@
     } catch (err) {
       console.error('Failed to load assignment:', err);
       error = err.message || 'Failed to load presentation assignment';
+    }
+  }
+  
+  async function loadFiles() {
+    try {
+      uploadedFiles = await presentationAssignmentApi.getFiles(assignmentId);
+    } catch (err) {
+      console.error('Failed to load files:', err);
+      // Don't show error if files endpoint fails, just continue
     } finally {
       loading = false;
     }
   }
 
-  async function handleFileUpload(event) {
-    const files = Array.from(event.target.files);
-    if (files.length === 0) return;
+  async function handleFileUpload(fileList) {
+    if (!fileList || fileList.length === 0) return;
 
-    // For now, just store file references
-    // In a real implementation, you'd upload to your file storage
-    uploadedFiles = [...uploadedFiles, ...files.map(file => ({
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      file: file
-    }))];
+    uploading = true;
+    try {
+      for (const file of fileList) {
+        await presentationAssignmentApi.uploadFile(assignmentId, file);
+      }
+      await loadFiles();
+    } catch (err) {
+      console.error('Upload failed:', err);
+      error = 'Failed to upload file: ' + err.message;
+    } finally {
+      uploading = false;
+    }
   }
 
-  function removeFile(index) {
-    uploadedFiles = uploadedFiles.filter((_, i) => i !== index);
+  function handleDragOver(e) {
+    e.preventDefault();
+    dragOver = true;
+  }
+
+  function handleDragLeave(e) {
+    e.preventDefault();
+    dragOver = false;
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    dragOver = false;
+    handleFileUpload(e.dataTransfer.files);
+  }
+
+  async function removeFile(fileId) {
+    if (!confirm('Are you sure you want to delete this file?')) return;
+    
+    try {
+      await presentationAssignmentApi.deleteFile(assignmentId, fileId);
+      await loadFiles();
+    } catch (err) {
+      console.error('Delete failed:', err);
+      error = 'Failed to delete file: ' + err.message;
+    }
   }
 
   async function submitMaterials() {
@@ -263,26 +302,37 @@
                 <label class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">
                   Upload Presentation Materials
                 </label>
-                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-primary-400 transition-colors">
+                <div 
+                  class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md transition-colors {dragOver ? 'border-primary-400 bg-primary-50' : 'border-gray-300'} hover:border-primary-400"
+                  on:dragover={handleDragOver}
+                  on:dragleave={handleDragLeave}
+                  on:drop={handleDrop}
+                >
                   <div class="space-y-1 text-center">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                      <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <div class="flex text-sm text-gray-600">
-                      <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
-                        <span>Upload files</span>
-                        <input 
-                          id="file-upload" 
-                          type="file" 
-                          class="sr-only" 
-                          multiple 
-                          on:change={handleFileUpload}
-                          accept=".pdf,.ppt,.pptx,.doc,.docx,.txt,.md"
-                        />
-                      </label>
-                      <p class="pl-1">or drag and drop</p>
-                    </div>
-                    <p class="text-xs text-gray-500">PDF, PPT, DOC up to 50MB each</p>
+                    {#if uploading}
+                      <div class="mx-auto animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+                      <p class="text-sm text-gray-600">Uploading...</p>
+                    {:else}
+                      <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                      <div class="flex text-sm text-gray-600">
+                        <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                          <span>Upload files</span>
+                          <input 
+                            id="file-upload" 
+                            type="file" 
+                            class="sr-only" 
+                            multiple 
+                            on:change={(e) => handleFileUpload(e.target.files)}
+                            accept=".pdf,.ppt,.pptx,.doc,.docx,.txt,.md,.zip,.rar"
+                            disabled={uploading}
+                          />
+                        </label>
+                        <p class="pl-1">or drag and drop</p>
+                      </div>
+                      <p class="text-xs text-gray-500">PDF, PPT, DOC up to 50MB each</p>
+                    {/if}
                   </div>
                 </div>
               </div>
@@ -292,25 +342,42 @@
                 <div class="mb-6">
                   <h3 class="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3">Uploaded Files</h3>
                   <div class="space-y-2">
-                    {#each uploadedFiles as file, i}
+                    {#each uploadedFiles as file}
                       <div class="flex items-center justify-between p-3 bg-gray-50 rounded-md">
                         <div class="flex items-center">
                           <svg class="h-5 w-5 text-gray-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
                           <div>
-                            <p class="text-sm font-medium text-gray-900">{file.name}</p>
-                            <p class="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                            <p class="text-sm font-medium text-gray-900">{file.original_filename}</p>
+                            <p class="text-xs text-gray-500">{formatFileSize(file.file_size)}</p>
+                            {#if file.description}
+                              <p class="text-xs text-gray-600 mt-1">{file.description}</p>
+                            {/if}
                           </div>
                         </div>
-                        <button
-                          on:click={() => removeFile(i)}
-                          class="text-red-400 hover:text-red-600"
-                        >
-                          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
+                        <div class="flex items-center space-x-2">
+                          <a 
+                            href={presentationAssignmentApi.getFileDownloadUrl(assignmentId, file.id)}
+                            class="text-primary-600 hover:text-primary-700"
+                            title="Download"
+                          >
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </a>
+                          {#if $auth.user?.id === file.uploaded_by_id}
+                            <button
+                              on:click={() => removeFile(file.id)}
+                              class="text-red-400 hover:text-red-600"
+                              title="Delete"
+                            >
+                              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          {/if}
+                        </div>
                       </div>
                     {/each}
                   </div>

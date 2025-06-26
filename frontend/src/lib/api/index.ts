@@ -407,5 +407,65 @@ export const presentationAssignmentApi = {
   // Get available presentation types
   getPresentationTypes: async () => {
     return await apiFetch('/presentation-assignments/types/');
+  },
+  
+  // File management for presentation assignments
+  uploadFile: async (assignmentId: number | string, file: File, fileCategory?: string, description?: string) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    if (fileCategory) {
+      formData.append('file_category', fileCategory);
+    }
+    if (description) {
+      formData.append('description', description);
+    }
+    
+    const authStore = get(auth);
+    const headers: Record<string, string> = {};
+    
+    if (authStore.token) {
+      headers['Authorization'] = `Bearer ${authStore.token}`;
+    }
+    
+    const response = await fetch(`${API_BASE}/presentation-assignments/${assignmentId}/files/`, {
+      method: 'POST',
+      headers,
+      body: formData
+    });
+    
+    if (!response.ok) {
+      let errorMessage = 'File upload failed';
+      try {
+        const errorText = await response.text();
+        if (errorText.trim()) {
+          const error = JSON.parse(errorText);
+          errorMessage = error.detail || errorMessage;
+        }
+      } catch (e) {
+        errorMessage = response.statusText || errorMessage;
+      }
+      throw new Error(errorMessage);
+    }
+    
+    const responseText = await response.text();
+    return responseText.trim() ? JSON.parse(responseText) : { success: true };
+  },
+  
+  // Get files for an assignment
+  getFiles: async (assignmentId: number | string) => {
+    return await apiFetch(`/presentation-assignments/${assignmentId}/files/`);
+  },
+  
+  // Delete a file
+  deleteFile: async (assignmentId: number | string, fileId: number | string) => {
+    return await apiFetch(`/presentation-assignments/${assignmentId}/files/${fileId}`, {
+      method: 'DELETE'
+    });
+  },
+  
+  // Get download URL for a file
+  getFileDownloadUrl: (assignmentId: number | string, fileId: number | string) => {
+    return `${API_BASE}/presentation-assignments/${assignmentId}/files/${fileId}/download`;
   }
 };

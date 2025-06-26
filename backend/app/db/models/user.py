@@ -51,6 +51,7 @@ class User(Base):
     # Presentation assignment relationships  
     assigned_presentations = relationship("PresentationAssignment", back_populates="student", foreign_keys="PresentationAssignment.student_id", cascade="all, delete-orphan")
     presentation_assignments_made = relationship("PresentationAssignment", back_populates="assigned_by", foreign_keys="PresentationAssignment.assigned_by_id", cascade="all, delete-orphan")
+    presentation_files = relationship("PresentationAssignmentFile", back_populates="uploaded_by", cascade="all, delete-orphan")
     
     @property
     def role_enum(self) -> UserRole:

@@ -8,3 +8,4 @@ from .student_update import StudentUpdate
 from .faculty_update import FacultyUpdate, AnnouncementType
 from .presentation import AssignedPresentation
 from .presentation_assignment import PresentationAssignment, PresentationType
+from .presentation_assignment_file import PresentationAssignmentFile

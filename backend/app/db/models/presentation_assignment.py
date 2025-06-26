@@ -62,3 +62,4 @@ class PresentationAssignment(Base):
     student = relationship("User", foreign_keys=[student_id], back_populates="assigned_presentations")
     assigned_by = relationship("User", foreign_keys=[assigned_by_id], back_populates="presentation_assignments_made")
     meeting = relationship("Meeting", back_populates="presentation_assignments")
+    files = relationship("PresentationAssignmentFile", back_populates="presentation_assignment", cascade="all, delete-orphan")

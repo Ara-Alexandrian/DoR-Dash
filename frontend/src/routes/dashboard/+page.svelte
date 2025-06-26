@@ -107,6 +107,9 @@
           meeting_date: assignment.due_date,
           status: assignment.is_completed ? 'completed' : 'scheduled',
           user_id: assignment.student_id,
+          student_name: assignment.student_name,
+          meeting_id: assignment.meeting_id,
+          meeting_title: assignment.meeting_title,
           description: assignment.description,
           presentation_type: assignment.presentation_type,
           duration_minutes: assignment.duration_minutes,
@@ -346,7 +349,14 @@
                           {presentation.title || 'Presentation'}
                         </h3>
                         <div class="text-sm text-[rgb(var(--color-text-secondary))] mt-1 space-y-1">
-                          {#if presentation.meeting_date}
+                          {#if presentation.meeting_title}
+                            <p class="flex items-center">
+                              <svg class="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              Meeting: <a href="/agenda?meeting_id={presentation.meeting_id}" class="text-primary-600 dark:text-primary-400 hover:underline">{presentation.meeting_title}</a>
+                            </p>
+                          {:else if presentation.meeting_date}
                             <p class="flex items-center">
                               <svg class="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -358,16 +368,16 @@
                               <svg class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
-                              No due date set
+                              No meeting assigned
                             </p>
                           {/if}
                           
-                          {#if presentation.assigned_by}
+                          {#if presentation.student_name}
                             <p class="flex items-center">
                               <svg class="h-4 w-4 mr-1.5 text-primary-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                               </svg>
-                              Assigned by: {presentation.assigned_by}
+                              Presenter: {presentation.student_name}
                             </p>
                           {/if}
                           
@@ -381,20 +391,50 @@
                           {/if}
                         </div>
                         
-                        {#if presentation.files && presentation.files.length > 0}
+                        <!-- File upload section for assigned presenter -->
+                        {#if presentation.student_id === $auth.user?.id}
+                          <div class="mt-3 pt-3 border-t border-[rgb(var(--color-border))]">
+                            <div class="flex items-center justify-between mb-2">
+                              <p class="text-xs font-medium text-[rgb(var(--color-text-tertiary))]">Your Presentation Files:</p>
+                              <a 
+                                href="/presentation-assignments/{presentation.id}"
+                                class="inline-flex items-center px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded text-xs hover:bg-primary-200 dark:hover:bg-primary-900/50 transition-colors"
+                              >
+                                <svg class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                Upload Files
+                              </a>
+                            </div>
+                            {#if presentation.files && presentation.files.length > 0}
+                              <div class="flex flex-wrap gap-2">
+                                {#each presentation.files as file}
+                                  <span class="inline-flex items-center px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded text-xs">
+                                    <svg class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {file.original_filename || file.filename}
+                                  </span>
+                                {/each}
+                              </div>
+                            {:else}
+                              <p class="text-xs text-yellow-600 dark:text-yellow-400">No files uploaded yet</p>
+                            {/if}
+                          </div>
+                        {:else if presentation.files && presentation.files.length > 0}
+                          <!-- File viewing section for faculty/admin -->
                           <div class="mt-3">
-                            <p class="text-xs font-medium text-[rgb(var(--color-text-tertiary))] mb-2">Attached Materials:</p>
+                            <p class="text-xs font-medium text-[rgb(var(--color-text-tertiary))] mb-2">Presentation Files:</p>
                             <div class="flex flex-wrap gap-2">
                               {#each presentation.files as file}
                                 <a 
-                                  href={file.url || '#'} 
-                                  download
+                                  href={file.download_url || '#'} 
                                   class="inline-flex items-center px-3 py-1.5 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-lg text-xs hover:bg-primary-100 dark:hover:bg-primary-900/50 transition-colors group"
                                 >
                                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                   </svg>
-                                  {file.name || 'Download'}
+                                  {file.original_filename || file.filename}
                                 </a>
                               {/each}
                             </div>

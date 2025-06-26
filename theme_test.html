@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Test - DoR Dash</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Light mode (default) */
+        :root {
+            --color-bg-primary: 255 255 255;
+            --color-bg-secondary: 249 250 251;
+            --color-bg-tertiary: 243 244 246;
+            --color-text-primary: 17 24 39;
+            --color-text-secondary: 75 85 99;
+            --color-text-tertiary: 107 114 128;
+            --color-border: 229 231 235;
+            --color-border-secondary: 209 213 219;
+        }
+
+        /* Dark mode - Enhanced contrast and usability */
+        .dark {
+            --color-bg-primary: 15 23 42;
+            --color-bg-secondary: 30 41 59;
+            --color-bg-tertiary: 51 65 85;
+            --color-text-primary: 248 250 252;
+            --color-text-secondary: 226 232 240;
+            --color-text-tertiary: 148 163 184;
+            --color-border: 51 65 85;
+            --color-border-secondary: 71 85 105;
+        }
+
+        /* Sweet Dracula mode - Darker, more muted Dracula variant */
+        .dracula {
+            --color-bg-primary: 30 32 43;
+            --color-bg-secondary: 40 42 54;
+            --color-bg-tertiary: 50 52 63;
+            --color-text-primary: 248 248 242;
+            --color-text-secondary: 189 147 249;
+            --color-text-tertiary: 139 233 253;
+            --color-border: 68 71 90;
+            --color-border-secondary: 98 114 164;
+        }
+
+        /* Mary Bird Perkins Cancer Center theme - Dark with glowing red accents */
+        .mbp {
+            --color-bg-primary: 18 18 20;
+            --color-bg-secondary: 25 25 28;
+            --color-bg-tertiary: 35 35 38;
+            --color-text-primary: 245 245 247;
+            --color-text-secondary: 205 205 210;
+            --color-text-tertiary: 161 161 170;
+            --color-border: 68 68 75;
+            --color-border-secondary: 82 82 91;
+        }
+
+        /* LSU Tigers theme - Dark with glowing purple and gold accents */
+        .lsu {
+            --color-bg-primary: 15 10 25;
+            --color-bg-secondary: 22 15 35;
+            --color-bg-tertiary: 30 20 45;
+            --color-text-primary: 248 245 255;
+            --color-text-secondary: 215 205 230;
+            --color-text-tertiary: 180 165 200;
+            --color-border: 65 55 85;
+            --color-border-secondary: 85 70 110;
+        }
+
+        html {
+            transition: all 0.3s ease;
+        }
+
+        body {
+            background-color: rgb(var(--color-bg-primary));
+            color: rgb(var(--color-text-primary));
+        }
+
+        .theme-card {
+            background-color: rgb(var(--color-bg-secondary));
+            border: 1px solid rgb(var(--color-border));
+            color: rgb(var(--color-text-primary));
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center" style="color: rgb(var(--color-text-primary))">DoR Dash Theme Test</h1>
+        
+        <div class="mb-8 text-center">
+            <p class="mb-4" style="color: rgb(var(--color-text-secondary))">Current theme: <span id="current-theme-name" class="font-semibold">Light</span></p>
+            <div class="flex flex-wrap justify-center gap-2">
+                <button onclick="setTheme('light')" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Light</button>
+                <button onclick="setTheme('dark')" class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800">Dark</button>
+                <button onclick="setTheme('dracula')" class="px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800">Sweet Dracula</button>
+                <button onclick="setTheme('mbp')" class="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800">MBP Dark Fire</button>
+                <button onclick="setTheme('lsu')" class="px-4 py-2 bg-purple-800 text-white rounded hover:bg-purple-900">LSU Dark Storm</button>
+            </div>
+        </div>
+
+        <!-- Logout Page Preview -->
+        <div class="flex flex-col items-center justify-center min-h-[400px] bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dracula:from-gray-900 dracula:via-slate-900 dracula:to-gray-900 mbp:from-gray-950 mbp:via-red-950/80 mbp:to-gray-900 lsu:from-purple-950 lsu:via-purple-900/80 lsu:to-purple-950 px-4 rounded-lg">
+            <div class="w-full max-w-md backdrop-blur-sm rounded-lg shadow-2xl overflow-hidden theme-card">
+                <div class="px-8 py-10">
+                    <div class="flex justify-center mb-6">
+                        <div class="w-20 h-20 bg-gray-300 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                            <span class="text-2xl">🏥</span>
+                        </div>
+                    </div>
+                    
+                    <h2 class="text-2xl font-bold text-center mb-6" style="color: rgb(var(--color-text-primary))">
+                        You Have Been Logged Out
+                    </h2>
+                    
+                    <p class="text-center mb-8" style="color: rgb(var(--color-text-secondary))">
+                        Thank you for using the Dose of Reality Dashboard. You have been successfully logged out of your account.
+                    </p>
+                    
+                    <div class="flex justify-center">
+                        <button class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                            Sign In Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Color Variable Display -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="theme-card p-4 rounded-lg">
+                <h3 class="font-semibold mb-2" style="color: rgb(var(--color-text-primary))">Background Colors</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded" style="background-color: rgb(var(--color-bg-primary))"></div>
+                        <span style="color: rgb(var(--color-text-secondary))">Primary: rgb(var(--color-bg-primary))</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded" style="background-color: rgb(var(--color-bg-secondary))"></div>
+                        <span style="color: rgb(var(--color-text-secondary))">Secondary: rgb(var(--color-bg-secondary))</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded" style="background-color: rgb(var(--color-bg-tertiary))"></div>
+                        <span style="color: rgb(var(--color-text-secondary))">Tertiary: rgb(var(--color-bg-tertiary))</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="theme-card p-4 rounded-lg">
+                <h3 class="font-semibold mb-2" style="color: rgb(var(--color-text-primary))">Text Colors</h3>
+                <div class="space-y-2 text-sm">
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded" style="background-color: rgb(var(--color-text-primary))"></div>
+                        <span style="color: rgb(var(--color-text-primary))">Primary: rgb(var(--color-text-primary))</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded" style="background-color: rgb(var(--color-text-secondary))"></div>
+                        <span style="color: rgb(var(--color-text-secondary))">Secondary: rgb(var(--color-text-secondary))</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 rounded" style="background-color: rgb(var(--color-text-tertiary))"></div>
+                        <span style="color: rgb(var(--color-text-tertiary))">Tertiary: rgb(var(--color-text-tertiary))</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const themeNames = {
+            'light': 'Light',
+            'dark': 'Dark',
+            'dracula': 'Sweet Dracula',
+            'mbp': 'MBP Dark Fire',
+            'lsu': 'LSU Dark Storm'
+        };
+
+        function setTheme(theme) {
+            const html = document.documentElement;
+            html.classList.remove('light', 'dark', 'dracula', 'mbp', 'lsu');
+            html.classList.add(theme);
+            document.getElementById('current-theme-name').textContent = themeNames[theme];
+            localStorage.setItem('theme', theme);
+        }
+
+        // Apply saved theme on load
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        setTheme(savedTheme);
+    </script>
+</body>
+</html>
