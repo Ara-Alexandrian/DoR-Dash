@@ -87,7 +87,7 @@ async def create_presentation_assignment(
     Create a new presentation assignment (faculty/admin only)
     """
     # Check if user has permission to assign presentations
-    if current_user.role not in [UserRole.FACULTY.value, UserRole.ADMIN.value]:
+    if current_user.role.upper() not in [UserRole.FACULTY.value, UserRole.ADMIN.value]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only faculty and admin users can assign presentations"
@@ -192,7 +192,7 @@ async def get_presentation_assignments(
         )
         
         # Apply role-based filtering
-        if current_user.role == UserRole.STUDENT.value:
+        if current_user.role.upper() == UserRole.STUDENT.value:
             # Students can only see their own assignments
             query = query.filter(PresentationAssignment.student_id == current_user.id)
         else:
@@ -264,7 +264,7 @@ async def get_presentation_assignment(
         )
     
     # Check access permissions
-    if current_user.role == UserRole.STUDENT.value and assignment.student_id != current_user.id:
+    if current_user.role.upper() == UserRole.STUDENT.value and assignment.student_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only view your own presentation assignments"
@@ -314,7 +314,7 @@ async def update_presentation_assignment(
         )
     
     # Check permissions
-    if current_user.role == UserRole.STUDENT.value:
+    if current_user.role.upper() == UserRole.STUDENT.value:
         # Students can only mark their own assignments as completed
         if assignment.student_id != current_user.id:
             raise HTTPException(
@@ -327,7 +327,7 @@ async def update_presentation_assignment(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Students can only mark assignments as completed"
             )
-    elif current_user.role not in [UserRole.FACULTY.value, UserRole.ADMIN.value]:
+    elif current_user.role.upper() not in [UserRole.FACULTY.value, UserRole.ADMIN.value]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only faculty, admin, or the assigned student can update assignments"
@@ -390,7 +390,7 @@ async def delete_presentation_assignment(
     """
     Delete a presentation assignment (faculty/admin only)
     """
-    if current_user.role not in [UserRole.FACULTY.value, UserRole.ADMIN.value]:
+    if current_user.role.upper() not in [UserRole.FACULTY.value, UserRole.ADMIN.value]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only faculty and admin users can delete presentation assignments"

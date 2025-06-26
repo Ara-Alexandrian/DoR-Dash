@@ -16,15 +16,15 @@ class SecurityConfig:
     """Centralized security configuration."""
     
     def __init__(self):
-        self.secret_key = self._get_secret_key()
-        self.algorithm = os.getenv("ALGORITHM", "HS256")
-        self.access_token_expire_minutes = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+        # Import settings here to avoid circular imports and ensure .env is loaded
+        from app.core.config import settings
+        self.secret_key = self._get_secret_key(settings.SECRET_KEY)
+        self.algorithm = settings.ALGORITHM
+        self.access_token_expire_minutes = settings.ACCESS_TOKEN_EXPIRE_MINUTES
     
-    def _get_secret_key(self) -> str:
-        """Get JWT secret key from environment or generate a secure one."""
-        secret_key = os.getenv("SECRET_KEY")
-        
-        if not secret_key:
+    def _get_secret_key(self, secret_key: str) -> str:
+        """Get JWT secret key from settings and validate it."""
+        if not secret_key or secret_key == "insecure_default_key_for_development_only":
             raise ValueError(
                 "SECRET_KEY environment variable is required. "
                 "Generate one using: python -c 'import secrets; print(secrets.token_urlsafe(64))'"
@@ -60,17 +60,24 @@ class SecurityConfig:
         except JWTError:
             return None
 
-# Global security configuration instance
-security_config = SecurityConfig()
+# Global security configuration instance (lazy-loaded)
+_security_config: Optional[SecurityConfig] = None
+
+def get_security_config() -> SecurityConfig:
+    """Get the global security configuration instance (lazy-loaded)."""
+    global _security_config
+    if _security_config is None:
+        _security_config = SecurityConfig()
+    return _security_config
 
 # Convenience functions for backward compatibility
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Create a JWT access token (convenience function)."""
-    return security_config.create_access_token(data, expires_delta)
+    return get_security_config().create_access_token(data, expires_delta)
 
 def verify_token(token: str) -> Optional[dict]:
     """Verify and decode a JWT token (convenience function)."""
-    return security_config.verify_token(token)
+    return get_security_config().verify_token(token)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash."""
