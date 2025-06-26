@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { auth } from '$lib/stores/auth';
-  import { meetingsApi, facultyUpdateApi, updateApi } from '$lib/api';
+  import { meetingsApi, facultyUpdateApi, updateApi, presentationAssignmentApi } from '$lib/api';
   import { get } from 'svelte/store';
   
   // API configuration
@@ -32,6 +32,10 @@
   let editForm = {}; // Form data for editing
   let isSaving = false; // Save state
   let meetingEditForm = {}; // Form data for meeting editing
+  
+  // Presentation assignment files state
+  let assignmentFiles = new Map(); // Map of assignment ID to files array
+  let loadingFiles = new Set(); // Track which assignments are loading files
   
   // Format date for display
   function formatDate(dateString) {
@@ -115,6 +119,30 @@
   
   function toggleScheduleSection() {
     scheduleExpanded = !scheduleExpanded;
+  }
+  
+  // Load files for a presentation assignment
+  async function loadAssignmentFiles(assignmentId) {
+    if (loadingFiles.has(assignmentId) || assignmentFiles.has(assignmentId)) {
+      return; // Already loading or loaded
+    }
+    
+    loadingFiles.add(assignmentId);
+    loadingFiles = loadingFiles; // Trigger reactivity
+    
+    try {
+      const files = await presentationAssignmentApi.getFiles(assignmentId);
+      assignmentFiles.set(assignmentId, files);
+      assignmentFiles = assignmentFiles; // Trigger reactivity
+    } catch (err) {
+      console.error(`Failed to load files for assignment ${assignmentId}:`, err);
+      // Set empty array on error so we don't keep trying
+      assignmentFiles.set(assignmentId, []);
+      assignmentFiles = assignmentFiles;
+    } finally {
+      loadingFiles.delete(assignmentId);
+      loadingFiles = loadingFiles;
+    }
   }
   
   // Load meeting details
@@ -1138,8 +1166,14 @@
                     </div>
                     
                     <div class="mb-4">
-                      <h5 class="text-md font-medium text-[rgb(var(--color-text-primary))] mb-2">
-                        {assignment.title}
+                      <h5 class="text-md font-medium mb-2">
+                        <a 
+                          href="/presentation-assignments/{assignment.id}"
+                          class="text-[rgb(var(--color-text-primary))] hover:text-primary-600 underline decoration-dotted"
+                          title="View assignment details and manage files"
+                        >
+                          {assignment.title}
+                        </a>
                       </h5>
                       {#if assignment.description}
                         <p class="text-sm text-[rgb(var(--color-text-secondary))] mb-3">
@@ -1254,6 +1288,97 @@
                     </p>
                   </div>
                 {/if}
+                
+                <!-- Presentation Files Section -->
+                <div class="mt-4">
+                  <div class="flex items-center justify-between mb-3">
+                    <h6 class="text-sm font-medium text-[rgb(var(--color-text-primary))] flex items-center">
+                      <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      Presentation Materials
+                    </h6>
+                    {#if !assignmentFiles.has(assignment.id) && !loadingFiles.has(assignment.id)}
+                      <button
+                        on:click={() => loadAssignmentFiles(assignment.id)}
+                        class="text-xs text-primary-600 hover:text-primary-800 font-medium"
+                      >
+                        Load Files
+                      </button>
+                    {/if}
+                    <a 
+                      href="/presentation-assignments/{assignment.id}"
+                      class="text-xs text-primary-600 hover:text-primary-800 font-medium flex items-center"
+                      title="View assignment details"
+                    >
+                      <svg class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      View Details
+                    </a>
+                  </div>
+                  
+                  {#if loadingFiles.has(assignment.id)}
+                    <div class="flex items-center justify-center py-4">
+                      <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
+                      <span class="ml-2 text-sm text-[rgb(var(--color-text-secondary))]">Loading files...</span>
+                    </div>
+                  {:else if assignmentFiles.has(assignment.id)}
+                    {#if assignmentFiles.get(assignment.id).length > 0}
+                      <div class="space-y-2">
+                        {#each assignmentFiles.get(assignment.id) as file}
+                          <div class="flex items-center justify-between p-3 bg-[rgb(var(--color-bg-secondary))] rounded-md border">
+                            <div class="flex items-center">
+                              <svg class="h-5 w-5 text-gray-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              <div>
+                                <p class="text-sm font-medium text-[rgb(var(--color-text-primary))]">{file.original_filename}</p>
+                                <p class="text-xs text-[rgb(var(--color-text-secondary))] flex items-center">
+                                  <span>{formatFileSize(file.file_size)}</span>
+                                  <span class="mx-1">•</span>
+                                  <span>Uploaded {new Date(file.upload_timestamp).toLocaleDateString()}</span>
+                                  {#if file.description}
+                                    <span class="mx-1">•</span>
+                                    <span>{file.description}</span>
+                                  {/if}
+                                </p>
+                              </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                              <a 
+                                href={presentationAssignmentApi.getFileDownloadUrl(assignment.id, file.id)}
+                                class="text-primary-600 hover:text-primary-700 p-1"
+                                title="Download file"
+                                target="_blank"
+                              >
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                              </a>
+                            </div>
+                          </div>
+                        {/each}
+                      </div>
+                    {:else}
+                      <div class="text-center py-4">
+                        <p class="text-sm text-[rgb(var(--color-text-secondary))]">No files uploaded yet</p>
+                        {#if $auth.user?.id === assignment.student_id}
+                          <a 
+                            href="/presentation-assignments/{assignment.id}"
+                            class="text-xs text-primary-600 hover:text-primary-800 font-medium mt-1 inline-block"
+                          >
+                            Upload your presentation materials
+                          </a>
+                        {/if}
+                      </div>
+                    {/if}
+                  {:else}
+                    <div class="text-center py-4">
+                      <p class="text-sm text-[rgb(var(--color-text-secondary))]">Click "Load Files" to view presentation materials</p>
+                    </div>
+                  {/if}
+                </div>
               </div>
             {/each}
           </div>
@@ -1385,10 +1510,22 @@
                     {formatTime(new Date(meeting.start_time.getTime() + (15 + (agenda.student_updates?.length || 0) * 20 + index * (assignment.duration_minutes || 20)) * 60 * 1000))}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 mbp:text-gray-100 lsu:text-gray-100">
-                    {assignment.student_name}
+                    <a 
+                      href="/presentation-assignments/{assignment.id}"
+                      class="hover:text-primary-600 underline decoration-dotted"
+                      title="View assignment details"
+                    >
+                      {assignment.student_name}
+                    </a>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 mbp:text-gray-300 lsu:text-gray-300">
-                    {assignment.title}
+                    <a 
+                      href="/presentation-assignments/{assignment.id}"
+                      class="hover:text-primary-600 underline decoration-dotted"
+                      title="View assignment details"
+                    >
+                      {assignment.title}
+                    </a>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
