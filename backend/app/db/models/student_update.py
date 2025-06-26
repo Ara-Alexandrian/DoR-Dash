@@ -18,8 +18,8 @@ class StudentUpdate(Base):
     refined_content = Column(Text, nullable=True)
     reflection = Column(Text, nullable=True)
     goals = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     is_submitted = Column(Boolean, default=False)
     
     # NO RELATIONSHIPS - avoid circular imports

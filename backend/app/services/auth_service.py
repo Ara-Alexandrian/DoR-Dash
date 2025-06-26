@@ -42,7 +42,7 @@ class AuthService:
             return None
         
         # Update last login
-        user.last_login = datetime.utcnow()
+        user.last_login = datetime.now()
         db.commit()
         
         logger.info(f"Successful authentication for user: {username}")
@@ -106,7 +106,7 @@ class AuthService:
         
         # Hash and update new password
         user.hashed_password = get_password_hash(new_password)
-        user.updated_at = datetime.utcnow()
+        user.updated_at = datetime.now()
         db.commit()
         
         logger.info(f"Password changed for user: {user.username}")

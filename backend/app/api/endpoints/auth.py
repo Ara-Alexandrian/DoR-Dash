@@ -357,7 +357,7 @@ def login_for_access_token(
         )
     
     # Update last login
-    user.last_login = datetime.utcnow()
+    user.last_login = datetime.now()
     db.commit()
     
     # Create access token

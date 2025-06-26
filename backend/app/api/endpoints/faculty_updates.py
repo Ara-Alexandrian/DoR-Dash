@@ -465,7 +465,7 @@ async def upload_files_to_faculty_update(
             filepath=file_path,
             file_type=file.content_type or "application/octet-stream",
             file_size=len(content),
-            upload_date=datetime.utcnow()
+            upload_date=datetime.now()
         )
         
         db.add(file_upload)
@@ -476,7 +476,7 @@ async def upload_files_to_faculty_update(
             "size": len(content),
             "file_path": file_path,
             "type": file.content_type or "application/octet-stream",
-            "upload_date": datetime.utcnow().isoformat()
+            "upload_date": datetime.now().isoformat()
         }
         uploaded_files.append(file_info)
     
