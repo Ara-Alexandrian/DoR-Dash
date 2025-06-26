@@ -41,7 +41,7 @@
   ];
   
   // Check if user has permission to assign presentations
-  $: canAssign = $auth.user && (['FACULTY', 'ADMIN'].includes($auth.user.role));
+  $: canAssign = $auth.user && (['FACULTY', 'ADMIN'].includes($auth.user.role?.toUpperCase()));
   
   onMount(async () => {
     if (!$auth.user) {
