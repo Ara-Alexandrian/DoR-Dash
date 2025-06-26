@@ -38,7 +38,7 @@
         <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="w-20 h-20 object-contain" />
       </div>
       
-      <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 dracula:text-white mbp:text-white lsu:text-white mb-6">
+      <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 dracula:text-purple-400 mbp:text-red-400 lsu:text-yellow-400 mb-6">
         {loggingOut ? 'Logging Out...' : 'You Have Been Logged Out'}
       </h2>
       
