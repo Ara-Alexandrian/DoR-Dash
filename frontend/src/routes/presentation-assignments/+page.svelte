@@ -72,8 +72,13 @@
         try {
           const [studentsData, meetingsData] = await Promise.all([
             userApi.getUsers({ role: 'STUDENT' }),
-            meetingsApi.getMeetings()
+            meetingsApi.getMeetings({ 
+              start_date: new Date().toISOString() // Only get current and future meetings
+            })
           ]);
+          
+          console.log('Loaded meetings:', meetingsData.length, 'meetings');
+          console.log('Meetings:', meetingsData.map(m => `${m.title} (${new Date(m.start_time).toLocaleDateString()})`));
           
           students = studentsData;
           meetings = meetingsData;
@@ -198,10 +203,21 @@
         ? selectedRequirements.join(', ') 
         : '';
       
+      // Validate required fields
+      if (!formData.student_id) {
+        throw new Error('Please select a presenter');
+      }
+      if (!formData.meeting_id) {
+        throw new Error('Please select a meeting');
+      }
+      if (!formData.title?.trim()) {
+        throw new Error('Please enter a presentation title');
+      }
+      
       const payload = {
         ...formData,
         student_id: parseInt(formData.student_id),
-        meeting_id: formData.meeting_id ? parseInt(formData.meeting_id) : null,
+        meeting_id: parseInt(formData.meeting_id),
         requirements: requirementsString,
         // Remove due_date since we're using meeting date
         due_date: null
@@ -357,13 +373,14 @@
           
           <!-- Meeting Selection -->
           <div>
-            <label for="meeting" class="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Meeting (optional)</label>
+            <label for="meeting" class="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Meeting <span class="text-red-500">*</span></label>
             <select
               id="meeting"
               bind:value={formData.meeting_id}
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              required
             >
-              <option value="">No specific meeting</option>
+              <option value="">Select a meeting...</option>
               {#each meetings as meeting}
                 <option value={meeting.id}>
                   {meeting.title} - {new Date(meeting.start_time).toLocaleDateString()}
