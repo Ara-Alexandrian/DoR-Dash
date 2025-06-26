@@ -199,7 +199,8 @@
   }
 
   .dracula h1, .dracula h2, .dracula h3, .dracula h4, .dracula h5, .dracula h6 {
-    @apply text-slate-100;
+    @apply text-cyan-100;
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
   }
 
   .mbp h1, .mbp h2, .mbp h3, .mbp h4, .mbp h5, .mbp h6 {
