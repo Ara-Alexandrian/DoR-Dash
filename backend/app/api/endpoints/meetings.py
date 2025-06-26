@@ -331,9 +331,22 @@ async def get_meeting_agenda(
             "updated_at": assignment.updated_at.isoformat()
         })
     
+    # Convert meeting to serializable format
+    meeting_data = {
+        "id": meeting.id,
+        "title": meeting.title,
+        "description": meeting.description,
+        "meeting_type": meeting.meeting_type,
+        "start_time": meeting.start_time.isoformat(),
+        "end_time": meeting.end_time.isoformat(),
+        "created_by": meeting.created_by,
+        "created_at": meeting.created_at.isoformat(),
+        "updated_at": meeting.updated_at.isoformat()
+    }
+    
     # Compile agenda - INCLUDES PRESENTATION ASSIGNMENTS!
     agenda = {
-        "meeting": meeting,
+        "meeting": meeting_data,
         "student_updates": student_updates,
         "faculty_updates": faculty_updates,
         "presentation_assignments": presentation_assignments,
