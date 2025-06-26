@@ -39,7 +39,7 @@ class PresentationAssignment(Base):
     
     # Dates
     due_date: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-    assigned_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    assigned_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
     
     # Status tracking
     is_completed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
@@ -55,8 +55,8 @@ class PresentationAssignment(Base):
     extra_data: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)  # Additional structured data
     
     # Timestamps
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
     
     # Relationships
     student = relationship("User", foreign_keys=[student_id], back_populates="assigned_presentations")
