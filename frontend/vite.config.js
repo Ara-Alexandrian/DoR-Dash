@@ -4,8 +4,11 @@ import { defineConfig } from 'vite';
 export default defineConfig({
 	plugins: [sveltekit()],
 	resolve: {
-		// Prefer TypeScript files over JavaScript files
-		extensions: ['.ts', '.js', '.svelte', '.json']
+		// Prefer TypeScript files over JavaScript files, but force auth store to .js
+		extensions: ['.ts', '.js', '.svelte', '.json'],
+		alias: {
+			'$lib/stores/auth': './src/lib/stores/auth.js'
+		}
 	},
 	define: {
 		// Make build ID available in the frontend
