@@ -1,7 +1,7 @@
 import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
 import { goto } from '$app/navigation';
-import { authApi } from '$lib/api';
+import { authApi } from '$lib/api/index';
 
 // Token refresh configuration
 const TOKEN_REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
