@@ -31,7 +31,7 @@ class PresentationAssignment(Base):
     # Assignment details
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    presentation_type: Mapped[PresentationType] = mapped_column(Enum(PresentationType), nullable=False)
+    presentation_type: Mapped[str] = mapped_column(String(50), nullable=False)
     
     # Expectations and requirements
     duration_minutes: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
