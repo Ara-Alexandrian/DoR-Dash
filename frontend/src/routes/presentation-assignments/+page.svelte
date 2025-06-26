@@ -267,8 +267,8 @@
   function getGrillometerIcon(level) {
     switch(level) {
       case 1: return '🧊'; // Ice cube - relaxed
-      case 2: return '🔥'; // Medium fire
-      case 3: return '🔥🔥🔥'; // Triple flame - intense
+      case 2: return '🔥'; // Single flame - moderate
+      case 3: return '☢️'; // Nuclear trefoil - intense
       default: return '❓';
     }
   }
@@ -335,17 +335,21 @@
       
       <form on:submit|preventDefault={submitForm} class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Student Selection -->
+          <!-- Presenter Selection -->
           <div>
-            <label for="student" class="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Student *</label>
+            <label for="student" class="block text-sm font-medium text-[rgb(var(--color-text-primary))]">Presenter *</label>
             <select
               id="student"
               bind:value={formData.student_id}
               required
               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
             >
-              <option value="">Select a student</option>
-              {#each students as student}
+              <option value="">Select a presenter</option>
+              {#each students.sort((a, b) => {
+                const nameA = (a.full_name || a.username).toLowerCase();
+                const nameB = (b.full_name || b.username).toLowerCase();
+                return nameA.localeCompare(nameB);
+              }) as student}
                 <option value={student.id}>{student.full_name || student.username}</option>
               {/each}
             </select>
