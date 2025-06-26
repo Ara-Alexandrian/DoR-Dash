@@ -8,6 +8,7 @@
   import ErrorFallback from '$lib/components/ErrorFallback.svelte';
   import ThemeToggle from '$lib/components/ThemeToggle.svelte';
   import { theme } from '$lib/stores/theme';
+  import { cacheBuster } from '$lib/utils/cache-buster';
   
   // Error handling
   let hasError = false;
@@ -141,6 +142,12 @@
         goto('/dashboard');
       }
       
+    }
+    
+    // Initialize cache busting after initial auth check
+    if ($auth.isAuthenticated) {
+      console.log('DoR-Dash: Initializing cache busting...');
+      // The cache buster will automatically start checking for updates
     }
     
     // Add event listener for clicking outside sidebar

@@ -3,6 +3,10 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [sveltekit()],
+	define: {
+		// Make build ID available in the frontend
+		'import.meta.env.VITE_BUILD_ID': JSON.stringify(process.env.VITE_BUILD_ID || 'dev')
+	},
 	server: {
 		host: '0.0.0.0',
 		port: 3000,

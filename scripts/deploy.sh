@@ -98,6 +98,26 @@ EOF
     echo -e "${NC}"
 }
 
+# Function to add cache-busting to frontend build
+add_cache_busting() {
+    log "🔄 Adding browser cache-busting..."
+    
+    # Generate a unique build timestamp
+    local BUILD_TIME=$(date +%s)
+    local BUILD_ID=$(echo $BUILD_TIME | sha256sum | head -c 8)
+    
+    # Build ID is now handled via environment variables in Vite config
+    
+    # Create a cache-bust file that the app can read
+    echo "{\"buildId\": \"$BUILD_ID\", \"buildTime\": \"$BUILD_TIME\", \"timestamp\": \"$(date -Iseconds)\"}" > frontend/public/build-info.json
+    
+    success "🚀 Cache-busting ID: $BUILD_ID"
+    
+    # Export for use in environment variables
+    export VITE_BUILD_ID="$BUILD_ID"
+    export BUILD_TIMESTAMP="$BUILD_TIME"
+}
+
 # Function to build image
 build_image() {
     local BUILD_ARGS="$1"
@@ -117,18 +137,27 @@ build_image() {
         success "⚡ Smart build mode (using cache)"
     fi
     
+    # Add cache-busting before build
+    add_cache_busting
+    
     # Show Docker whale animation
     show_docker_whale
     
     # Build with suppressed output for cleaner display
     log "🔨 Building $IMAGE_NAME:latest..."
-    if docker build $BUILD_ARGS -t "$IMAGE_NAME:latest" -f docker/Dockerfile . >/dev/null 2>&1; then
+    if docker build $BUILD_ARGS \
+        --build-arg VITE_BUILD_ID="$VITE_BUILD_ID" \
+        --build-arg BUILD_TIMESTAMP="$BUILD_TIMESTAMP" \
+        -t "$IMAGE_NAME:latest" -f docker/Dockerfile . >/dev/null 2>&1; then
         show_build_animation
         success "✅ Docker image built successfully!"
     else
         error "❌ Docker build failed!"
         log "Re-running build with verbose output for debugging..."
-        docker build $BUILD_ARGS -t "$IMAGE_NAME:latest" -f docker/Dockerfile .
+        docker build $BUILD_ARGS \
+            --build-arg VITE_BUILD_ID="$VITE_BUILD_ID" \
+            --build-arg BUILD_TIMESTAMP="$BUILD_TIMESTAMP" \
+            -t "$IMAGE_NAME:latest" -f docker/Dockerfile .
         exit 1
     fi
 }

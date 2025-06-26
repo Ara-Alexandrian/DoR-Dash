@@ -1,6 +1,10 @@
 # Multi-stage build for DoR-Dash Application
 FROM node:18-alpine AS frontend-builder
 
+# Accept build arguments for cache busting
+ARG VITE_BUILD_ID
+ARG BUILD_TIMESTAMP
+
 # Set working directory for frontend build
 WORKDIR /app/frontend
 
@@ -14,9 +18,11 @@ RUN npm install -g serve
 # Copy frontend source code
 COPY frontend/ ./
 
-# Build frontend for production with environment variables
+# Build frontend for production with environment variables and cache busting
 ENV VITE_API_URL=""
 ENV VITE_USE_MOCK=false
+ENV VITE_BUILD_ID=$VITE_BUILD_ID
+ENV BUILD_TIMESTAMP=$BUILD_TIMESTAMP
 RUN npm run build
 
 # Backend stage
