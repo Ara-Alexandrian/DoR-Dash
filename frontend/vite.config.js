@@ -3,6 +3,10 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [sveltekit()],
+	resolve: {
+		// Prefer TypeScript files over JavaScript files
+		extensions: ['.ts', '.js', '.svelte', '.json']
+	},
 	define: {
 		// Make build ID available in the frontend
 		'import.meta.env.VITE_BUILD_ID': JSON.stringify(process.env.VITE_BUILD_ID || 'dev')
