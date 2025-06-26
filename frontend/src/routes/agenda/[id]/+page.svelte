@@ -1092,6 +1092,179 @@
       {/if}
     </div>
     
+    <!-- Presentation Assignments Section -->
+    <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg mb-8">
+      <div class="px-4 py-5 sm:px-6 bg-purple-700 text-white">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-lg font-medium">Assigned Presentations</h3>
+            <p class="mt-1 text-sm">
+              {#if agenda?.presentation_assignments?.length > 0}
+                {agenda.presentation_assignments.length} presentation{agenda.presentation_assignments.length !== 1 ? 's' : ''} assigned for this meeting
+              {:else}
+                No presentations assigned for this meeting
+              {/if}
+            </p>
+          </div>
+          {#if agenda?.presentation_assignments?.length > 0}
+            <span class="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+              {agenda.presentation_assignments.length}
+            </span>
+          {/if}
+        </div>
+      </div>
+      
+      {#if agenda?.presentation_assignments?.length > 0}
+        <div class="border-t border-gray-200">
+          <div class="divide-y divide-gray-200">
+            {#each agenda.presentation_assignments as assignment}
+              <div class="p-6">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1">
+                    <div class="flex items-center space-x-3 mb-3">
+                      <div class="h-10 w-10 rounded-full bg-purple-200 flex items-center justify-center">
+                        <span class="text-purple-700 font-medium">
+                          {assignment.student_name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div>
+                        <h4 class="text-lg font-semibold text-[rgb(var(--color-text-primary))]">
+                          {assignment.student_name}
+                        </h4>
+                        <p class="text-sm text-[rgb(var(--color-text-secondary))]">
+                          Assigned by {assignment.assigned_by_name} on {new Date(assignment.assigned_date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                      <h5 class="text-md font-medium text-[rgb(var(--color-text-primary))] mb-2">
+                        {assignment.title}
+                      </h5>
+                      {#if assignment.description}
+                        <p class="text-sm text-[rgb(var(--color-text-secondary))] mb-3">
+                          {assignment.description}
+                        </p>
+                      {/if}
+                      
+                      <div class="flex flex-wrap items-center gap-2 mb-3">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          {assignment.presentation_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </span>
+                        {#if assignment.duration_minutes}
+                          <span class="text-sm text-[rgb(var(--color-text-secondary))]">
+                            {assignment.duration_minutes} minutes
+                          </span>
+                        {/if}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {assignment.is_completed ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                          {assignment.is_completed ? 'Completed' : 'Pending'}
+                        </span>
+                      </div>
+                      
+                      {#if assignment.requirements}
+                        <div class="mb-3">
+                          <h6 class="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">Requirements:</h6>
+                          <p class="text-sm text-[rgb(var(--color-text-secondary))]">{assignment.requirements}</p>
+                        </div>
+                      {/if}
+                    </div>
+                  </div>
+                  
+                  <div class="ml-6">
+                    {#if assignment.is_completed && assignment.completion_date}
+                      <div class="text-right">
+                        <p class="text-sm text-green-600 font-medium">Completed</p>
+                        <p class="text-xs text-[rgb(var(--color-text-secondary))]">
+                          {new Date(assignment.completion_date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    {:else if assignment.due_date}
+                      <div class="text-right">
+                        <p class="text-sm text-[rgb(var(--color-text-primary))] font-medium">Due</p>
+                        <p class="text-xs text-[rgb(var(--color-text-secondary))]">
+                          {new Date(assignment.due_date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    {/if}
+                  </div>
+                </div>
+                
+                <!-- Grillometer Display (Faculty/Admin Only) -->
+                {#if $auth.user && (['FACULTY', 'ADMIN'].includes($auth.user.role?.toUpperCase())) && (assignment.grillometer_novelty || assignment.grillometer_methodology || assignment.grillometer_delivery)}
+                  <div class="bg-[rgb(var(--color-bg-secondary))] p-4 rounded-lg mt-4">
+                    <h6 class="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-3 flex items-center">
+                      🔥 Grillometer Settings
+                      <span class="ml-2 text-xs text-[rgb(var(--color-text-secondary))]">(Faculty feedback intensity)</span>
+                    </h6>
+                    <div class="grid grid-cols-3 gap-4 text-sm">
+                      <div class="text-center">
+                        <div class="text-lg mb-1">
+                          {#if assignment.grillometer_novelty === 1}🧊
+                          {:else if assignment.grillometer_novelty === 2}🔥
+                          {:else if assignment.grillometer_novelty === 3}☢️
+                          {:else}❓{/if}
+                        </div>
+                        <div class="font-medium text-[rgb(var(--color-text-primary))]">Novelty</div>
+                        <div class="text-[rgb(var(--color-text-secondary))]">
+                          {#if assignment.grillometer_novelty === 1}Relaxed
+                          {:else if assignment.grillometer_novelty === 2}Moderate
+                          {:else if assignment.grillometer_novelty === 3}Intense
+                          {:else}Not set{/if}
+                        </div>
+                      </div>
+                      <div class="text-center">
+                        <div class="text-lg mb-1">
+                          {#if assignment.grillometer_methodology === 1}🧊
+                          {:else if assignment.grillometer_methodology === 2}🔥
+                          {:else if assignment.grillometer_methodology === 3}☢️
+                          {:else}❓{/if}
+                        </div>
+                        <div class="font-medium text-[rgb(var(--color-text-primary))]">Methodology</div>
+                        <div class="text-[rgb(var(--color-text-secondary))]">
+                          {#if assignment.grillometer_methodology === 1}Relaxed
+                          {:else if assignment.grillometer_methodology === 2}Moderate
+                          {:else if assignment.grillometer_methodology === 3}Intense
+                          {:else}Not set{/if}
+                        </div>
+                      </div>
+                      <div class="text-center">
+                        <div class="text-lg mb-1">
+                          {#if assignment.grillometer_delivery === 1}🧊
+                          {:else if assignment.grillometer_delivery === 2}🔥
+                          {:else if assignment.grillometer_delivery === 3}☢️
+                          {:else}❓{/if}
+                        </div>
+                        <div class="font-medium text-[rgb(var(--color-text-primary))]">Delivery</div>
+                        <div class="text-[rgb(var(--color-text-secondary))]">
+                          {#if assignment.grillometer_delivery === 1}Relaxed
+                          {:else if assignment.grillometer_delivery === 2}Moderate
+                          {:else if assignment.grillometer_delivery === 3}Intense
+                          {:else}Not set{/if}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {/if}
+                
+                {#if assignment.notes && $auth.user && (['FACULTY', 'ADMIN'].includes($auth.user.role?.toUpperCase()))}
+                  <div class="mt-4">
+                    <h6 class="text-sm font-medium text-[rgb(var(--color-text-primary))] mb-2">Faculty Notes:</h6>
+                    <p class="text-sm text-[rgb(var(--color-text-secondary))] bg-[rgb(var(--color-bg-secondary))] p-3 rounded">
+                      {assignment.notes}
+                    </p>
+                  </div>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        </div>
+      {:else}
+        <div class="border-t border-gray-200 p-6 text-center text-[rgb(var(--color-text-secondary))]">
+          No presentations have been assigned for this meeting.
+        </div>
+      {/if}
+    </div>
+
     <!-- Meeting Schedule -->
     <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg">
       <button 
@@ -1202,10 +1375,34 @@
                   </td>
                 </tr>
               {/each}
-            {:else}
+            {/if}
+            
+            <!-- Assigned Presentations -->
+            {#if agenda.presentation_assignments && agenda.presentation_assignments.length > 0}
+              {#each agenda.presentation_assignments as assignment, index}
+                <tr class={$auth.user?.id === assignment.student_id ? 'bg-purple-50 dark:bg-purple-900/20 mbp:bg-red-950/10 lsu:bg-purple-950/10' : ''}>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 mbp:text-gray-300 lsu:text-gray-300">
+                    {formatTime(new Date(meeting.start_time.getTime() + (15 + (agenda.student_updates?.length || 0) * 20 + index * (assignment.duration_minutes || 20)) * 60 * 1000))}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 mbp:text-gray-100 lsu:text-gray-100">
+                    {assignment.student_name}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 mbp:text-gray-300 lsu:text-gray-300">
+                    {assignment.title}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                      Assigned
+                    </span>
+                  </td>
+                </tr>
+              {/each}
+            {/if}
+            
+            {#if (!agenda.student_updates || agenda.student_updates.length === 0) && (!agenda.presentation_assignments || agenda.presentation_assignments.length === 0)}
               <tr>
                 <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-                  No student updates submitted for this meeting yet
+                  No presentations or student updates for this meeting yet
                 </td>
               </tr>
             {/if}

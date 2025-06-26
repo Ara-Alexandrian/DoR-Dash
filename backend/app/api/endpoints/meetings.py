@@ -220,14 +220,20 @@ async def get_meeting_agenda(
     db: Session = Depends(get_sync_db)
 ):
     """
-    Get complete agenda for a meeting - UNIFIED AGENDA ITEMS (SIMPLIFIED!)
+    Get complete agenda for a meeting - UNIFIED AGENDA ITEMS + PRESENTATION ASSIGNMENTS
     """
     # Import here to avoid circular imports
     from app.db.models.agenda_item import AgendaItem as DBAgendaItem, AgendaItemType
+    from app.db.models.presentation_assignment import PresentationAssignment
     from app.schemas.agenda_item import StudentUpdate, FacultyUpdate
     
-    # Find the meeting in the database
-    meeting = db.query(Meeting).filter(Meeting.id == meeting_id).first()
+    # Find the meeting in the database with presentation assignments
+    meeting = db.query(Meeting).options(
+        joinedload(Meeting.presentation_assignments)
+            .joinedload(PresentationAssignment.student),
+        joinedload(Meeting.presentation_assignments)
+            .joinedload(PresentationAssignment.assigned_by)
+    ).filter(Meeting.id == meeting_id).first()
     
     if not meeting:
         raise HTTPException(
@@ -299,12 +305,40 @@ async def get_meeting_agenda(
                 "updated_at": item.updated_at.isoformat()
             })
     
-    # Compile agenda - MUCH SIMPLER!
+    # Get presentation assignments for this meeting
+    presentation_assignments = []
+    for assignment in meeting.presentation_assignments:
+        presentation_assignments.append({
+            "id": assignment.id,
+            "student_id": assignment.student_id,
+            "student_name": assignment.student.full_name or assignment.student.username,
+            "assigned_by_id": assignment.assigned_by_id,
+            "assigned_by_name": assignment.assigned_by.full_name or assignment.assigned_by.username,
+            "title": assignment.title,
+            "description": assignment.description,
+            "presentation_type": assignment.presentation_type.value if hasattr(assignment.presentation_type, 'value') else assignment.presentation_type,
+            "duration_minutes": assignment.duration_minutes,
+            "requirements": assignment.requirements,
+            "due_date": assignment.due_date.isoformat() if assignment.due_date else None,
+            "assigned_date": assignment.assigned_date.isoformat(),
+            "is_completed": assignment.is_completed,
+            "completion_date": assignment.completion_date.isoformat() if assignment.completion_date else None,
+            "grillometer_novelty": assignment.grillometer_novelty,
+            "grillometer_methodology": assignment.grillometer_methodology,
+            "grillometer_delivery": assignment.grillometer_delivery,
+            "notes": assignment.notes,
+            "created_at": assignment.created_at.isoformat(),
+            "updated_at": assignment.updated_at.isoformat()
+        })
+    
+    # Compile agenda - INCLUDES PRESENTATION ASSIGNMENTS!
     agenda = {
         "meeting": meeting,
         "student_updates": student_updates,
         "faculty_updates": faculty_updates,
-        "total_updates": len(student_updates) + len(faculty_updates)
+        "presentation_assignments": presentation_assignments,
+        "total_updates": len(student_updates) + len(faculty_updates),
+        "total_assignments": len(presentation_assignments)
     }
     
     return agenda
