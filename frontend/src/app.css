@@ -29,38 +29,38 @@
 
   /* Sweet Dracula mode - Darker, more muted Dracula variant */
   .dracula {
-    --color-bg-primary: 30 32 43;
-    --color-bg-secondary: 40 42 54;
-    --color-bg-tertiary: 50 52 63;
+    --color-bg-primary: 15 17 26;
+    --color-bg-secondary: 20 22 32;
+    --color-bg-tertiary: 28 30 40;
     --color-text-primary: 248 248 242;
     --color-text-secondary: 189 147 249;
     --color-text-tertiary: 139 233 253;
-    --color-border: 68 71 90;
-    --color-border-secondary: 98 114 164;
+    --color-border: 45 48 65;
+    --color-border-secondary: 65 70 90;
   }
 
   /* Mary Bird Perkins Cancer Center theme - Dark with glowing red accents */
   .mbp {
-    --color-bg-primary: 18 18 20;
-    --color-bg-secondary: 25 25 28;
-    --color-bg-tertiary: 35 35 38;
+    --color-bg-primary: 10 10 12;
+    --color-bg-secondary: 15 15 18;
+    --color-bg-tertiary: 20 20 24;
     --color-text-primary: 245 245 247;
     --color-text-secondary: 205 205 210;
     --color-text-tertiary: 161 161 170;
-    --color-border: 68 68 75;
-    --color-border-secondary: 82 82 91;
+    --color-border: 45 45 50;
+    --color-border-secondary: 60 60 65;
   }
 
   /* LSU Tigers theme - Dark with glowing purple and gold accents */
   .lsu {
-    --color-bg-primary: 15 10 25;
-    --color-bg-secondary: 22 15 35;
-    --color-bg-tertiary: 30 20 45;
+    --color-bg-primary: 8 5 15;
+    --color-bg-secondary: 12 8 20;
+    --color-bg-tertiary: 18 12 28;
     --color-text-primary: 248 245 255;
     --color-text-secondary: 215 205 230;
     --color-text-tertiary: 180 165 200;
-    --color-border: 65 55 85;
-    --color-border-secondary: 85 70 110;
+    --color-border: 40 30 55;
+    --color-border-secondary: 55 40 75;
   }
 
   html {
@@ -199,18 +199,15 @@
   }
 
   .dracula h1, .dracula h2, .dracula h3, .dracula h4, .dracula h5, .dracula h6 {
-    @apply text-cyan-100;
-    text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+    @apply text-gray-100;
   }
 
   .mbp h1, .mbp h2, .mbp h3, .mbp h4, .mbp h5, .mbp h6 {
-    @apply text-red-100;
-    text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+    @apply text-gray-100;
   }
 
   .lsu h1, .lsu h2, .lsu h3, .lsu h4, .lsu h5, .lsu h6 {
-    @apply text-purple-100;
-    text-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+    @apply text-gray-100;
   }
   
   .card-header {
