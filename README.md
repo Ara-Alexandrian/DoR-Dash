@@ -47,6 +47,14 @@ DoR-Dash streamlines academic research management with intelligent automation an
 - **Faculty Announcements** - Dedicated announcement system for faculty updates
 - **Student Oversight** - Monitor student progress and meeting participation
 - **Roster Management** - Access to student rosters and contact information
+- **Presentation Assignment System** - Assign and manage student presentations with grillometer feedback
+
+### 🎯 Presentation Management
+- **Assignment Interface** - Faculty can assign presentations to students for specific meetings
+- **Grillometer System** - Novel feedback intensity guidance using 🧊 (Relaxed), 🔥 (Moderate), ☢️ (Intense)
+- **Meeting Integration** - Assignments automatically appear in meeting agendas and schedules
+- **Requirement Tracking** - Structured requirements with checkbox interface (slides, data, aims, etc.)
+- **Completion Management** - Track assignment status and completion dates
 
 ## 🏗️ System Architecture
 
@@ -349,6 +357,7 @@ python test_deployment.py
 ## 📚 Documentation
 
 - [Technical Notes](docs/technical-notes.md) - Detailed implementation notes
+- [Presentation Assignment System](docs/PRESENTATION_ASSIGNMENTS.md) - Complete guide to the presentation management system
 - [API Documentation](docs/api/) - Comprehensive API reference
 - [Deployment Guide](docs/deployment/) - Production deployment instructions
 - [QA Reports](qa/) - Quality assurance reports and analysis
@@ -366,6 +375,9 @@ python test_deployment.py
 - ✅ **Inline Editing**: Real-time update editing with comprehensive state management
 - ✅ **Dashboard Consolidation**: Unified update tracking with role-based filtering
 - ✅ **Quality Assurance**: Automated QA framework with regular health monitoring
+- ✅ **Presentation Assignment System**: Complete faculty-managed presentation workflow
+- ✅ **Grillometer Feedback System**: Innovative intensity-based feedback guidance
+- ✅ **Meeting Agenda Integration**: Seamless presentation assignment display in meeting schedules
 
 ### Bug Fixes & Improvements
 - 🔧 Fixed white card backgrounds interfering with dark theme glow effects

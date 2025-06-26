@@ -15,6 +15,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **NEW**: Dashboard redesigned with Mermaid-powered development roadmap
 - **NEW**: Platform updates/changelog section added to dashboard
 - **NEW**: MCP SSH servers configured for container access on 172.30.98.0/24 subnet
+- **NEW**: Presentation Assignment System fully implemented and integrated
+- **NEW**: Meeting agenda integration with presentation assignments complete
+- **NEW**: Grillometer feedback system (🧊/🔥/☢️) for faculty presentation guidance
+- **NEW**: Role-based presentation assignment management (Faculty/Admin can assign)
+- **NEW**: Presentation assignment timeline integration in meeting schedules
 - **NEW**: About page created with comprehensive system architecture and roadmap
 - **NEW**: Brain-lightbulb easter egg implemented for About page access
 - **NEW**: Color contrast issues resolved across all themes (dracula/MBP/LSU)
@@ -54,6 +59,49 @@ qa/
 - When text refinement issues are reported
 
 See `qa/README.md` for detailed usage instructions.
+
+## Presentation Assignment System
+
+The project now features a comprehensive presentation assignment system that integrates faculty assignment capabilities with meeting agenda management.
+
+### Core Features
+- **Faculty/Admin Assignment Interface**: Located at `/presentation-assignments`
+- **Meeting Integration**: Assignments automatically appear in meeting agendas
+- **Grillometer System**: Faculty can set feedback intensity using 🧊 (Relaxed), 🔥 (Moderate), ☢️ (Intense)
+- **Requirement Tracking**: Checkbox-based requirements (slides, presentation, data/results, aims, time management, other)
+- **Completion Tracking**: Assignment status and completion date management
+
+### Database Structure
+```sql
+presentation_assignments table:
+- id, student_id, assigned_by_id, meeting_id
+- title (tentative title), description, presentation_type
+- duration_minutes, requirements, due_date
+- grillometer_novelty, grillometer_methodology, grillometer_delivery (1-3 scale)
+- is_completed, completion_date, notes
+```
+
+### API Endpoints
+- `GET/POST /api/v1/presentation-assignments/` - List/create assignments
+- `GET/PUT/DELETE /api/v1/presentation-assignments/{id}` - Manage specific assignments
+- `GET /api/v1/meetings/{id}/agenda` - Now includes presentation assignments
+
+### Frontend Integration
+- **Assignment Page**: `/presentation-assignments` with inline editing and grillometer controls
+- **Meeting Agendas**: Assignments displayed in "Assigned Presentations" section
+- **Timeline Integration**: Assignments appear in meeting schedule with calculated time slots
+- **Role-based UI**: Faculty-only visibility for grillometer settings and notes
+
+### Grillometer System
+The grillometer provides faculty with a way to guide feedback intensity across three dimensions:
+- **Novelty Assessment**: How critically to assess originality and innovation
+- **Methodology Review**: How rigorously to examine research methods  
+- **Presentation Delivery**: How critically to evaluate presentation skills
+
+### Recent Fixes
+- **JSON Serialization**: Fixed FastAPI serialization of SQLAlchemy objects in meeting agenda API
+- **Database Enum**: Corrected presentation_type field from String to Enum for proper validation
+- **UI Improvements**: Updated icons, alphabetical sorting, and "Student" → "Presenter" labeling
 
 ## MCP SSH Server Configuration
 
