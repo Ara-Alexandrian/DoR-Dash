@@ -19,24 +19,6 @@ router = APIRouter()
 from app.api.endpoints import presentation_assignment_files
 router.include_router(presentation_assignment_files.router, prefix="", tags=["presentation-assignment-files"])
 
-def build_file_info_list(assignment_files) -> List[FileInfo]:
-    """Helper function to build file info list"""
-    return [
-        FileInfo(
-            id=file.id,
-            filename=file.filename,
-            original_filename=file.original_filename,
-            file_type=file.file_type,
-            file_size=file.file_size,
-            file_category=file.file_category,
-            description=file.description,
-            upload_date=file.upload_date,
-            uploaded_by_name=file.uploaded_by.full_name or file.uploaded_by.username,
-            download_url=f"/api/v1/presentation-assignments/{file.presentation_assignment_id}/files/{file.id}/download"
-        )
-        for file in assignment_files
-    ]
-
 # Pydantic models for request/response
 class PresentationAssignmentCreate(BaseModel):
     student_id: int
@@ -80,6 +62,24 @@ class FileInfo(BaseModel):
     upload_date: datetime
     uploaded_by_name: str
     download_url: str
+
+def build_file_info_list(assignment_files) -> List[FileInfo]:
+    """Helper function to build file info list"""
+    return [
+        FileInfo(
+            id=file.id,
+            filename=file.filename,
+            original_filename=file.original_filename,
+            file_type=file.file_type,
+            file_size=file.file_size,
+            file_category=file.file_category,
+            description=file.description,
+            upload_date=file.upload_date,
+            uploaded_by_name=file.uploaded_by.full_name or file.uploaded_by.username,
+            download_url=f"/api/v1/presentation-assignments/{file.presentation_assignment_id}/files/{file.id}/download"
+        )
+        for file in assignment_files
+    ]
 
 class PresentationAssignmentResponse(BaseModel):
     id: int
