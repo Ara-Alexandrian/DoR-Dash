@@ -469,3 +469,66 @@ export const presentationAssignmentApi = {
     return `${API_BASE}/presentation-assignments/${assignmentId}/files/${fileId}/download`;
   }
 };
+
+// Health check function with timeout
+export async function healthCheck(timeout: number = 5000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const response = await fetch(`${API_BASE}/health`, {
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        healthy: true,
+        status: response.status,
+        data
+      };
+    } else {
+      return {
+        healthy: false,
+        status: response.status,
+        error: `Health check failed with status ${response.status}`
+      };
+    }
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    
+    return {
+      healthy: false,
+      status: 0,
+      error: error.name === 'AbortError' ? 'Health check timeout' : error.message
+    };
+  }
+}
+
+// Connection monitor
+let connectionMonitor: NodeJS.Timeout | null = null;
+
+export function startConnectionMonitor(callback: (health: any) => void) {
+  if (connectionMonitor) {
+    clearInterval(connectionMonitor);
+  }
+  
+  connectionMonitor = setInterval(async () => {
+    const health = await healthCheck(3000);
+    callback(health);
+  }, 30000); // Check every 30 seconds
+  
+  return connectionMonitor;
+}
+
+export function stopConnectionMonitor() {
+  if (connectionMonitor) {
+    clearInterval(connectionMonitor);
+    connectionMonitor = null;
+  }
+}
