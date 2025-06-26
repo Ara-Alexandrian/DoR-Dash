@@ -92,10 +92,10 @@
   }
 </script>
 
-<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 via-primary-50 to-secondary-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dracula:from-gray-900 dracula:via-slate-900 dracula:to-gray-900 mbp:from-gray-950 mbp:via-red-950/80 mbp:to-gray-900 lsu:from-purple-950 lsu:via-purple-900/80 lsu:to-purple-950 py-12 px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 via-primary-50 to-secondary-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dracula:from-[rgb(var(--color-bg-primary))] dracula:via-[rgb(var(--color-bg-secondary))] dracula:to-[rgb(var(--color-bg-primary))] mbp:from-[rgb(var(--color-bg-primary))] mbp:via-[rgb(var(--color-bg-secondary))] mbp:to-[rgb(var(--color-bg-primary))] lsu:from-[rgb(var(--color-bg-primary))] lsu:via-[rgb(var(--color-bg-secondary))] lsu:to-[rgb(var(--color-bg-primary))] py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full">
     <!-- Main card -->
-    <div class="backdrop-blur-sm p-10 rounded-2xl shadow-2xl border" style="background-color: {currentTheme === 'mbp' ? 'rgb(17, 24, 39)' : currentTheme === 'lsu' ? 'rgb(88, 28, 135)' : 'rgba(249, 250, 251, 0.95)'}; border-color: {currentTheme === 'mbp' ? 'rgba(239, 68, 68, 0.5)' : currentTheme === 'lsu' ? 'rgba(147, 51, 234, 0.2)' : 'rgb(229, 231, 235)'};">
+    <div class="backdrop-blur-sm p-10 rounded-2xl shadow-2xl border bg-white/95 dark:bg-slate-800 dracula:bg-[rgb(var(--color-bg-secondary))] mbp:bg-[rgb(var(--color-bg-secondary))] lsu:bg-[rgb(var(--color-bg-secondary))] border-gray-200 dark:border-slate-700 dracula:border-[rgb(var(--color-border))] mbp:border-[rgb(var(--color-border))] lsu:border-[rgb(var(--color-border))]">
       <!-- Logo and title -->
       <div class="text-center">
         <div class="flex justify-center mb-4">

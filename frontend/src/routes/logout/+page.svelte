@@ -31,8 +31,8 @@
   }
 </script>
 
-<div class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 via-primary-50 to-secondary-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dracula:from-gray-900 dracula:via-slate-900 dracula:to-gray-900 mbp:from-gray-950 mbp:via-red-950/80 mbp:to-gray-900 lsu:from-purple-950 lsu:via-purple-900/80 lsu:to-purple-950 px-4">
-  <div class="w-full max-w-md backdrop-blur-sm rounded-lg shadow-2xl overflow-hidden bg-white dark:bg-slate-800 dracula:bg-gray-800 mbp:bg-gray-900 lsu:bg-purple-900/90 border border-gray-200 dark:border-slate-700 dracula:border-gray-700 mbp:border-red-900/50 lsu:border-purple-800/50">
+<div class="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 via-primary-50 to-secondary-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 dracula:from-[rgb(var(--color-bg-primary))] dracula:via-[rgb(var(--color-bg-secondary))] dracula:to-[rgb(var(--color-bg-primary))] mbp:from-[rgb(var(--color-bg-primary))] mbp:via-[rgb(var(--color-bg-secondary))] mbp:to-[rgb(var(--color-bg-primary))] lsu:from-[rgb(var(--color-bg-primary))] lsu:via-[rgb(var(--color-bg-secondary))] lsu:to-[rgb(var(--color-bg-primary))] px-4">
+  <div class="w-full max-w-md backdrop-blur-sm rounded-lg shadow-2xl overflow-hidden bg-white dark:bg-slate-800 dracula:bg-[rgb(var(--color-bg-secondary))] mbp:bg-[rgb(var(--color-bg-secondary))] lsu:bg-[rgb(var(--color-bg-secondary))] border border-gray-200 dark:border-slate-700 dracula:border-[rgb(var(--color-border))] mbp:border-[rgb(var(--color-border))] lsu:border-[rgb(var(--color-border))]">
     <div class="px-8 py-10">
       <div class="flex justify-center mb-6">
         <img src="/images/MBP Torch.png" alt="Mary Bird Perkins Torch Logo" class="w-20 h-20 object-contain" />
