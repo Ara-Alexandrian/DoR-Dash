@@ -49,11 +49,11 @@ def get_redis_client():
 async def read_users(
     skip: int = Query(0, description="Skip N users"),
     limit: int = Query(100, description="Limit to N users"),
-    current_user: User = Depends(get_admin_user),
+    current_user: User = Depends(get_faculty_or_admin_user),
     db: Session = Depends(get_sync_db)
 ):
     """
-    Retrieve users for management (admin only).
+    Retrieve users for management (faculty and admin).
     For viewing roster, use /roster endpoint instead.
     """
     all_users = get_all_users(db)

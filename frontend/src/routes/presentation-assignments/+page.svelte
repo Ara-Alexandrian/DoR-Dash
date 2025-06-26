@@ -60,15 +60,23 @@
       // Load assignments
       assignments = await presentationAssignmentApi.getAssignments();
       
-      // Load students and meetings for faculty/admin
-      if (canAssign) {
-        const [studentsData, meetingsData] = await Promise.all([
-          userApi.getUsers({ role: 'STUDENT' }),
-          meetingsApi.getMeetings()
-        ]);
-        
-        students = studentsData;
-        meetings = meetingsData;
+      // Load students and meetings for faculty/admin only
+      if ($auth.user && ['faculty', 'admin'].includes($auth.user.role?.toLowerCase())) {
+        try {
+          const [studentsData, meetingsData] = await Promise.all([
+            userApi.getUsers({ role: 'STUDENT' }),
+            meetingsApi.getMeetings()
+          ]);
+          
+          students = studentsData;
+          meetings = meetingsData;
+        } catch (permErr) {
+          console.warn('Could not load students/meetings (permission denied):', permErr);
+          // Not an error for students - they can still view assignments
+          if ($auth.user.role?.toLowerCase() !== 'student') {
+            error = 'Could not load student roster. Please contact admin.';
+          }
+        }
       }
       
     } catch (err) {
