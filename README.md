@@ -19,7 +19,9 @@ DoR-Dash streamlines academic research management with intelligent automation an
 ### 🎨 Modern User Experience
 - **Multi-Theme System** - 5 distinct themes including institutional branding (MBP Dark Fire, LSU Tigers)
 - **Responsive Design** - Mobile-first responsive layout with glowing text effects
-- **Dark Mode Support** - Professional dark themes with theme persistence
+- **Dark Mode Support** - Professional dark themes with accessibility-compliant contrast ratios
+- **About Page** - Comprehensive system architecture with interactive Mermaid diagrams
+- **Easter Egg Navigation** - Brain-lightbulb icon for intuitive About page discovery
 
 ### 🤖 AI-Powered Features
 - **Intelligent Text Refinement** - Gemma 3 4B model integration for academic writing enhancement

@@ -17,11 +17,20 @@ The DoR-Dash infrastructure runs on the following containers:
 ## MCP Configuration Files
 
 ### 1. Main MCP Server Configuration (`mcp-servers.json`)
-This file defines the MCP servers for SSH access to each container:
+This file defines all MCP servers available for the DoR-Dash project:
+
+**SSH Servers:**
 - `ssh-dor-dash`: SSH access to the main DoR-Dash container
 - `ssh-postgres`: SSH access to PostgreSQL container (if SSH is enabled)
 - `ssh-redis`: SSH access to Redis container (if SSH is enabled)
 - `ssh-ollama`: SSH access to Ollama container (if SSH is enabled)
+
+**Direct Connection Servers:**
+- `postgres`: Direct PostgreSQL database connection for queries
+- `redis`: Direct Redis cache connection for monitoring
+- `puppeteer`: Visual testing and UI validation server (NEW)
+- `mermaid`: Diagram generation and validation server
+- `github`: GitHub repository integration for code management
 
 ### 2. SSH Configuration Files
 Each container has its own SSH configuration file:

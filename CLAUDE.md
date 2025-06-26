@@ -15,6 +15,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **NEW**: Dashboard redesigned with Mermaid-powered development roadmap
 - **NEW**: Platform updates/changelog section added to dashboard
 - **NEW**: MCP SSH servers configured for container access on 172.30.98.0/24 subnet
+- **NEW**: About page created with comprehensive system architecture and roadmap
+- **NEW**: Brain-lightbulb easter egg implemented for About page access
+- **NEW**: Color contrast issues resolved across all themes (dracula/MBP/LSU)
+- **NEW**: MCP Puppeteer server installed for visual testing and UI validation
 
 ## Quality Assurance (QA) Structure
 
@@ -55,11 +59,16 @@ See `qa/README.md` for detailed usage instructions.
 
 MCP (Model Context Protocol) SSH servers are configured to provide secure access to containers on the same subnet:
 
-### Available MCP SSH Servers
+### Available MCP Servers
 - **ssh-dor-dash**: Main DoR-Dash application container (172.30.98.177)
 - **ssh-postgres**: PostgreSQL database container (172.30.98.213)
 - **ssh-redis**: Redis cache container (172.30.98.214)
 - **ssh-ollama**: Ollama AI server container (172.30.98.14)
+- **puppeteer**: Visual testing and UI validation server (NEW)
+- **postgres**: Direct PostgreSQL database connection
+- **redis**: Direct Redis cache connection
+- **mermaid**: Diagram generation server
+- **github**: GitHub repository integration
 
 ### Configuration Files
 - `mcp-servers.json`: Main MCP server definitions

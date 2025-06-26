@@ -58,6 +58,11 @@
         "GITHUB_OWNER": "kronisto",
         "GITHUB_REPO": "DoR-Dash"
       }
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-puppeteer"],
+      "env": {}
     }
   }
 }
