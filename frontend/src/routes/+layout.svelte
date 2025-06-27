@@ -160,7 +160,7 @@
   });
 </script>
 
-{#if isAuthRoute || !$auth.isAuthenticated}
+{#if isAuthRoute || !$auth.token}
   <!-- Auth layout (minimal, no sidebar) -->
   <div class="min-h-screen bg-[rgb(var(--color-bg-primary))]">
     <slot />
