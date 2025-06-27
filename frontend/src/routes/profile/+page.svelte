@@ -87,8 +87,8 @@
     document.addEventListener('mousemove', handleGlobalMouseMove);
     document.addEventListener('mouseup', handleGlobalMouseUp);
     
-    try {
-      // Use user data from auth store (already loaded during login)
+    // Use user data from auth store (already loaded during login)
+    if ($auth.user) {
       userData = $auth.user;
       
       // Populate form with user data
@@ -101,12 +101,11 @@
       };
       
       console.log('Profile page loaded with user data:', userData);
-    } catch (err) {
-      console.error('Failed to load user profile:', err);
-      error = 'Failed to load user profile. Please try again later.';
-    } finally {
-      loading = false;
+    } else {
+      error = 'No user data available. Please try logging in again.';
     }
+    
+    loading = false;
 
     // Cleanup function for event listeners
     return () => {
@@ -617,11 +616,11 @@
       <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
       <p class="mt-2 text-gray-500">Loading your profile...</p>
     </div>
-  {:else if error && !userData}
+  {:else if error || !userData}
     <div class="bg-primary-50 p-4 rounded-md mb-6">
-      <p class="text-primary-800">{error}</p>
+      <p class="text-primary-800">{error || 'Failed to load profile data. Please try refreshing the page.'}</p>
     </div>
-  {:else}
+  {:else if userData}
     <!-- Avatar Upload Section -->
     <div class="bg-[rgb(var(--color-bg-primary))] shadow overflow-hidden rounded-lg mb-6">
       <div class="px-4 py-5 sm:px-6 bg-primary-50 border-b border-primary-100">
