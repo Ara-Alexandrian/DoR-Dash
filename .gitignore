@@ -60,6 +60,22 @@ coverage/
 .coverage
 htmlcov/
 
+# Debug and test files (prevent future clutter)
+*debug*.py
+*test*.json
+*report*.json
+*debug*.md
+*test*.md
+*report*.md
+test-*.js
+test-*.html
+visual-*.js
+browser-*.js
+puppeteer-*.js
+manual-*.js
+theme-*.html
+authentication_debug_report.md
+
 # Backend specific
 backend/.env
 backend/alembic/versions/*.pyc

@@ -1,6 +1,0 @@
-{
-  "type": "module",
-  "dependencies": {
-    "@peng-shawn/mermaid-mcp-server": "^0.1.4"
-  }
-}

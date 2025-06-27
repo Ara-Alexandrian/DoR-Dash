@@ -127,9 +127,9 @@ build_image() {
     # Use auto progress for cleaner output (or plain for verbose)
     export BUILDKIT_PROGRESS=auto
     
-    echo -e "${BLUE}╔══════════════════════════════════════╗${NC}"
-    echo -e "${BLUE}║${NC}     🐳 ${YELLOW}Docker Build Starting${NC}     ${BLUE}║${NC}"
-    echo -e "${BLUE}╚══════════════════════════════════════╝${NC}"
+    echo -e "${BLUE}┌──────────────────────────────────────┐${NC}"
+    echo -e "${BLUE}│${NC}     🐳 ${YELLOW}Docker Build Starting${NC}     ${BLUE}│${NC}"
+    echo -e "${BLUE}└──────────────────────────────────────┘${NC}"
     
     if [ -n "$BUILD_ARGS" ]; then
         warn "🔥 Force rebuild mode (--no-cache)"
@@ -193,9 +193,9 @@ EOF
 
 # Function to run container
 run_container() {
-    echo -e "${BLUE}╔══════════════════════════════════════╗${NC}"
-    echo -e "${BLUE}║${NC}    🚀 ${YELLOW}Container Deployment${NC}        ${BLUE}║${NC}"
-    echo -e "${BLUE}╚══════════════════════════════════════╝${NC}"
+    echo -e "${BLUE}┌──────────────────────────────────────┐${NC}"
+    echo -e "${BLUE}│${NC}    🚀 ${YELLOW}Container Deployment${NC}        ${BLUE}│${NC}"
+    echo -e "${BLUE}└──────────────────────────────────────┘${NC}"
     
     # Use br0 network with dedicated IP for webapp
     log "🌐 Network: br0 bridge → $CONTAINER_IP"
@@ -239,9 +239,9 @@ run_container() {
 # Function to show status
 show_status() {
     # Container status in a nice box
-    echo -e "${BLUE}╭─────────────────────────────────────────────────╮${NC}"
+    echo -e "${BLUE}┌─────────────────────────────────────────────────┐${NC}"
     echo -e "${BLUE}│${NC}                📊 ${YELLOW}System Status${NC}                 ${BLUE}│${NC}"
-    echo -e "${BLUE}╰─────────────────────────────────────────────────╯${NC}"
+    echo -e "${BLUE}└─────────────────────────────────────────────────┘${NC}"
     
     # Check if container is running
     if docker ps --filter "name=$CONTAINER_NAME" --format "{{.Names}}" | grep -q "$CONTAINER_NAME"; then
@@ -253,9 +253,9 @@ show_status() {
     fi
     
     echo
-    echo -e "${BLUE}╭─────────────────────────────────────────────────╮${NC}"
+    echo -e "${BLUE}┌─────────────────────────────────────────────────┐${NC}"
     echo -e "${BLUE}│${NC}                🌐 ${YELLOW}Access URLs${NC}                   ${BLUE}│${NC}"
-    echo -e "${BLUE}╰─────────────────────────────────────────────────╯${NC}"
+    echo -e "${BLUE}└─────────────────────────────────────────────────┘${NC}"
     echo -e "${GREEN}🌍 Production:${NC}  https://dd.kronisto.net"
     echo -e "${GREEN}🖥️  Frontend:${NC}   http://$CONTAINER_IP:1717"
     echo -e "${GREEN}⚡ Backend:${NC}    http://$CONTAINER_IP:8000"
@@ -263,9 +263,9 @@ show_status() {
     echo -e "${GREEN}🔐 SSH:${NC}       ssh root@$CONTAINER_IP"
     
     echo
-    echo -e "${BLUE}╭─────────────────────────────────────────────────╮${NC}"
+    echo -e "${BLUE}┌─────────────────────────────────────────────────┐${NC}"
     echo -e "${BLUE}│${NC}                🎯 ${YELLOW}Quick Commands${NC}                ${BLUE}│${NC}"
-    echo -e "${BLUE}╰─────────────────────────────────────────────────╯${NC}"
+    echo -e "${BLUE}└─────────────────────────────────────────────────┘${NC}"
     echo -e "${YELLOW}dorlogs${NC}      - View live container logs"
     echo -e "${YELLOW}dorexec${NC}      - SSH into container"
     echo -e "${YELLOW}dorhealth${NC}    - Check health status"
@@ -315,34 +315,34 @@ main() {
             
             # Final success display
             echo
-            echo -e "${GREEN}╔════════════════════════════════════════════════╗${NC}"
-            echo -e "${GREEN}║${NC}            🎉 ${YELLOW}Deployment Complete!${NC}           ${GREEN}║${NC}"
-            echo -e "${GREEN}╚════════════════════════════════════════════════╝${NC}"
+            echo -e "${GREEN}┌────────────────────────────────────────────────┐${NC}"
+            echo -e "${GREEN}│${NC}            🎉 ${YELLOW}Deployment Complete!${NC}           ${GREEN}│${NC}"
+            echo -e "${GREEN}└────────────────────────────────────────────────┘${NC}"
             echo
             show_status
             ;;
         "stop")
-            echo -e "${RED}╔══════════════════════════════════════╗${NC}"
-            echo -e "${RED}║${NC}      ⏹️  ${YELLOW}Stopping DoR-Dash${NC}        ${RED}║${NC}"
-            echo -e "${RED}╚══════════════════════════════════════╝${NC}"
+            echo -e "${RED}┌──────────────────────────────────────┐${NC}"
+            echo -e "${RED}│${NC}      ⏹️  ${YELLOW}Stopping DoR-Dash${NC}        ${RED}│${NC}"
+            echo -e "${RED}└──────────────────────────────────────┘${NC}"
             
             stop_existing
             
             echo -e "${RED}🔴 Container stopped successfully${NC}"
             ;;
         "restart")
-            echo -e "${YELLOW}╔══════════════════════════════════════╗${NC}"
-            echo -e "${YELLOW}║${NC}      🔄 ${YELLOW}Restarting DoR-Dash${NC}       ${YELLOW}║${NC}"
-            echo -e "${YELLOW}╚══════════════════════════════════════╝${NC}"
+            echo -e "${YELLOW}┌──────────────────────────────────────┐${NC}"
+            echo -e "${YELLOW}│${NC}      🔄 ${YELLOW}Restarting DoR-Dash${NC}       ${YELLOW}│${NC}"
+            echo -e "${YELLOW}└──────────────────────────────────────┘${NC}"
             
             stop_existing
             run_container
             sleep 3
             
             echo
-            echo -e "${GREEN}╔════════════════════════════════════════════════╗${NC}"
-            echo -e "${GREEN}║${NC}            🎉 ${YELLOW}Restart Complete!${NC}            ${GREEN}║${NC}"
-            echo -e "${GREEN}╚════════════════════════════════════════════════╝${NC}"
+            echo -e "${GREEN}┌────────────────────────────────────────────────┐${NC}"
+            echo -e "${GREEN}│${NC}            🎉 ${YELLOW}Restart Complete!${NC}            ${GREEN}│${NC}"
+            echo -e "${GREEN}└────────────────────────────────────────────────┘${NC}"
             echo
             
             # Update aliases and return to directory
@@ -355,17 +355,17 @@ main() {
             show_status
             ;;
         "logs")
-            echo -e "${CYAN}╔══════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║${NC}      📝 ${YELLOW}Container Logs${NC}           ${CYAN}║${NC}"
-            echo -e "${CYAN}╚══════════════════════════════════════╝${NC}"
+            echo -e "${CYAN}┌──────────────────────────────────────┐${NC}"
+            echo -e "${CYAN}│${NC}      📝 ${YELLOW}Container Logs${NC}           ${CYAN}│${NC}"
+            echo -e "${CYAN}└──────────────────────────────────────┘${NC}"
             echo
             
             # Check if container is running first
             if docker ps --filter "name=$CONTAINER_NAME" --format "{{.Names}}" | grep -q "$CONTAINER_NAME"; then
                 log "📄 Showing last 50 lines of container logs..."
-                echo -e "${BLUE}╭─────────────────────────────────────────────────╮${NC}"
+                echo -e "${BLUE}┌─────────────────────────────────────────────────┐${NC}"
                 echo -e "${BLUE}│${NC}                    📊 ${YELLOW}Live Logs${NC}                    ${BLUE}│${NC}"
-                echo -e "${BLUE}╰─────────────────────────────────────────────────╯${NC}"
+                echo -e "${BLUE}└─────────────────────────────────────────────────┘${NC}"
                 echo
                 docker logs --tail 50 "$CONTAINER_NAME" 2>/dev/null || {
                     warn "❌ Unable to retrieve logs"
@@ -399,9 +399,9 @@ main() {
             
             # Final success display
             echo
-            echo -e "${GREEN}╔════════════════════════════════════════════════╗${NC}"
-            echo -e "${GREEN}║${NC}            🎉 ${YELLOW}Deployment Complete!${NC}           ${GREEN}║${NC}"
-            echo -e "${GREEN}╚════════════════════════════════════════════════╝${NC}"
+            echo -e "${GREEN}┌────────────────────────────────────────────────┐${NC}"
+            echo -e "${GREEN}│${NC}            🎉 ${YELLOW}Deployment Complete!${NC}           ${GREEN}│${NC}"
+            echo -e "${GREEN}└────────────────────────────────────────────────┘${NC}"
             echo
             show_status
             ;;
@@ -409,17 +409,17 @@ main() {
             clear
             show_dor_header
             
-            echo -e "${RED}╔══════════════════════════════════════╗${NC}"
-            echo -e "${RED}║${NC}        ❓ ${YELLOW}Command Help${NC}            ${RED}║${NC}"
-            echo -e "${RED}╚══════════════════════════════════════╝${NC}"
+            echo -e "${RED}┌──────────────────────────────────────┐${NC}"
+            echo -e "${RED}│${NC}        ❓ ${YELLOW}Command Help${NC}            ${RED}│${NC}"
+            echo -e "${RED}└──────────────────────────────────────┘${NC}"
             echo
             
             echo -e "${YELLOW}Usage:${NC} $0 {deploy|stop|restart|status|logs|rebuild}"
             echo
             
-            echo -e "${BLUE}╭─────────────────────────────────────────────────╮${NC}"
+            echo -e "${BLUE}┌─────────────────────────────────────────────────┐${NC}"
             echo -e "${BLUE}│${NC}                 🛠️  ${YELLOW}Available Commands${NC}            ${BLUE}│${NC}"
-            echo -e "${BLUE}╰─────────────────────────────────────────────────╯${NC}"
+            echo -e "${BLUE}└─────────────────────────────────────────────────┘${NC}"
             
             commands=(
                 "🚀 ${GREEN}deploy${NC}   - Deploy the application (default)"
