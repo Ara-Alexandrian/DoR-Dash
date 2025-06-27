@@ -7,7 +7,7 @@ from typing import Optional
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.logging import logger
-from app.core.security import security_config, verify_password, get_password_hash
+from app.core.security import get_security_config, verify_password, get_password_hash
 from app.db.models.user import User, UserRole
 
 class AuthService:
@@ -65,7 +65,7 @@ class AuthService:
             "role": user.role
         }
         
-        return security_config.create_access_token(token_data)
+        return get_security_config().create_access_token(token_data)
     
     @staticmethod
     def verify_token(token: str) -> Optional[dict]:
@@ -78,7 +78,7 @@ class AuthService:
         Returns:
             Token payload if valid, None otherwise
         """
-        return security_config.verify_token(token)
+        return get_security_config().verify_token(token)
     
     @staticmethod
     def change_password(db: Session, user: User, current_password: str, new_password: str) -> bool:

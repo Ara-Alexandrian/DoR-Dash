@@ -384,16 +384,19 @@ def get_current_user(
     )
     
     try:
-        # Try JWT token first
-        from jose import JWTError, jwt
-        from app.core.config import settings
+        # Use AuthService to verify token
+        from app.services.auth_service import AuthService
         
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        payload = AuthService.verify_token(token)
+        if payload is None:
+            raise credentials_exception
+            
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
             
-    except JWTError:
+    except Exception as jwt_error:
+        logger.debug(f"JWT verification failed: {jwt_error}")
         try:
             # Fallback to simple base64 format for compatibility: username:id
             if ":" in token:
