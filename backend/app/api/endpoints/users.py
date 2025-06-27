@@ -42,6 +42,25 @@ def get_redis_client():
         logger.warning(f"Redis not available for avatar caching: {e}")
         return None
 
+# Rate limiting for avatar requests
+def check_rate_limit(user_id: int, redis_client, limit: int = 10, window: int = 60):
+    """Check if user has exceeded rate limit for avatar requests"""
+    if not redis_client:
+        return True  # Allow if Redis unavailable
+    
+    try:
+        rate_key = f"avatar_rate:{user_id}"
+        current_requests = redis_client.incr(rate_key)
+        
+        if current_requests == 1:
+            # First request in window, set expiration
+            redis_client.expire(rate_key, window)
+        
+        return current_requests <= limit
+    except Exception as e:
+        logger.warning(f"Rate limit check failed: {e}")
+        return True  # Allow on error
+
 # Function to generate a new user ID - no longer needed with database auto-increment
 
 # Get all users (admin or faculty only)
@@ -460,7 +479,7 @@ async def upload_avatar(
         )
 
 
-# Get user avatar (with Redis caching)
+# Get user avatar (with Redis caching and error handling)
 @router.get("/{user_id}/avatar/image")
 async def get_avatar(
     user_id: int = Path(..., description="The ID of the user"),
@@ -471,46 +490,78 @@ async def get_avatar(
     - Cached avatars are served from Redis for performance
     - Falls back to database if cache miss
     - Returns 404 if user has no avatar
+    - Enhanced error handling for rapid requests
     """
-    cache_key = f"avatar:{user_id}"
-    redis_client = get_redis_client()
-    
-    # Try to get from Redis cache first
-    if redis_client:
+    try:
+        cache_key = f"avatar:{user_id}"
+        redis_client = None
+        
+        # Try to get Redis client safely
         try:
-            cached_data = redis_client.get(cache_key)
-            if cached_data:
-                avatar_info = json.loads(cached_data)
-                avatar_data = base64.b64decode(avatar_info['data'])
-                content_type = avatar_info['content_type']
-                
-                logger.info(f"Avatar served from Redis cache for user {user_id}")
-                return Response(
-                    content=avatar_data,
-                    media_type=content_type,
-                    headers={
-                        "Cache-Control": "public, max-age=3600",
-                        "X-Avatar-Source": "redis-cache"
-                    }
-                )
+            redis_client = get_redis_client()
         except Exception as e:
-            logger.warning(f"Redis cache error for avatar {user_id}: {e}")
-    
-    # Get user from database
-    all_users = get_all_users(db)
-    user = next((u for u in all_users if u["id"] == user_id), None)
-    
-    if not user:
+            logger.warning(f"Could not get Redis client for avatar {user_id}: {e}")
+        
+        # Rate limiting check
+        if redis_client and not check_rate_limit(user_id, redis_client):
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Too many avatar requests. Please wait before requesting again."
+            )
+        
+        # Try to get from Redis cache first
+        if redis_client:
+            try:
+                cached_data = redis_client.get(cache_key)
+                if cached_data:
+                    avatar_info = json.loads(cached_data)
+                    avatar_data = base64.b64decode(avatar_info['data'])
+                    content_type = avatar_info['content_type']
+                    
+                    return Response(
+                        content=avatar_data,
+                        media_type=content_type,
+                        headers={
+                            "Cache-Control": "public, max-age=3600",
+                            "X-Avatar-Source": "redis-cache"
+                        }
+                    )
+            except Exception as e:
+                logger.warning(f"Redis cache error for avatar {user_id}: {e}")
+        
+        # Get user from database with error handling
+        try:
+            all_users = get_all_users(db)
+            user = next((u for u in all_users if u["id"] == user_id), None)
+        except Exception as e:
+            logger.error(f"Database error getting user {user_id} for avatar: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Database error retrieving user"
+            )
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"User with ID {user_id} not found"
+            )
+        
+        # Check if user has avatar data in database
+        if not user.get("avatar_data") or not user.get("avatar_content_type"):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User has no avatar"
+            )
+            
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except Exception as e:
+        # Catch any other unexpected errors
+        logger.error(f"Unexpected error in get_avatar for user {user_id}: {e}")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with ID {user_id} not found"
-        )
-    
-    # Check if user has avatar data in database
-    if not user.get("avatar_data") or not user.get("avatar_content_type"):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User has no avatar"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error retrieving avatar"
         )
     
     avatar_data = user["avatar_data"]
