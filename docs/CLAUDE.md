@@ -2,28 +2,36 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-[... Previous content remains the same ...]
+## Current Project State (June 2025)
 
-## Recent Updates
+DoR-Dash is a mature research dashboard application for Mary Bird Perkins Cancer Center with the following production-ready systems:
 
-- Testing confirmed that file upload works great for other file types
-- Issue identified: When accessing the edit button for a particular submission, it redirects to the old edit item page instead of the new inline solution
-- Verification link: https://dd.kronisto.net/updates
-- **NEW**: LLM text refinement testing suite implemented with automated QA reports
-- **NEW**: QA folder structure reorganized for better organization
-- **NEW**: UI refinement process implemented to address redirect and inline editing challenges
-- **NEW**: Dashboard redesigned with Mermaid-powered development roadmap
-- **NEW**: Platform updates/changelog section added to dashboard
-- **NEW**: MCP SSH servers configured for container access on 172.30.98.0/24 subnet
-- **NEW**: Presentation Assignment System fully implemented and integrated
-- **NEW**: Meeting agenda integration with presentation assignments complete
-- **NEW**: Grillometer feedback system (🧊/🔥/☢️) for faculty presentation guidance
-- **NEW**: Role-based presentation assignment management (Faculty/Admin can assign)
-- **NEW**: Presentation assignment timeline integration in meeting schedules
-- **NEW**: About page created with comprehensive system architecture and roadmap
-- **NEW**: Brain-lightbulb easter egg implemented for About page access
-- **NEW**: Color contrast issues resolved across all themes (dracula/MBP/LSU)
-- **NEW**: MCP Puppeteer server installed for visual testing and UI validation
+### Core Architecture
+- **Frontend**: SvelteKit with TypeScript, TailwindCSS, responsive design
+- **Backend**: FastAPI with Python, SQLAlchemy, PostgreSQL
+- **Deployment**: Docker containers on Unraid with reverse proxy (Nginx)
+- **Authentication**: JWT-based with role-based access control (Student, Faculty, Secretary, Admin)
+- **Infrastructure**: MCP (Model Context Protocol) servers for debugging and development
+
+### Production Features (2025)
+- **Authentication System**: Robust JWT authentication with session recovery and token refresh
+- **Presentation Assignment System**: Full grillometer feedback system with file uploads
+- **Meeting Management**: Agenda creation with integrated presentation assignments
+- **Update Submission**: Student progress updates with LLM text refinement (Ollama/Gemma)
+- **User Management**: Admin user CRUD with avatar support and role management
+- **Quality Assurance**: Comprehensive QA testing suite with automated reports
+- **Theme System**: Multiple themes (Light, Dark, Dracula, MBP, LSU) with contrast optimization
+- **File Management**: Secure file uploads with presentation assignment integration
+- **Dashboard**: Real-time statistics and presentation assignment management
+
+### Recent Major Updates (June 2025)
+- **Authentication Overhaul**: Resolved JWT token storage race conditions and parameter mismatches
+- **Sidebar Race Condition Fix**: Fixed sidebar visibility issues after login
+- **Repository Cleanup**: Comprehensive cleanup removing 47 debug files and 10,489 lines of clutter
+- **Documentation Organization**: All .md files moved to /docs directory for better structure
+- **Deployment Automation**: Smart rebuild scripts with cache busting and health checks
+- **MCP Integration**: SSH servers configured for container debugging and development
+- **Presentation Files**: File upload system integrated with presentation assignments
 
 ## Quality Assurance (QA) Structure
 

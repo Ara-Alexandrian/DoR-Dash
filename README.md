@@ -359,33 +359,30 @@ python test_deployment.py
 - [Technical Notes](docs/technical-notes.md) - Detailed implementation notes
 - [Presentation Assignment System](docs/PRESENTATION_ASSIGNMENTS.md) - Complete guide to the presentation management system
 - [API Documentation](docs/api/) - Comprehensive API reference
-- [Deployment Guide](docs/deployment/) - Production deployment instructions
+- [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) - Production deployment instructions
 - [QA Reports](qa/) - Quality assurance reports and analysis
-- [CLAUDE.md](CLAUDE.md) - AI assistant guidance and project context
+- [CLAUDE.md](docs/CLAUDE.md) - AI assistant guidance and project context
+- [MCP Setup](docs/MCP_SETUP_SUMMARY.md) - Model Context Protocol server configuration
+- [SSH Quick Reference](docs/MCP_SSH_QUICK_REFERENCE.md) - Container access commands
 
-## 🆕 Recent Updates
+## 🆕 Current Status (June 2025)
 
-### Version 2.0 Features (June 2025)
-- ✅ **Enhanced Theme System**: Added MBP Dark Fire and LSU Tigers institutional themes
-- ✅ **Advanced File Management**: Complete file lifecycle management within submissions
-- ✅ **AI Model Upgrade**: Migrated from Mistral 7B to Gemma 3 4B for better performance
-- ✅ **User Feedback System**: Star ratings and feedback collection for LLM improvements
-- ✅ **Registration System**: Admin-approved user onboarding with request management
-- ✅ **Faculty Announcements**: Dedicated system for faculty communications
-- ✅ **Inline Editing**: Real-time update editing with comprehensive state management
-- ✅ **Dashboard Consolidation**: Unified update tracking with role-based filtering
-- ✅ **Quality Assurance**: Automated QA framework with regular health monitoring
-- ✅ **Presentation Assignment System**: Complete faculty-managed presentation workflow
-- ✅ **Grillometer Feedback System**: Innovative intensity-based feedback guidance
-- ✅ **Meeting Agenda Integration**: Seamless presentation assignment display in meeting schedules
+### Production-Ready Features
+- ✅ **Robust Authentication**: JWT with session recovery and token refresh mechanisms
+- ✅ **Presentation Management**: Complete grillometer system with file uploads and faculty assignment
+- ✅ **Meeting Integration**: Seamless agenda creation with presentation assignment display
+- ✅ **Advanced Themes**: Five distinct themes with accessibility-compliant contrast optimization
+- ✅ **Repository Organization**: Clean structure with comprehensive documentation in /docs
+- ✅ **Quality Assurance**: Automated testing suite with LLM validation and system health monitoring
+- ✅ **Deployment Automation**: Smart rebuild scripts with cache busting and container health checks
+- ✅ **MCP Infrastructure**: SSH servers for debugging and development container access
 
-### Bug Fixes & Improvements
-- 🔧 Fixed white card backgrounds interfering with dark theme glow effects
-- 🔧 Resolved user filtering issues ensuring proper data isolation
-- 🔧 Enhanced registration error handling and validation
-- 🔧 Improved role-based navigation permissions
-- 🔧 Fixed agenda "undefined" display issues
-- 🔧 Consolidated dashboard metrics for consistent user experience
+### Recent Major Fixes (June 2025)
+- 🔧 **Authentication System Overhaul**: Resolved JWT token storage race conditions and parameter mismatches
+- 🔧 **Sidebar Visibility**: Fixed race condition causing missing sidebar after successful login
+- 🔧 **Repository Cleanup**: Removed 47 debug files and 10,489 lines of development clutter
+- 🔧 **Documentation Organization**: All markdown files properly organized in /docs directory
+- 🔧 **Container Deployment**: Streamlined Docker deployment with improved health monitoring
 
 ## 🤝 Contributing
 

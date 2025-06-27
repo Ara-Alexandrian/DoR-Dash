@@ -6,40 +6,43 @@
   // Platform updates/changelog
   const platformUpdates = [
     {
-      date: '2025-01-19',
-      version: 'v1.5.0',
-      title: 'User Experience Improvements',
+      date: '2025-06-27',
+      version: 'v2.3.0',
+      title: 'Repository Organization & Authentication Fixes',
       changes: [
-        'Fixed font readability across all dark themes',
-        'Resolved faculty updates visibility issues',
-        'Fixed file attachment display for student submissions',
-        'Improved dashboard counting logic for admins'
+        'Comprehensive repository cleanup (removed 47 debug files)',
+        'Fixed JWT token storage race conditions',
+        'Resolved sidebar visibility issues after login',
+        'Organized all documentation into /docs directory',
+        'Enhanced deployment automation with health checks'
       ],
       type: 'enhancement'
     },
     {
-      date: '2025-01-18',
-      version: 'v1.4.0',
-      title: 'QA System Implementation',
+      date: '2025-06-25',
+      version: 'v2.2.0',
+      title: 'Presentation Assignment System',
       changes: [
-        'Added comprehensive QA validation framework',
-        'Implemented LLM text refinement testing suite',
-        'Standardized QA report templates',
-        'Added automated test endpoints for admins'
+        'Complete grillometer feedback system implementation',
+        'File upload integration with presentation assignments',
+        'Meeting agenda integration with presentation display',
+        'Faculty assignment interface with role-based access',
+        'Presentation timeline and requirement tracking'
       ],
       type: 'feature'
     },
     {
-      date: '2025-01-15',
-      version: 'v1.3.0',
-      title: 'Database Enhancements',
+      date: '2025-06-20',
+      version: 'v2.1.0',
+      title: 'Advanced Theme System & UI Enhancements',
       changes: [
-        'Added cascade delete constraints',
-        'Fixed transaction handling for user deletion',
-        'Improved enum validation for announcements',
-        'Enhanced role-based filtering'
+        'Five distinct themes with accessibility compliance',
+        'Contrast optimization for all color schemes',
+        'MBP and LSU institutional branding themes',
+        'About page with interactive Mermaid diagrams',
+        'Brain-lightbulb easter egg navigation'
       ],
-      type: 'enhancement'
+      type: 'feature'
     }
   ];
 
@@ -189,16 +192,6 @@
         'Video conference integration'
       ]
     },
-    'Mobile App Development': {
-      status: 'future',
-      description: 'Native mobile applications for iOS and Android',
-      details: [
-        'Native iOS and Android applications',
-        'Push notifications for updates',
-        'Offline functionality support',
-        'Mobile-optimized user interface'
-      ]
-    },
     'Secretarial Login Layer': {
       status: 'future',
       description: 'Administrative assistant access and workflow support',
@@ -291,7 +284,7 @@ graph TB
     subgraph "Frontend Layer"
         UI[SvelteKit UI]
         PWA[Progressive Web App]
-        Mobile[Mobile Responsive]
+        Responsive[Responsive Design]
     end
     
     subgraph "API Layer"
@@ -322,7 +315,7 @@ graph TB
     
     UI --> FastAPI
     PWA --> FastAPI
-    Mobile --> FastAPI
+    Responsive --> FastAPI
     
     FastAPI --> Auth
     FastAPI --> RBAC
@@ -421,7 +414,7 @@ graph TD
                 <li>• Reactive user interfaces</li>
                 <li>• Server-side rendering</li>
                 <li>• Progressive enhancement</li>
-                <li>• Mobile-first design</li>
+                <li>• Responsive design</li>
                 <li>• Dark mode support</li>
               </ul>
             </div>

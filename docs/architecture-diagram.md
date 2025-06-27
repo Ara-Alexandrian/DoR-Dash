@@ -1,7 +1,7 @@
 # DoR-Dash Architecture Diagram
 
-**Last Updated:** June 15, 2025  
-**System Status:** Complete Database Persistence with QA Monitoring
+**Last Updated:** June 27, 2025  
+**System Status:** Production-Ready with Comprehensive Authentication & Repository Cleanup
 
 ## System Architecture Overview
 
@@ -34,7 +34,7 @@ graph TB
         end
 
         subgraph "AI Container"
-            Ollama[🤖 Ollama API<br/>Port: 11434<br/>Mistral AI (CPU/RAM)<br/>Text Refinement]  
+            Ollama[🤖 Ollama API<br/>Port: 11434<br/>Gemma 3 4B (CPU/RAM)<br/>Text Refinement]  
         end
 
         subgraph "QA System"
@@ -445,39 +445,47 @@ graph TB
 
 ## Current Architecture Status (June 2025)
 
-### ✅ COMPLETED MIGRATIONS
-1. **Complete Database Persistence** - All data safely stored in PostgreSQL
-2. **Unified AgendaItem Model** - Student and faculty updates in single table
-3. **File System Integration** - Binary files + database metadata
-4. **Custom Express Server** - Proper SPA routing for frontend
-5. **QA System Integration** - Automated testing and health monitoring
+### ✅ PRODUCTION-READY FEATURES
+1. **Robust Authentication System** - JWT with session recovery and token refresh
+2. **Presentation Assignment System** - Complete grillometer feedback with file uploads
+3. **Meeting Integration** - Seamless presentation assignment display in agendas
+4. **Advanced Theme System** - Five themes with accessibility compliance
+5. **Repository Organization** - Clean structure with documentation in /docs
+6. **MCP Infrastructure** - SSH servers for debugging and container access
+7. **Quality Assurance** - Automated testing suite with health monitoring
+8. **Deployment Automation** - Smart rebuild scripts with cache busting
 
-### 🎯 CURRENT STATE
-- **Data Safety:** 100% persistent (no in-memory storage)
-- **AgendaItem Model:** Polymorphic content storage with JSONB
-- **File Uploads:** Properly associated with database records
-- **Authentication:** JWT tokens with Redis session management
-- **API Endpoints:** Legacy compatibility maintained, new unified endpoints available
+### 🎯 CURRENT STATE (June 2025)
+- **Authentication:** Comprehensive JWT system with race condition fixes
+- **Presentation Management:** Full grillometer system with faculty assignment interface
+- **File Management:** Integrated file uploads with presentation assignments
+- **Themes:** Five distinct themes with contrast optimization
+- **Documentation:** All .md files organized in /docs directory
+- **Container Access:** MCP SSH servers for development and debugging
+- **Repository:** Clean organization with 47 debug files removed
 
-### 🔧 ARCHITECTURE BENEFITS
-1. **No Data Loss:** All restarts and deployments safe
-2. **Unified Schema:** Simplified queries and maintenance
-3. **Extensible Design:** Easy to add new agenda item types
-4. **Performance:** Redis caching for sessions and queries
-5. **Quality Assurance:** Continuous monitoring and validation
-6. **Scalability:** Proper database relationships and indexes
+### 🔧 RECENT MAJOR FIXES (June 2025)
+1. **Authentication Overhaul:** Resolved JWT token storage race conditions
+2. **Sidebar Visibility Fix:** Fixed missing sidebar after successful login
+3. **Repository Cleanup:** Removed 10,489 lines of development clutter
+4. **Documentation Organization:** Proper structure with docs in /docs
+5. **Deployment Streamlining:** Enhanced Docker deployment with health checks
 
-### 🚨 KNOWN ISSUES
-1. **Student Update Creation:** Missing `to_agenda_item_create()` method
-2. **Faculty Update Listing:** Occasional HTTP 500 errors
-3. **Legacy Endpoints:** Still maintained for backward compatibility
+### 🎉 SYSTEM HIGHLIGHTS
+- **Zero Data Loss:** Complete database persistence with proper relationships
+- **Secure Authentication:** Token refresh mechanisms with session recovery
+- **Faculty Tools:** Grillometer feedback system for presentation guidance
+- **User Experience:** Responsive design with accessibility-compliant themes
+- **Developer Experience:** MCP infrastructure for efficient debugging
+- **Quality Assurance:** Comprehensive testing with automated validation
 
 ---
 
-**Architecture Evolution Notes:**
-- **V1.0:** In-memory storage with data loss risks
-- **V2.0:** Partial database migration with mixed storage
-- **V3.0 (Current):** Complete database persistence with unified model
-- **V3.1 (Next):** Fix remaining API bugs and optimize performance
+**Architecture Evolution:**
+- **V1.0 (2024):** Basic functionality with in-memory storage
+- **V2.0 (Early 2025):** Database persistence and unified models
+- **V2.1 (June 2025):** Advanced theming and presentation management
+- **V2.2 (June 2025):** Complete grillometer system implementation
+- **V2.3 (June 2025):** Authentication fixes and repository organization
 
-This architecture now provides complete data safety, unified data models, and comprehensive quality assurance monitoring.
+This architecture provides a production-ready research dashboard with robust authentication, advanced presentation management, and comprehensive quality assurance.
