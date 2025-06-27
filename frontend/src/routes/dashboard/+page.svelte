@@ -8,8 +8,12 @@
   let presentations = [];
   let loading = true;
   let error = null;
+  let hasLoaded = false; // Prevent duplicate loading
   
   onMount(async () => {
+    // Prevent duplicate loading if already loaded
+    if (hasLoaded) return;
+    hasLoaded = true;
     
     try {
       // Simplified dashboard stats - let backend handle user filtering
