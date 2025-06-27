@@ -56,33 +56,13 @@
       //   return;
       // }
       
-      // Normal API login flow
-      const response = await authApi.login(username, password);
-      console.log('Login response:', response);
+      // Use auth store's login method - it handles everything internally
+      console.log('Attempting login with auth store...');
+      const authResult = await auth.login({ username, password });
+      console.log('Auth store login successful:', authResult);
       
-      if (response.access_token) {
-        try {
-          // With token-only response, we need to fetch the user profile separately
-          // First update auth store with just the token
-          auth.login(response.access_token, null);
-          
-          // Then try to fetch user profile
-          const userProfile = await authApi.getProfile();
-          console.log('User profile:', userProfile);
-          
-          // Update user info in auth store
-          auth.updateUser(userProfile);
-          
-          // Redirect to dashboard
-          goto('/dashboard');
-        } catch (profileErr) {
-          console.error('Failed to fetch user profile:', profileErr);
-          // Still redirect to dashboard, the app can try to get profile again later
-          goto('/dashboard');
-        }
-      } else {
-        error = 'Invalid login response - missing access token';
-      }
+      // Redirect to dashboard
+      goto('/dashboard');
     } catch (err) {
       error = err.message || 'Login failed. Please check your credentials.';
       console.error('Login error details:', err);

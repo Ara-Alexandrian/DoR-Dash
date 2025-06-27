@@ -156,7 +156,7 @@ function createAuthStore() {
                 this.logout();
                 
                 console.log('[AUTH_DEBUG] Calling authApi.login with credentials:', { username: credentials.username });
-                const response = await authApi.login(credentials);
+                const response = await authApi.login(credentials.username, credentials.password);
                 console.log('[AUTH_DEBUG] Login response received:', { 
                     hasToken: !!response.access_token,
                     tokenPreview: response.access_token ? `${response.access_token.substring(0, 20)}...` : 'none'
@@ -168,38 +168,47 @@ function createAuthStore() {
                     const tokenExpiry = decoded && decoded.exp ? decoded.exp * 1000 : 
                                        new Date().getTime() + 60 * 60 * 1000; // Default 1 hour
                     
-                    // Get user profile
-                    let userProfile = null;
-                    try {
-                        console.log('[AUTH_DEBUG] Fetching user profile after login...');
-                        userProfile = await authApi.getProfile();
-                        console.log('[AUTH_DEBUG] Profile fetch successful:', userProfile);
-                    } catch (error) {
-                        console.error('[AUTH_DEBUG] Failed to fetch profile after login:', error);
-                    }
-
+                    // First, set the token in the store so API calls can use it
                     const authData = {
-                        user: userProfile,
+                        user: null, // Will be populated after profile fetch
                         token: response.access_token,
                         tokenExpiry: tokenExpiry,
                         lastActivity: new Date().getTime()
                     };
 
                     set(authData);
+                    console.log('[AUTH_DEBUG] Token set in store, now fetching profile...');
+                    
+                    // Now get user profile with the token available in store
+                    let userProfile = null;
+                    try {
+                        console.log('[AUTH_DEBUG] Fetching user profile after login...');
+                        userProfile = await authApi.getProfile();
+                        console.log('[AUTH_DEBUG] Profile fetch successful:', userProfile);
+                        
+                        // Update the store with user profile
+                        update(auth => {
+                            auth.user = userProfile;
+                            return auth;
+                        });
+                    } catch (error) {
+                        console.error('[AUTH_DEBUG] Failed to fetch profile after login:', error);
+                    }
 
-                    // Save to localStorage
+                    // Save to localStorage with updated data
                     if (browser) {
-                        localStorage.setItem('dor-dash-auth', JSON.stringify(authData));
+                        const currentAuth = getCurrentAuth();
+                        localStorage.setItem('dor-dash-auth', JSON.stringify(currentAuth));
                         localStorage.setItem('dor-dash-token', response.access_token);
                     }
 
                     // Set up token refresh
-                    setupTokenRefresh(authData);
+                    setupTokenRefresh(getCurrentAuth());
                     
                     // Start activity tracking
                     trackActivity();
 
-                    return authData;
+                    return getCurrentAuth();
                 }
                 
                 throw new Error('No access token received');
