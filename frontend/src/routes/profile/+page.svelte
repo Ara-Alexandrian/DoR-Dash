@@ -88,8 +88,8 @@
     document.addEventListener('mouseup', handleGlobalMouseUp);
     
     try {
-      // Fetch user data
-      userData = await userApi.getUser($auth.user.id);
+      // Use user data from auth store (already loaded during login)
+      userData = $auth.user;
       
       // Populate form with user data
       form = {
@@ -99,21 +99,11 @@
         username: userData.username || '',
         email: userData.email || ''
       };
+      
+      console.log('Profile page loaded with user data:', userData);
     } catch (err) {
       console.error('Failed to load user profile:', err);
       error = 'Failed to load user profile. Please try again later.';
-      
-      // Provide mock data in development mode
-      if (import.meta.env.DEV) {
-        userData = $auth.user;
-        form = {
-          full_name: userData.full_name || 'Sample User',
-          preferred_email: userData.preferred_email || '',
-          phone: userData.phone || '',
-          username: userData.username || 'user1',
-          email: userData.email || 'user1@example.com'
-        };
-      }
     } finally {
       loading = false;
     }
