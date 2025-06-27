@@ -23,9 +23,14 @@
     if (hasLoaded) return;
     hasLoaded = true;
     
+    // Wait a moment for auth to initialize if needed
+    if (!$auth.user && $auth.token) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
     // Check if authenticated before making API calls
-    if (!$auth.isAuthenticated || !$auth.token) {
-      console.log('DASHBOARD DEBUG - Not authenticated, skipping API calls');
+    if (!$auth.token) {
+      console.log('DASHBOARD DEBUG - No token available, skipping API calls');
       loading = false;
       return;
     }

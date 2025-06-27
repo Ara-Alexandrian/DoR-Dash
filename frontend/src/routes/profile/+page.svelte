@@ -68,7 +68,13 @@
   
   // Load user data on mount
   onMount(async () => {
-    if (!$auth.isAuthenticated || !$auth.token) {
+    // Wait a moment for auth to initialize if needed
+    if (!$auth.user && $auth.token) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    // Only redirect if clearly not authenticated
+    if (!$auth.token) {
       goto('/login');
       return;
     }
