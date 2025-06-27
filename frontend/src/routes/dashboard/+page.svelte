@@ -10,10 +10,25 @@
   let error = null;
   let hasLoaded = false; // Prevent duplicate loading
   
+  // React to auth state changes
+  $: if (!$auth.isAuthenticated && hasLoaded) {
+    // Clear data when logged out
+    updates = [];
+    presentations = [];
+    hasLoaded = false;
+  }
+  
   onMount(async () => {
     // Prevent duplicate loading if already loaded
     if (hasLoaded) return;
     hasLoaded = true;
+    
+    // Check if authenticated before making API calls
+    if (!$auth.isAuthenticated || !$auth.token) {
+      console.log('DASHBOARD DEBUG - Not authenticated, skipping API calls');
+      loading = false;
+      return;
+    }
     
     try {
       // Simplified dashboard stats - let backend handle user filtering
@@ -26,6 +41,13 @@
         // Add cache-busting timestamp to ensure fresh data
         const cacheBuster = `?_=${Date.now()}`;
         console.log('DASHBOARD DEBUG - Using cache buster:', cacheBuster);
+        
+        // Double-check auth before making API call
+        if (!$auth.token) {
+          console.log('DASHBOARD DEBUG - Token lost during loading, aborting API calls');
+          loading = false;
+          return;
+        }
         
         // Use dedicated dashboard API for more efficient and consistent stats
         const dashboardResponse = await fetch('/api/v1/dashboard/stats', {
