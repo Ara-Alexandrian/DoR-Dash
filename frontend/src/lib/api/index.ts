@@ -34,6 +34,9 @@ export async function apiFetch(endpoint: string, options: FetchOptions = {}): Pr
   
   if (authStore.token) {
     headers['Authorization'] = `Bearer ${authStore.token}`;
+    console.log(`[AUTH_DEBUG] Adding Authorization header with token: ${authStore.token.substring(0, 20)}...`);
+  } else {
+    console.log('[AUTH_DEBUG] No token available for authorization');
   }
   
   try {
@@ -44,6 +47,19 @@ export async function apiFetch(endpoint: string, options: FetchOptions = {}): Pr
     
     // Handle 401 Unauthorized (redirect to login)
     if (response.status === 401) {
+      console.error(`[AUTH_DEBUG] 401 Unauthorized received for ${url}`);
+      console.error(`[AUTH_DEBUG] Request headers:`, headers);
+      console.error(`[AUTH_DEBUG] Response status:`, response.status);
+      console.error(`[AUTH_DEBUG] Response headers:`, Object.fromEntries(response.headers));
+      
+      // Try to read response body for debugging
+      try {
+        const errorText = await response.clone().text();
+        console.error(`[AUTH_DEBUG] 401 Response body:`, errorText);
+      } catch (e) {
+        console.error(`[AUTH_DEBUG] Could not read 401 response body:`, e);
+      }
+      
       auth.logout();
       throw new Error('Session expired. Please login again.');
     }
@@ -139,7 +155,11 @@ export const authApi = {
       
       const responseText = await response.text();
       const data = responseText.trim() ? JSON.parse(responseText) : { success: true };
-      console.log('Login successful');
+      console.log('[AUTH_DEBUG] Login successful, response data:', {
+        hasToken: !!data.access_token,
+        tokenType: data.token_type,
+        tokenPreview: data.access_token ? `${data.access_token.substring(0, 20)}...` : 'none'
+      });
       return data;
     } catch (e) {
       console.error('Login request failed:', e);

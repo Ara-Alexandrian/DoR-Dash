@@ -360,12 +360,14 @@ def login_for_access_token(
     user.last_login = datetime.now()
     db.commit()
     
-    # Create access token
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
-    )
+    # Create access token using AuthService for consistency
+    from app.services.auth_service import AuthService
+    logger.info(f"[AUTH_DEBUG] Creating token using AuthService for user: {user.username}")
+    logger.info(f"[AUTH_DEBUG] Token expiry minutes: {settings.ACCESS_TOKEN_EXPIRE_MINUTES}")
     
+    access_token = AuthService.create_access_token(user)
+    
+    logger.info(f"[AUTH_DEBUG] Generated token: {access_token[:20]}...{access_token[-10:] if len(access_token) > 30 else access_token}")
     logger.info(f"Login successful for user {form_data.username}")
     
     return {"access_token": access_token, "token_type": "bearer"}
@@ -377,45 +379,98 @@ def get_current_user(
     """
     Get current authenticated user from token
     """
+    logger.info(f"[AUTH_DEBUG] get_current_user called with token: {token[:20]}..." if token else "[AUTH_DEBUG] get_current_user called with NO token")
+    
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
     
+    if not token:
+        logger.error("[AUTH_DEBUG] No token provided")
+        raise credentials_exception
+    
     try:
         # Use AuthService to verify token
         from app.services.auth_service import AuthService
         
+        logger.info(f"[AUTH_DEBUG] Attempting to verify token with AuthService")
         payload = AuthService.verify_token(token)
+        logger.info(f"[AUTH_DEBUG] Token verification result: {payload}")
+        
         if payload is None:
+            logger.error("[AUTH_DEBUG] Token verification returned None")
             raise credentials_exception
             
-        username: str = payload.get("sub")
+        sub_value = payload.get("sub")
+        logger.info(f"[AUTH_DEBUG] Extracted 'sub' from token: {sub_value}")
+        
+        if sub_value is None:
+            logger.error("[AUTH_DEBUG] No 'sub' field in token payload")
+            raise credentials_exception
+        
+        # Check if payload has a 'username' field (AuthService format)
+        if "username" in payload:
+            username = payload["username"]
+            logger.info(f"[AUTH_DEBUG] Using username from payload: {username}")
+        else:
+            # Try to use 'sub' as username (legacy format)
+            # If 'sub' is numeric, it's probably a user ID, look up by ID
+            try:
+                user_id = int(sub_value)
+                logger.info(f"[AUTH_DEBUG] 'sub' appears to be user ID: {user_id}")
+                user = get_user_by_id(db, user_id)
+                if user is None:
+                    logger.error(f"[AUTH_DEBUG] User not found for ID: {user_id}")
+                    raise credentials_exception
+                username = user.username
+                logger.info(f"[AUTH_DEBUG] Found user by ID, username: {username}")
+            except ValueError:
+                # 'sub' is not numeric, treat as username
+                username = sub_value
+                logger.info(f"[AUTH_DEBUG] Using 'sub' as username: {username}")
+        
         if username is None:
+            logger.error("[AUTH_DEBUG] Could not determine username from token")
             raise credentials_exception
             
     except Exception as jwt_error:
-        logger.debug(f"JWT verification failed: {jwt_error}")
+        logger.error(f"[AUTH_DEBUG] JWT verification failed: {jwt_error}")
+        logger.error(f"[AUTH_DEBUG] JWT error type: {type(jwt_error).__name__}")
         try:
             # Fallback to simple base64 format for compatibility: username:id
+            logger.info("[AUTH_DEBUG] Trying fallback base64 decoding")
             if ":" in token:
                 import base64
                 decoded = base64.b64decode(token).decode()
                 username = decoded.split(":")[0]
+                logger.info(f"[AUTH_DEBUG] Fallback decoded username: {username}")
             else:
+                logger.error("[AUTH_DEBUG] No ':' in token for fallback decoding")
                 raise credentials_exception
-        except Exception:
+        except Exception as fallback_error:
+            logger.error(f"[AUTH_DEBUG] Fallback decoding failed: {fallback_error}")
             raise credentials_exception
-    except Exception:
+    except Exception as general_error:
+        logger.error(f"[AUTH_DEBUG] General error in token processing: {general_error}")
         raise credentials_exception
     
+    logger.info(f"[AUTH_DEBUG] Looking up user by username: {username}")
     user = get_user_by_username(db, username)
     if user is None:
-        logger.debug(f"get_current_user - user not found for username: {username}")
+        logger.error(f"[AUTH_DEBUG] User not found for username: {username}")
         raise credentials_exception
     
-    logger.debug(f"get_current_user - found user: {user.username}, role: {user.role}")
+    logger.info(f"[AUTH_DEBUG] Found user: {user.username}, ID: {user.id}, role: {user.role}, active: {user.is_active}")
+    
+    if not user.is_active:
+        logger.error(f"[AUTH_DEBUG] User {user.username} is inactive")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User account is inactive",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
     return User(
         id=user.id,
@@ -442,6 +497,129 @@ async def get_user_profile(current_user: User = Depends(get_current_user)):
     Get current user profile
     """
     return current_user
+
+@router.post("/debug-token")
+async def debug_token(
+    token_data: dict,
+    db: Session = Depends(get_sync_db)
+):
+    """
+    Debug endpoint to analyze token issues
+    Accepts: {"token": "your_token_here"}
+    """
+    token = token_data.get("token")
+    if not token:
+        return {"error": "No token provided", "status": "missing_token"}
+    
+    debug_info = {
+        "token_received": True,
+        "token_length": len(token),
+        "token_preview": f"{token[:20]}...{token[-10:] if len(token) > 30 else token}",
+        "token_format": "unknown"
+    }
+    
+    # Check if it's a JWT token
+    if token.count('.') == 2:
+        debug_info["token_format"] = "jwt"
+        try:
+            from app.services.auth_service import AuthService
+            payload = AuthService.verify_token(token)
+            if payload:
+                debug_info["jwt_valid"] = True
+                debug_info["jwt_payload"] = payload
+                debug_info["username"] = payload.get("sub")
+                
+                # Check if user exists
+                if debug_info["username"]:
+                    user = get_user_by_username(db, debug_info["username"])
+                    if user:
+                        debug_info["user_exists"] = True
+                        debug_info["user_active"] = user.is_active
+                        debug_info["user_info"] = {
+                            "id": user.id,
+                            "username": user.username,
+                            "role": user.role,
+                            "last_login": str(user.last_login) if user.last_login else None
+                        }
+                    else:
+                        debug_info["user_exists"] = False
+                        debug_info["error"] = f"User '{debug_info['username']}' not found in database"
+                else:
+                    debug_info["error"] = "No 'sub' field in JWT payload"
+            else:
+                debug_info["jwt_valid"] = False
+                debug_info["error"] = "JWT token verification failed"
+        except Exception as e:
+            debug_info["jwt_valid"] = False
+            debug_info["jwt_error"] = str(e)
+            debug_info["jwt_error_type"] = type(e).__name__
+    elif ":" in token:
+        debug_info["token_format"] = "base64_legacy"
+        try:
+            import base64
+            decoded = base64.b64decode(token).decode()
+            username = decoded.split(":")[0]
+            debug_info["legacy_username"] = username
+            debug_info["legacy_valid"] = True
+            
+            # Check if user exists
+            user = get_user_by_username(db, username)
+            if user:
+                debug_info["user_exists"] = True
+                debug_info["user_active"] = user.is_active
+            else:
+                debug_info["user_exists"] = False
+                debug_info["error"] = f"User '{username}' not found in database"
+        except Exception as e:
+            debug_info["legacy_valid"] = False
+            debug_info["legacy_error"] = str(e)
+    
+    return debug_info
+
+@router.get("/test-auth")
+async def test_auth(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_sync_db)
+):
+    """
+    Test authentication flow - returns detailed success/failure info
+    """
+    try:
+        user = get_current_user(token, db)
+        return {
+            "status": "success",
+            "message": "Authentication successful",
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "role": user.role,
+                "is_active": user.is_active
+            },
+            "token_info": {
+                "token_length": len(token),
+                "token_preview": f"{token[:20]}...{token[-10:] if len(token) > 30 else token}"
+            }
+        }
+    except HTTPException as e:
+        return {
+            "status": "failed",
+            "error": e.detail,
+            "status_code": e.status_code,
+            "token_info": {
+                "token_length": len(token) if token else 0,
+                "token_preview": f"{token[:20]}...{token[-10:] if len(token) > 30 else token}" if token else "NO_TOKEN"
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "error_type": type(e).__name__,
+            "token_info": {
+                "token_length": len(token) if token else 0,
+                "token_preview": f"{token[:20]}...{token[-10:] if len(token) > 30 else token}" if token else "NO_TOKEN"
+            }
+        }
 
 def get_admin_user(current_user: User = Depends(get_current_user)) -> User:
     """

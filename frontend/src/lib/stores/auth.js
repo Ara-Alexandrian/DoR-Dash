@@ -155,7 +155,12 @@ function createAuthStore() {
                 // Clear any existing session
                 this.logout();
                 
+                console.log('[AUTH_DEBUG] Calling authApi.login with credentials:', { username: credentials.username });
                 const response = await authApi.login(credentials);
+                console.log('[AUTH_DEBUG] Login response received:', { 
+                    hasToken: !!response.access_token,
+                    tokenPreview: response.access_token ? `${response.access_token.substring(0, 20)}...` : 'none'
+                });
                 
                 if (response.access_token) {
                     // Decode token to get expiry
@@ -166,9 +171,11 @@ function createAuthStore() {
                     // Get user profile
                     let userProfile = null;
                     try {
+                        console.log('[AUTH_DEBUG] Fetching user profile after login...');
                         userProfile = await authApi.getProfile();
+                        console.log('[AUTH_DEBUG] Profile fetch successful:', userProfile);
                     } catch (error) {
-                        console.error('Failed to fetch profile after login:', error);
+                        console.error('[AUTH_DEBUG] Failed to fetch profile after login:', error);
                     }
 
                     const authData = {
