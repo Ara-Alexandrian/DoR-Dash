@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { auth } from '$lib/stores/auth';
   import { userApi } from '$lib/api/users';
+  import { goto } from '$app/navigation';
   
   // User data state
   let userData = null;
@@ -67,7 +68,8 @@
   
   // Load user data on mount
   onMount(async () => {
-    if (!$auth.isAuthenticated) {
+    if (!$auth.isAuthenticated || !$auth.token) {
+      goto('/login');
       return;
     }
 
