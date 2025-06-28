@@ -219,6 +219,16 @@ function createAuthStore() {
         },
 
         logout() {
+            // Use clearAuthState to clear everything
+            this.clearAuthState();
+
+            // Redirect to login
+            if (browser) {
+                goto('/login');
+            }
+        },
+
+        clearAuthState() {
             // Clear timers
             if (refreshTimer) {
                 clearTimeout(refreshTimer);
@@ -242,11 +252,6 @@ function createAuthStore() {
                 localStorage.removeItem('dor-dash-auth');
                 localStorage.removeItem('dor-dash-token');
                 localStorage.removeItem('dor-dash-user');
-            }
-
-            // Redirect to login
-            if (browser) {
-                goto('/login');
             }
         },
 

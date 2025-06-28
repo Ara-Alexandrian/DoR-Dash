@@ -19,18 +19,18 @@
     
     // Set a small timeout to show the loading state briefly
     setTimeout(() => {
-      // Clear auth state manually (similar to what auth.logout() does but without redirect)
-      auth.update(authState => ({
-        user: null,
-        token: null,
-        tokenExpiry: null,
-        lastActivity: null
-      }));
-      
-      // Clear localStorage
-      localStorage.removeItem('dor-dash-auth');
-      localStorage.removeItem('dor-dash-token');
-      localStorage.removeItem('dor-dash-user');
+      // Clear auth state without redirect (we'll handle display ourselves)
+      try {
+        // Use clearAuthState method which doesn't redirect
+        auth.clearAuthState();
+        console.log('Auth state cleared successfully');
+      } catch (error) {
+        console.error('Error during logout:', error);
+        // Even if clearAuthState fails, clear localStorage as fallback
+        localStorage.removeItem('dor-dash-auth');
+        localStorage.removeItem('dor-dash-token');
+        localStorage.removeItem('dor-dash-user');
+      }
       
       loggingOut = false;
     }, 500); // Short delay for visual feedback
