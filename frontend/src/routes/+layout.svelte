@@ -50,6 +50,12 @@
   // Reactive admin status
   $: isAdmin = $auth?.user?.role === 'admin';
   
+  // Avatar cache buster - compute once to prevent multiple requests
+  let avatarCacheBuster = null;
+  $: if ($auth?.user?.avatar_url) {
+    avatarCacheBuster = $auth?.user?.avatar_updated || Date.now();
+  }
+  
   // Debug user role and navigation (only on initial load)
   let debugLogged = false;
   $: if ($auth?.user && !debugLogged) {
@@ -277,7 +283,7 @@
             <div class="flex-shrink-0">
               {#if $auth.user.avatar_url}
                 <img 
-                  src="{$auth.user.avatar_url}?v={$auth.user.avatar_updated || Date.now()}" 
+                  src="{$auth.user.avatar_url}?v={avatarCacheBuster}" 
                   alt="{$auth.user.full_name || $auth.user.username}" 
                   class="h-10 w-10 rounded-full object-cover shadow-md"
                 />

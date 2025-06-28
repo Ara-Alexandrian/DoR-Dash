@@ -43,7 +43,7 @@ def get_redis_client():
         return None
 
 # Rate limiting for avatar requests
-def check_rate_limit(user_id: int, redis_client, limit: int = 10, window: int = 60):
+def check_rate_limit(user_id: int, redis_client, limit: int = 30, window: int = 60):
     """Check if user has exceeded rate limit for avatar requests"""
     if not redis_client:
         return True  # Allow if Redis unavailable
