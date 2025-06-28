@@ -19,9 +19,19 @@
     
     // Set a small timeout to show the loading state briefly
     setTimeout(() => {
-      // The logout API endpoint has already been called by the auth.logout() function
-      // Just clear the local auth state to complete the logout process
-      auth.clearAuthState();
+      // Clear auth state manually (similar to what auth.logout() does but without redirect)
+      auth.update(authState => ({
+        user: null,
+        token: null,
+        tokenExpiry: null,
+        lastActivity: null
+      }));
+      
+      // Clear localStorage
+      localStorage.removeItem('dor-dash-auth');
+      localStorage.removeItem('dor-dash-token');
+      localStorage.removeItem('dor-dash-user');
+      
       loggingOut = false;
     }, 500); // Short delay for visual feedback
   });
