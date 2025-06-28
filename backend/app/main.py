@@ -47,14 +47,22 @@ app.add_middleware(
 app.add_middleware(RateLimitMiddleware, rate_limiters=create_rate_limiters())
 
 # Ensure upload directory exists and mount static files
-# Use Docker path if running in container, otherwise use relative path
-if os.path.exists("/app"):
-    upload_dir = "/app/uploads"
-else:
-    # Development environment - use uploads directory in project root
-    upload_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads")
+# Use Docker path if running in container and writable, otherwise use relative path
+upload_dir = None
 
-os.makedirs(upload_dir, exist_ok=True)
+if os.path.exists("/app"):
+    try:
+        # Try to create /app/uploads directory
+        upload_dir = "/app/uploads"
+        os.makedirs(upload_dir, exist_ok=True)
+    except PermissionError:
+        # Fall back to project directory if /app is not writable
+        upload_dir = None
+
+if upload_dir is None:
+    # Development environment or /app not writable - use uploads directory in project root
+    upload_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads")
+    os.makedirs(upload_dir, exist_ok=True)
 
 # Mount static files for uploads with proper MIME type handling
 app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")
