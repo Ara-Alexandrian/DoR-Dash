@@ -228,32 +228,6 @@ function createAuthStore() {
             }
         },
 
-        clearAuthState() {
-            // Clear timers
-            if (refreshTimer) {
-                clearTimeout(refreshTimer);
-                refreshTimer = null;
-            }
-            if (activityTimer) {
-                clearInterval(activityTimer);
-                activityTimer = null;
-            }
-
-            // Clear auth data
-            set({
-                user: null,
-                token: null,
-                tokenExpiry: null,
-                lastActivity: null
-            });
-
-            // Clear localStorage
-            if (browser) {
-                localStorage.removeItem('dor-dash-auth');
-                localStorage.removeItem('dor-dash-token');
-                localStorage.removeItem('dor-dash-user');
-            }
-        },
 
         async checkAuth() {
             const currentAuth = getCurrentAuth();
@@ -332,6 +306,33 @@ function createAuthStore() {
         isTokenValid() {
             const currentAuth = getCurrentAuth();
             return currentAuth.token && !isTokenExpired(currentAuth);
+        },
+
+        clearAuthState() {
+            // Clear timers
+            if (refreshTimer) {
+                clearTimeout(refreshTimer);
+                refreshTimer = null;
+            }
+            if (activityTimer) {
+                clearInterval(activityTimer);
+                activityTimer = null;
+            }
+
+            // Clear auth data
+            set({
+                user: null,
+                token: null,
+                tokenExpiry: null,
+                lastActivity: null
+            });
+
+            // Clear localStorage
+            if (browser) {
+                localStorage.removeItem('dor-dash-auth');
+                localStorage.removeItem('dor-dash-token');
+                localStorage.removeItem('dor-dash-user');
+            }
         }
     };
 }
