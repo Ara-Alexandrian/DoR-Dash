@@ -52,8 +52,16 @@
   
   // Avatar cache buster - compute once to prevent multiple requests
   let avatarCacheBuster = null;
-  $: if ($auth?.user?.avatar_url) {
-    avatarCacheBuster = $auth?.user?.avatar_updated || Date.now();
+  let lastUserId = null;
+  let lastAvatarUpdated = null;
+  
+  $: if ($auth?.user?.id) {
+    // Only update cache buster when user changes or avatar_updated changes
+    if (lastUserId !== $auth.user.id || lastAvatarUpdated !== $auth.user.avatar_updated) {
+      lastUserId = $auth.user.id;
+      lastAvatarUpdated = $auth.user.avatar_updated;
+      avatarCacheBuster = $auth.user.avatar_updated || Date.now();
+    }
   }
   
   // Debug user role and navigation (only on initial load)
@@ -281,7 +289,7 @@
         {#if $auth?.user}
           <div class="flex items-center p-2 rounded-lg hover:bg-primary-800/30 dark:hover:bg-slate-700/30 dracula:hover:bg-gray-700/30 mbp:hover:bg-red-800/30 lsu:hover:bg-purple-800/30 transition-colors duration-200">
             <div class="flex-shrink-0">
-              {#if $auth.user.avatar_url}
+              {#if $auth.user.avatar_url && avatarCacheBuster}
                 <img 
                   src="{$auth.user.avatar_url}?v={avatarCacheBuster}" 
                   alt="{$auth.user.full_name || $auth.user.username}" 

@@ -42,8 +42,8 @@ def get_redis_client():
         logger.warning(f"Redis not available for avatar caching: {e}")
         return None
 
-# Rate limiting for avatar requests
-def check_rate_limit(user_id: int, redis_client, limit: int = 30, window: int = 60):
+# Rate limiting for avatar requests  
+def check_rate_limit(user_id: int, redis_client, limit: int = 5, window: int = 60):
     """Check if user has exceeded rate limit for avatar requests"""
     if not redis_client:
         return True  # Allow if Redis unavailable
