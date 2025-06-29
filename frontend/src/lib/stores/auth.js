@@ -61,8 +61,11 @@ function createAuthStore() {
                 await refreshToken();
             } catch (error) {
                 console.error('Token refresh failed:', error);
-                // If refresh fails, prompt re-login
-                logout();
+                // If refresh fails, clear auth and redirect
+                clearAuthState();
+                if (browser) {
+                    goto('/login');
+                }
             }
         }, timeUntilRefresh);
     }
@@ -92,16 +95,43 @@ function createAuthStore() {
 
                 if (inactiveTime > maxInactiveTime) {
                     console.log('Session expired due to inactivity');
-                    logout();
+                    clearAuthState();
+                    if (browser) {
+                        goto('/login');
+                    }
                 }
             }
         }, 60 * 1000);
     }
 
+    // Rate limiting for refresh attempts
+    let refreshAttempts = 0;
+    let lastRefreshAttempt = 0;
+    const MAX_REFRESH_ATTEMPTS = 3;
+    const REFRESH_COOLDOWN = 60000; // 1 minute
+
     // Refresh token function
     async function refreshToken() {
         const currentAuth = getCurrentAuth();
         if (!currentAuth.token) return;
+
+        // Rate limiting
+        const now = Date.now();
+        if (now - lastRefreshAttempt < REFRESH_COOLDOWN) {
+            if (refreshAttempts >= MAX_REFRESH_ATTEMPTS) {
+                console.log('Too many refresh attempts, clearing auth');
+                clearAuthState();
+                if (browser) {
+                    goto('/login');
+                }
+                return;
+            }
+        } else {
+            refreshAttempts = 0;
+        }
+
+        refreshAttempts++;
+        lastRefreshAttempt = now;
 
         try {
             console.log('Refreshing authentication token...');
@@ -131,7 +161,8 @@ function createAuthStore() {
                 return auth;
             });
 
-            // Reset refresh timer
+            // Reset refresh timer and attempts on success
+            refreshAttempts = 0;
             setupTokenRefresh(getCurrentAuth());
             
         } catch (error) {
@@ -243,7 +274,10 @@ function createAuthStore() {
                     await refreshToken();
                     return true;
                 } catch (error) {
-                    this.logout();
+                    this.clearAuthState();
+                    if (browser) {
+                        goto('/login');
+                    }
                     return false;
                 }
             }
@@ -263,7 +297,10 @@ function createAuthStore() {
                     }
                 } catch (error) {
                     console.error('Failed to fetch user profile:', error);
-                    this.logout();
+                    this.clearAuthState();
+                    if (browser) {
+                        goto('/login');
+                    }
                     return false;
                 }
             }
