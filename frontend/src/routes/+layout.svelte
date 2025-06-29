@@ -202,16 +202,24 @@
             <img src="/images/MBP Torch.png" alt="MBP Torch" class="w-8 h-8 object-contain mr-2"/>
             <div class="flex items-center gap-2">
               <h1 class="text-2xl font-bold text-white tracking-tight">DoR-Dash</h1>
-              <!-- Brain with lightbulb easter egg to About page -->
-              <!-- Temporary: Simple icon to test if complex SVG is causing issues -->
+              <!-- Easter egg eye icon that opens/closes on hover -->
               <button 
                 on:click={() => window.location.href = '/about'}
-                class="group relative p-1 rounded-full hover:bg-white/10 transition-colors duration-200"
-                title="About DoR-Dash"
+                class="group relative p-1 rounded-full hover:bg-white/10 transition-all duration-300 ease-in-out"
+                title="About DoR-Dash (Easter Egg!)"
                 aria-label="About DoR-Dash"
               >
-                <svg class="w-4 h-4 text-gold-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                <!-- Closed Eye (default state) -->
+                <svg class="w-5 h-5 text-gold-400 group-hover:opacity-0 transition-opacity duration-300 ease-in-out absolute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+                
+                <!-- Open Eye (hover state) -->
+                <svg class="w-5 h-5 text-gold-400 group-hover:opacity-100 opacity-0 transition-opacity duration-300 ease-in-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.8"/>
+                  <circle cx="12" cy="12" r="1" fill="white" opacity="0.9"/>
                 </svg>
               </button>
             </div>
@@ -225,29 +233,76 @@
             href={item.path} 
             class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {$page.url.pathname.startsWith(item.path) ? 'bg-primary-800 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-red-800 lsu:bg-purple-800 text-white shadow-md' : 'text-primary-100 dark:text-slate-300 dracula:text-slate-300 mbp:text-red-100 lsu:text-purple-100 hover:bg-primary-800/50 dark:hover:bg-slate-700/50 dracula:hover:bg-gray-700/50 mbp:hover:bg-red-800/50 lsu:hover:bg-purple-800/50 hover:text-white'}"
           >
-            <!-- Icon SVG with gold accent for active items -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 flex-shrink-0 {$page.url.pathname.startsWith(item.path) ? 'text-gold-400 dark:text-yellow-400 dracula:text-cyan-400 mbp:text-red-300 lsu:text-yellow-400' : 'text-primary-300 dark:text-slate-400 dracula:text-slate-400 mbp:text-red-300 lsu:text-purple-300 group-hover:text-gold-300 dark:group-hover:text-yellow-300 dracula:group-hover:text-cyan-300 mbp:group-hover:text-red-200 lsu:group-hover:text-yellow-300'}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <!-- Enhanced vivid icons with high contrast -->
+            <div class="h-6 w-6 mr-3 flex-shrink-0 {$page.url.pathname.startsWith(item.path) ? 'text-gold-400 dark:text-yellow-400 dracula:text-cyan-400 mbp:text-red-300 lsu:text-yellow-400' : 'text-primary-300 dark:text-slate-400 dracula:text-slate-400 mbp:text-red-300 lsu:text-purple-300 group-hover:text-gold-300 dark:group-hover:text-yellow-300 dracula:group-hover:text-cyan-300 mbp:group-hover:text-red-200 lsu:group-hover:text-yellow-300'}">
               {#if item.icon === 'home'}
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9,22 9,12 15,12 15,22"/>
+                  <circle cx="12" cy="8" r="1" fill="currentColor"/>
+                </svg>
               {:else if item.icon === 'document-text'}
-                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10,9 9,9 8,9"/>
+                  <circle cx="17" cy="4" r="1" fill="currentColor"/>
+                </svg>
               {:else if item.icon === 'document-duplicate'}
-                <path d="M7 5a3 3 0 016 0v4a3 3 0 01-6 0V5z"/>
-                <path d="M5 4a1 1 0 00-1 1v2a1 1 0 001 1h1V6a4 4 0 118 0v2h1a1 1 0 001-1V5a1 1 0 00-1-1H5z"/>
-                <path d="M3 9a1 1 0 001 1h12a1 1 0 001-1v7a1 1 0 01-1 1H4a1 1 0 01-1-1V9z"/>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  <line x1="12" y1="12" x2="18" y2="12"/>
+                  <line x1="12" y1="16" x2="18" y2="16"/>
+                  <circle cx="19" cy="6" r="1" fill="currentColor"/>
+                </svg>
               {:else if item.icon === 'support'}
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-2 0c0 .993-.241 1.929-.668 2.754l-1.524-1.525a3.997 3.997 0 00.078-2.183l1.562-1.562C15.802 8.249 16 9.1 16 10zm-5.165 3.913l1.58 1.58A5.98 5.98 0 0110 16a5.976 5.976 0 01-2.516-.552l1.562-1.562a4.006 4.006 0 001.789.027zm-4.677-2.796a4.002 4.002 0 01-.041-2.08l-.08.08-1.53-1.533A5.98 5.98 0 004 10c0 .954.223 1.856.619 2.657l1.54-1.54zm1.088-6.45A5.974 5.974 0 0110 4c.954 0 1.856.223 2.657.619l-1.54 1.54a4.002 4.002 0 00-2.346.033L7.246 4.668zM12 10a2 2 0 11-4 0 2 2 0 014 0z" clip-rule="evenodd" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  <circle cx="18" cy="6" r="2" fill="currentColor" opacity="0.7"/>
+                </svg>
               {:else if item.icon === 'academic-cap'}
-                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                  <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                  <circle cx="20" cy="4" r="2" fill="currentColor" opacity="0.8"/>
+                </svg>
               {:else if item.icon === 'calendar'}
-                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="5" width="18" height="15" rx="2" ry="2"/>
+                  <line x1="16" y1="3" x2="16" y2="7"/>
+                  <line x1="8" y1="3" x2="8" y2="7"/>
+                  <line x1="3" y1="9" x2="21" y2="9"/>
+                  <rect x="7" y="12" width="2" height="2" fill="currentColor"/>
+                  <rect x="15" y="12" width="2" height="2" fill="currentColor"/>
+                </svg>
               {:else if item.icon === 'calendar-days'}
-                <path d="M5.5 10.5A.5.5 0 016 10h4a.5.5 0 010 1H6a.5.5 0 01-.5-.5z"/>
-                <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zM5 5.5a.5.5 0 01.5-.5h2a.5.5 0 01.5.5V6a.5.5 0 01-.5.5h-2A.5.5 0 015 6v-.5zm3 5.5a.5.5 0 01.5-.5h2a.5.5 0 010 1h-2a.5.5 0 01-.5-.5z" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="5" width="18" height="15" rx="2" ry="2"/>
+                  <line x1="16" y1="3" x2="16" y2="7"/>
+                  <line x1="8" y1="3" x2="8" y2="7"/>
+                  <line x1="3" y1="9" x2="21" y2="9"/>
+                  <line x1="7" y1="13" x2="7" y2="13"/>
+                  <line x1="12" y1="13" x2="12" y2="13"/>
+                  <line x1="17" y1="13" x2="17" y2="13"/>
+                  <line x1="7" y1="17" x2="7" y2="17"/>
+                  <line x1="12" y1="17" x2="12" y2="17"/>
+                  <circle cx="19" cy="3" r="1" fill="currentColor"/>
+                </svg>
               {:else if item.icon === 'users'}
-                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  <circle cx="20" cy="4" r="1" fill="currentColor" opacity="0.7"/>
+                </svg>
               {/if}
-            </svg>
+            </div>
             
             {item.title}
           </a>
@@ -265,18 +320,44 @@
                 href={item.path} 
                 class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 {$page.url.pathname.startsWith(item.path) ? 'bg-secondary-900 dark:bg-slate-700 dracula:bg-gray-700 mbp:bg-red-800 lsu:bg-purple-800 text-white shadow-md' : 'text-primary-100 dark:text-slate-300 dracula:text-slate-300 mbp:text-red-100 lsu:text-purple-100 hover:bg-secondary-900/50 dark:hover:bg-slate-700/50 dracula:hover:bg-gray-700/50 mbp:hover:bg-red-800/50 lsu:hover:bg-purple-800/50 hover:text-white'}"
               >
-                <!-- Icon SVG with gold accent for active items -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 flex-shrink-0 {$page.url.pathname.startsWith(item.path) ? 'text-gold-400 dark:text-yellow-400 dracula:text-cyan-400 mbp:text-red-300 lsu:text-yellow-400' : 'text-primary-300 dark:text-slate-400 dracula:text-slate-400 mbp:text-red-300 lsu:text-purple-300 group-hover:text-gold-300 dark:group-hover:text-yellow-300 dracula:group-hover:text-cyan-300 mbp:group-hover:text-red-200 lsu:group-hover:text-yellow-300'}" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <!-- Enhanced vivid admin icons with high contrast -->
+                <div class="h-6 w-6 mr-3 flex-shrink-0 {$page.url.pathname.startsWith(item.path) ? 'text-gold-400 dark:text-yellow-400 dracula:text-cyan-400 mbp:text-red-300 lsu:text-yellow-400' : 'text-primary-300 dark:text-slate-400 dracula:text-slate-400 mbp:text-red-300 lsu:text-purple-300 group-hover:text-gold-300 dark:group-hover:text-yellow-300 dracula:group-hover:text-cyan-300 mbp:group-hover:text-red-200 lsu:group-hover:text-yellow-300'}">
                   {#if item.icon === 'view-grid'}
-                    <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="7" height="7" rx="1"/>
+                      <rect x="14" y="3" width="7" height="7" rx="1"/>
+                      <rect x="14" y="14" width="7" height="7" rx="1"/>
+                      <rect x="3" y="14" width="7" height="7" rx="1"/>
+                      <circle cx="18" cy="6" r="1" fill="currentColor" opacity="0.8"/>
+                    </svg>
                   {:else if item.icon === 'user-group'}
-                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 12.094A5.973 5.973 0 004 15v1H1v-1a3 3 0 013.75-2.906z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                      <circle cx="9" cy="7" r="4"/>
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                      <circle cx="20" cy="4" r="1" fill="currentColor" opacity="0.7"/>
+                      <circle cx="12" cy="12" r="1" fill="currentColor" opacity="0.5"/>
+                    </svg>
                   {:else if item.icon === 'user-plus'}
-                    <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                      <circle cx="8.5" cy="7" r="4"/>
+                      <line x1="20" y1="8" x2="20" y2="14"/>
+                      <line x1="23" y1="11" x2="17" y2="11"/>
+                      <circle cx="19" cy="4" r="1" fill="currentColor" opacity="0.8"/>
+                    </svg>
                   {:else if item.icon === 'presentation-chart-bar'}
-                    <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clip-rule="evenodd" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="20" x2="12" y2="10"/>
+                      <line x1="18" y1="20" x2="18" y2="4"/>
+                      <line x1="6" y1="20" x2="6" y2="16"/>
+                      <circle cx="18" cy="2" r="1" fill="currentColor" opacity="0.8"/>
+                      <circle cx="12" cy="8" r="1" fill="currentColor" opacity="0.6"/>
+                      <circle cx="6" cy="14" r="1" fill="currentColor" opacity="0.4"/>
+                    </svg>
                   {/if}
-                </svg>
+                </div>
                 
                 {item.title}
               </a>

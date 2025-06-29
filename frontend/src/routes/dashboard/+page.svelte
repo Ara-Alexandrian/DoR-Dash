@@ -577,8 +577,14 @@
             <div class="absolute inset-0 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div class="relative flex items-center">
               <div class="p-4 bg-primary-100 dark:bg-primary-800 rounded-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-700 dark:text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.414 10.414c-.78.78-1.836 1.22-2.914 1.22h-1v-1c0-1.079.44-2.134 1.22-2.914l6.586-6.586z" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-primary-700 dark:text-primary-300 drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <line x1="10" y1="9" x2="8" y2="9"/>
+                  <circle cx="18" cy="4" r="1.5" fill="currentColor" opacity="0.8"/>
+                  <path d="M12 15l2 2 4-4" stroke-width="2" opacity="0.6"/>
                 </svg>
               </div>
               <div class="ml-5 flex-1">
@@ -595,8 +601,12 @@
             <div class="absolute inset-0 bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900/20 dark:to-secondary-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div class="relative flex items-center">
               <div class="p-4 bg-secondary-100 dark:bg-secondary-800 rounded-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-secondary-700 dark:text-secondary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-secondary-700 dark:text-secondary-300 drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  <circle cx="18" cy="6" r="2" fill="currentColor" opacity="0.7"/>
+                  <path d="M16 16l-4-4-4 4" stroke-width="2" opacity="0.5"/>
                 </svg>
               </div>
               <div class="ml-5 flex-1">
@@ -613,8 +623,15 @@
             <div class="absolute inset-0 bg-gradient-to-br from-gold-50 to-gold-100 dark:from-gold-900/20 dark:to-gold-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div class="relative flex items-center">
               <div class="p-4 bg-gold-100 dark:bg-gold-800 rounded-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gold-700 dark:text-gold-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gold-700 dark:text-gold-300 drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="5" width="18" height="15" rx="2" ry="2"/>
+                  <line x1="16" y1="3" x2="16" y2="7"/>
+                  <line x1="8" y1="3" x2="8" y2="7"/>
+                  <line x1="3" y1="9" x2="21" y2="9"/>
+                  <rect x="7" y="12" width="2" height="2" fill="currentColor" opacity="0.8"/>
+                  <rect x="15" y="12" width="2" height="2" fill="currentColor" opacity="0.8"/>
+                  <rect x="11" y="16" width="2" height="2" fill="currentColor" opacity="0.6"/>
+                  <circle cx="19" cy="3" r="1" fill="currentColor" opacity="0.9"/>
                 </svg>
               </div>
               <div class="ml-5 flex-1">
