@@ -202,26 +202,6 @@
             <img src="/images/MBP Torch.png" alt="MBP Torch" class="w-8 h-8 object-contain mr-2"/>
             <div class="flex items-center gap-2">
               <h1 class="text-2xl font-bold text-white tracking-tight">DoR-Dash</h1>
-              <!-- Easter egg eye icon that opens/closes on hover -->
-              <button 
-                on:click={() => window.location.href = '/about'}
-                class="group relative p-1 rounded-full hover:bg-white/10 transition-all duration-300 ease-in-out"
-                title="About DoR-Dash (Easter Egg!)"
-                aria-label="About DoR-Dash"
-              >
-                <!-- Closed Eye (default state) -->
-                <svg class="w-5 h-5 text-gold-400 group-hover:opacity-0 transition-opacity duration-300 ease-in-out absolute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-                  <line x1="1" y1="1" x2="23" y2="23"/>
-                </svg>
-                
-                <!-- Open Eye (hover state) -->
-                <svg class="w-5 h-5 text-gold-400 group-hover:opacity-100 opacity-0 transition-opacity duration-300 ease-in-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                  <circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.8"/>
-                  <circle cx="12" cy="12" r="1" fill="white" opacity="0.9"/>
-                </svg>
-              </button>
             </div>
           </div>
         </div>
@@ -402,6 +382,29 @@
             </div>
           </div>
         {/if}
+        
+        <!-- Easter egg eye icon at bottom of sidebar -->
+        <div class="flex justify-center pt-4 mt-2 border-t border-primary-900/50 dark:border-slate-700/50 dracula:border-gray-700/50 mbp:border-red-900/50 lsu:border-purple-900/50">
+          <button 
+            on:click={() => window.location.href = '/about'}
+            class="group relative p-2 rounded-full hover:bg-primary-800/30 dark:hover:bg-slate-700/30 dracula:hover:bg-gray-700/30 mbp:hover:bg-red-800/30 lsu:hover:bg-purple-800/30 transition-all duration-300 ease-in-out"
+            title="About DoR-Dash (Easter Egg!)"
+            aria-label="About DoR-Dash"
+          >
+            <!-- Closed Eye (default state) -->
+            <svg class="w-4 h-4 text-gold-400/60 dark:text-yellow-400/60 dracula:text-cyan-400/60 mbp:text-red-400/60 lsu:text-yellow-400/60 group-hover:opacity-0 transition-opacity duration-300 ease-in-out absolute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+            
+            <!-- Open Eye (hover state) -->
+            <svg class="w-4 h-4 text-gold-400 dark:text-yellow-400 dracula:text-cyan-400 mbp:text-red-400 lsu:text-yellow-400 group-hover:opacity-100 opacity-0 transition-opacity duration-300 ease-in-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.8"/>
+              <circle cx="12" cy="12" r="1" fill="white" opacity="0.9"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
     
