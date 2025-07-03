@@ -37,6 +37,7 @@ class PresentationAssignmentCreate(BaseModel):
     grillometer_delivery: Optional[int] = Field(None, ge=1, le=3)
 
 class PresentationAssignmentUpdate(BaseModel):
+    meeting_id: Optional[int] = None
     title: Optional[str] = Field(None, min_length=1, max_length=500)
     description: Optional[str] = None
     presentation_type: Optional[PresentationType] = None
@@ -377,6 +378,16 @@ async def update_presentation_assignment(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only faculty, admin, or the assigned student can update assignments"
         )
+    
+    # Validate meeting_id if provided
+    if assignment_data.meeting_id is not None:
+        from app.models.meeting import Meeting
+        meeting = db.query(Meeting).filter(Meeting.id == assignment_data.meeting_id).first()
+        if not meeting:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Meeting with ID {assignment_data.meeting_id} not found"
+            )
     
     # Update fields
     update_data = assignment_data.dict(exclude_unset=True)
