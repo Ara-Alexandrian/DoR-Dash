@@ -136,17 +136,19 @@
       const isAdminRoute = adminRoutes.some(route => currentRoute.startsWith(route));
       
       // If we have a token but no user data, try to fetch the profile
-      if ($auth.isAuthenticated && $auth.token && !$auth.user && !isAuthRoute) {
+      if ($auth.token && !$auth.user && !isAuthRoute) {
         try {
           const { authApi } = await import('$lib/api');
           const userProfile = await authApi.getProfile();
           console.log('Fetched user profile:', userProfile);
-          auth.updateUser(userProfile);
+          auth.update(state => ({ ...state, user: userProfile }));
         } catch (error) {
           console.error('Failed to fetch user profile:', error);
-          // If profile fetch fails, logout and redirect to login
-          auth.clearAuthState();
-          goto('/login');
+          // If profile fetch fails, clear auth and redirect only if on protected route
+          if (isProtected) {
+            auth.clearAuthState();
+            goto('/login');
+          }
           return;
         }
       }
