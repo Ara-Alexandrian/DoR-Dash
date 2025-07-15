@@ -1,6 +1,6 @@
 <script>
   import '../app.css';
-  import { auth } from '$lib/stores/auth';
+  import { auth, isAuthenticated } from '$lib/stores/auth';
   import { browser } from '$app/environment';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
@@ -146,7 +146,8 @@
         currentRoute,
         isProtected,
         isAdminRoute,
-        isAuthenticated: $auth.isAuthenticated,
+        isAuthenticated: $isAuthenticated,
+        authIsAuthenticated: $auth.isAuthenticated,
         hasToken: !!$auth.token,
         hasUser: !!$auth.user,
         userRole: $auth.user?.role,
@@ -173,7 +174,7 @@
         }
       }
       
-      if (isProtected && !$auth.isAuthenticated) {
+      if (isProtected && !$isAuthenticated) {
         // Redirect to login if not authenticated
         console.log('LAYOUT_DEBUG - Redirecting to login: not authenticated');
         goto('/login');

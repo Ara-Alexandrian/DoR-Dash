@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { auth } from '$lib/stores/auth';
+  import { auth, isAuthenticated } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
   import { userApi } from '$lib/api';
   
@@ -31,13 +31,14 @@
   
   onMount(async () => {
     console.log('ADMIN_USERS_DEBUG - Auth state:', {
-      isAuthenticated: $auth.isAuthenticated,
+      isAuthenticated: $isAuthenticated,
+      authIsAuthenticated: $auth.isAuthenticated,
       user: $auth.user,
       role: $auth.user?.role,
       roleLower: $auth.user?.role?.toLowerCase()
     });
     
-    if (!$auth.isAuthenticated || $auth.user?.role?.toLowerCase() !== 'admin') {
+    if (!$isAuthenticated || $auth.user?.role?.toLowerCase() !== 'admin') {
       console.log('ADMIN_USERS_DEBUG - Redirecting to dashboard due to auth failure');
       goto('/dashboard');
       return;
