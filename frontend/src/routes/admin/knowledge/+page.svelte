@@ -5,7 +5,7 @@
   import { goto } from '$app/navigation';
   
   // Check admin access
-  $: if ($auth.user && $auth.user.role !== 'admin') {
+  $: if ($auth.user && $auth.user.role?.toLowerCase() !== 'admin') {
     goto('/dashboard');
   }
   

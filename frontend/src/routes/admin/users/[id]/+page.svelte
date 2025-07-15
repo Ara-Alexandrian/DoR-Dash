@@ -27,7 +27,7 @@
   };
   
   onMount(async () => {
-    if (!$auth.isAuthenticated || $auth.user?.role !== 'admin') {
+    if (!$auth.isAuthenticated || $auth.user?.role?.toLowerCase() !== 'admin') {
       goto('/dashboard');
       return;
     }
