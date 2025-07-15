@@ -48,7 +48,7 @@
   let showSidebar = false;
   
   // Reactive admin status
-  $: isAdmin = $auth?.user?.role === 'admin';
+  $: isAdmin = $auth?.user?.role?.toLowerCase() === 'admin';
   
   // Avatar cache buster - compute once to prevent multiple requests
   let avatarCacheBuster = null;
@@ -155,9 +155,16 @@
       
       if (isProtected && !$auth.isAuthenticated) {
         // Redirect to login if not authenticated
+        console.log('LAYOUT_DEBUG - Redirecting to login: not authenticated');
         goto('/login');
-      } else if (isAdminRoute && $auth.user?.role !== 'admin') {
+      } else if (isAdminRoute && $auth.user?.role?.toLowerCase() !== 'admin') {
         // Redirect to dashboard if not admin
+        console.log('LAYOUT_DEBUG - Redirecting to dashboard: not admin', {
+          currentRoute,
+          isAdminRoute,
+          userRole: $auth.user?.role,
+          userRoleLower: $auth.user?.role?.toLowerCase()
+        });
         goto('/dashboard');
       }
       
