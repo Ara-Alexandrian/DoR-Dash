@@ -130,22 +130,42 @@
       document.documentElement.classList.remove('light', 'dark', 'dracula', 'mbp', 'lsu');
       document.documentElement.classList.add(savedTheme);
       
+      console.log('LAYOUT_DEBUG - Initial auth state on mount:', {
+        isAuthenticated: $auth.isAuthenticated,
+        hasToken: !!$auth.token,
+        hasUser: !!$auth.user,
+        userRole: $auth.user?.role
+      });
+      
       // Check auth state
       const currentRoute = $page.url.pathname;
       const isProtected = protectedRoutes.some(route => currentRoute.startsWith(route));
       const isAdminRoute = adminRoutes.some(route => currentRoute.startsWith(route));
       
+      console.log('LAYOUT_DEBUG - Route check:', {
+        currentRoute,
+        isProtected,
+        isAdminRoute,
+        isAuthenticated: $auth.isAuthenticated,
+        hasToken: !!$auth.token,
+        hasUser: !!$auth.user,
+        userRole: $auth.user?.role,
+        isAuthRoute
+      });
+      
       // If we have a token but no user data, try to fetch the profile
       if ($auth.token && !$auth.user && !isAuthRoute) {
+        console.log('LAYOUT_DEBUG - Fetching user profile because token exists but no user data');
         try {
           const { authApi } = await import('$lib/api');
           const userProfile = await authApi.getProfile();
-          console.log('Fetched user profile:', userProfile);
+          console.log('LAYOUT_DEBUG - Fetched user profile:', userProfile);
           auth.update(state => ({ ...state, user: userProfile }));
         } catch (error) {
-          console.error('Failed to fetch user profile:', error);
+          console.error('LAYOUT_DEBUG - Failed to fetch user profile:', error);
           // If profile fetch fails, clear auth and redirect only if on protected route
           if (isProtected) {
+            console.log('LAYOUT_DEBUG - Clearing auth and redirecting to login due to profile fetch failure');
             auth.clearAuthState();
             goto('/login');
           }
