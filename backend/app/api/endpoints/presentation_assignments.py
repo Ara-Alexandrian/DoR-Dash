@@ -155,7 +155,9 @@ async def create_presentation_assignment(
         )
     
     # Ensure meeting is current or upcoming (not past)
-    if meeting.start_time < datetime.now():
+    # Use timezone-aware comparison
+    now = datetime.now(timezone.utc) if meeting.start_time.tzinfo else datetime.now()
+    if meeting.start_time < now:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot assign presentations to past meetings"
@@ -178,9 +180,17 @@ async def create_presentation_assignment(
         grillometer_delivery=assignment_data.grillometer_delivery
     )
     
-    db.add(assignment)
-    db.commit()
-    db.refresh(assignment)
+    try:
+        db.add(assignment)
+        db.commit()
+        db.refresh(assignment)
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Database error creating presentation assignment: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Database error: {str(e)}"
+        )
     
     # Load relationships for response
     assignment_with_relations = db.query(PresentationAssignment).options(
@@ -381,7 +391,6 @@ async def update_presentation_assignment(
     
     # Validate meeting_id if provided
     if assignment_data.meeting_id is not None:
-        from app.models.meeting import Meeting
         meeting = db.query(Meeting).filter(Meeting.id == assignment_data.meeting_id).first()
         if not meeting:
             raise HTTPException(
@@ -402,8 +411,16 @@ async def update_presentation_assignment(
     
     assignment.updated_at = datetime.now()
     
-    db.commit()
-    db.refresh(assignment)
+    try:
+        db.commit()
+        db.refresh(assignment)
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Database error updating presentation assignment: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Database error: {str(e)}"
+        )
     
     # Load relationships for response
     assignment_with_relations = db.query(PresentationAssignment).options(
@@ -461,8 +478,16 @@ async def delete_presentation_assignment(
             detail="Presentation assignment not found"
         )
     
-    db.delete(assignment)
-    db.commit()
+    try:
+        db.delete(assignment)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Database error deleting presentation assignment: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Database error: {str(e)}"
+        )
     
     return {"message": "Presentation assignment deleted successfully"}
 
