@@ -78,6 +78,39 @@ async def read_users(
     all_users = get_all_users(db)
     return all_users[skip : skip + limit]
 
+# Search users by username
+@router.get("/search", response_model=List[UserResponse])
+async def search_users(
+    username: Optional[str] = Query(None, description="Username to search for (partial match)"),
+    role: Optional[str] = Query(None, description="Filter by role (student, faculty, admin)"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_sync_db)
+):
+    """
+    Search users by username (partial match) and/or role.
+    - Faculty/admin can search all users
+    - Students can only search for other students
+    """
+    all_users = get_all_users(db)
+    
+    # Apply role-based filtering
+    if current_user.role.upper() == "STUDENT":
+        # Students can only search for other students
+        all_users = [u for u in all_users if u["role"].upper() == "STUDENT"]
+    
+    # Apply search filters
+    if username:
+        # Case-insensitive partial match
+        username_lower = username.lower()
+        all_users = [u for u in all_users if username_lower in u["username"].lower()]
+    
+    if role:
+        # Filter by role
+        role_upper = role.upper()
+        all_users = [u for u in all_users if u["role"].upper() == role_upper]
+    
+    return all_users
+
 # Get user by ID
 @router.get("/{user_id}", response_model=UserResponse)
 async def read_user(
