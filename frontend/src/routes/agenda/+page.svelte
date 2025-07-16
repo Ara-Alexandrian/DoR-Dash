@@ -183,7 +183,7 @@
       showPastOnly = false;
       showUpcomingOnly = true;
       if (meetings.length > 0) filterMeetingsByMonth();
-    } else if (!filter && (showPastOnly || showUpcomingOnly)) {
+    } else if (filter === 'all' || (!filter && (showPastOnly || !showUpcomingOnly))) {
       showPastOnly = false;
       showUpcomingOnly = false;
       if (meetings.length > 0) filterMeetingsByMonth();
@@ -208,22 +208,22 @@
       <!-- View toggle buttons -->
       <div class="flex rounded-md shadow-sm">
         <a 
-          href="/agenda"
-          class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-l-md border border-gray-300 {!showPastOnly && !showUpcomingOnly ? 'bg-primary-600 text-white border-primary-600' : 'bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-tertiary))]'}"
-        >
-          All
-        </a>
-        <a 
           href="/agenda?filter=upcoming"
-          class="inline-flex items-center px-3 py-2 text-sm font-medium border-t border-b border-gray-300 {showUpcomingOnly ? 'bg-gold-600 text-white border-gold-600' : 'bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-tertiary))]'}"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-l-md border border-gray-300 {showUpcomingOnly ? 'bg-gold-600 text-white border-gold-600' : 'bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-tertiary))]'}"
         >
           Upcoming
         </a>
         <a 
           href="/agenda?filter=past"
-          class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-r-md border border-gray-300 {showPastOnly ? 'bg-green-600 text-white border-green-600' : 'bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-tertiary))]'}"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium border-t border-b border-gray-300 {showPastOnly ? 'bg-green-600 text-white border-green-600' : 'bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-tertiary))]'}"
         >
           Past
+        </a>
+        <a 
+          href="/agenda?filter=all"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-r-md border border-gray-300 {!showPastOnly && !showUpcomingOnly ? 'bg-primary-600 text-white border-primary-600' : 'bg-[rgb(var(--color-bg-secondary))] text-[rgb(var(--color-text-primary))] hover:bg-[rgb(var(--color-bg-tertiary))]'}"
+        >
+          All
         </a>
       </div>
       
@@ -293,8 +293,10 @@
                       Location: Mary Bird Perkins Cancer Center, Conference Room A
                     </p>
                     <p class="text-sm text-[rgb(var(--color-text-secondary))]">
-                      Time: {new Date(meeting.start_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} - 
-                      {new Date(meeting.end_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                      Time: {new Date(meeting.start_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                      {#if meeting.event_type !== 'meeting' && meeting.event_type && meeting.end_time}
+                        - {new Date(meeting.end_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                      {/if}
                     </p>
                     <div class="mt-2 text-sm text-[rgb(var(--color-text-secondary))] flex items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-primary-600" viewBox="0 0 20 20" fill="currentColor">
