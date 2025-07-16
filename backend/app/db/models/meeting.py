@@ -13,16 +13,27 @@ class MeetingType(str, enum.Enum):
     OTHER = "other"
 
 
+class EventType(str, enum.Enum):
+    MEETING = "meeting"
+    CONFERENCE = "conference"
+    HOLIDAY = "holiday"
+    BLOCK_TIME = "block_time"
+    OTHER_EVENT = "other_event"
+
+
 class Meeting(Base):
-    """Meeting model for scheduled appointments"""
+    """Meeting model for scheduled appointments and events"""
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     meeting_type: Mapped[str] = mapped_column(
         String(50), default=MeetingType.GENERAL_UPDATE.value, nullable=False
     )
+    event_type: Mapped[str] = mapped_column(
+        String(50), default=EventType.MEETING.value, nullable=False
+    )
     start_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
-    end_time: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    end_time: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     created_by: Mapped[int] = mapped_column(ForeignKey("user.id", ondelete="SET NULL"), nullable=True)
     
     # Track changes
@@ -47,3 +58,13 @@ class Meeting(Base):
     def meeting_type_enum(self, value: MeetingType):
         """Set meeting_type from enum"""
         self.meeting_type = value.value
+    
+    @property
+    def event_type_enum(self) -> EventType:
+        """Get event_type as enum"""
+        return EventType(self.event_type)
+    
+    @event_type_enum.setter
+    def event_type_enum(self, value: EventType):
+        """Set event_type from enum"""
+        self.event_type = value.value

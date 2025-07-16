@@ -5,7 +5,7 @@ from pydantic import BaseModel, validator
 from sqlalchemy.orm import Session
 
 from app.api.endpoints.auth import User, get_current_user
-from app.db.models.meeting import Meeting, MeetingType
+from app.db.models.meeting import Meeting, MeetingType, EventType
 from app.db.models.agenda_item import AgendaItem as DBAgendaItem, AgendaItemType
 from app.db.session import get_sync_db
 from sqlalchemy.orm import joinedload
@@ -20,12 +20,13 @@ class MeetingBase(BaseModel):
     title: str
     description: Optional[str] = None
     meeting_type: MeetingType
+    event_type: EventType = EventType.MEETING
     start_time: datetime
-    end_time: datetime
+    end_time: Optional[datetime] = None
     
     @validator('end_time')
     def end_time_must_be_after_start_time(cls, v, values):
-        if 'start_time' in values and v < values['start_time']:
+        if v and 'start_time' in values and v < values['start_time']:
             raise ValueError('end_time must be after start_time')
         return v
     
@@ -39,6 +40,7 @@ class MeetingUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     meeting_type: Optional[MeetingType] = None
+    event_type: Optional[EventType] = None
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     
@@ -79,6 +81,7 @@ async def create_meeting(
         title=meeting_in.title,
         description=meeting_in.description,
         meeting_type=meeting_in.meeting_type,
+        event_type=meeting_in.event_type,
         start_time=meeting_in.start_time,
         end_time=meeting_in.end_time,
         created_by=current_user.id,

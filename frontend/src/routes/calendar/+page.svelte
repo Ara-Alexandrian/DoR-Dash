@@ -19,6 +19,7 @@
   let meetingForm = {
     description: '',
     meeting_type: 'general_update',
+    event_type: 'meeting',
     start_time: '',
     end_time: ''
   };
@@ -28,6 +29,15 @@
     { value: 'general_update', label: 'DoR General Updates Only' },
     { value: 'presentations_and_updates', label: 'DoR Presentations and Updates' },
     { value: 'other', label: 'Other' }
+  ];
+
+  // Event type options
+  const eventTypes = [
+    { value: 'meeting', label: 'Meeting' },
+    { value: 'conference', label: 'Conference' },
+    { value: 'holiday', label: 'Holiday' },
+    { value: 'block_time', label: 'Block Time' },
+    { value: 'other_event', label: 'Other Event' }
   ];
   
   // Custom type for 'other' meetings
@@ -53,6 +63,22 @@
     presentations_and_updates: 'bg-amber-500 text-white border-amber-600',
     other: 'bg-gray-500 text-white border-gray-600'
   };
+
+  const eventTypeColors = {
+    meeting: 'bg-blue-500 text-white border-blue-600',
+    conference: 'bg-purple-500 text-white border-purple-600',
+    holiday: 'bg-red-500 text-white border-red-600',
+    block_time: 'bg-gray-400 text-white border-gray-500',
+    other_event: 'bg-indigo-500 text-white border-indigo-600'
+  };
+
+  // Helper function to get event color based on event type
+  function getEventColor(meeting) {
+    if (meeting.event_type && meeting.event_type !== 'meeting') {
+      return eventTypeColors[meeting.event_type] || eventTypeColors.other_event;
+    }
+    return meetingTypeColors[meeting.meeting_type] || meetingTypeColors.other;
+  }
   
   // Component initialization
   onMount(async () => {
@@ -207,8 +233,9 @@
     meetingForm = {
       description: '',
       meeting_type: 'general_update',
+      event_type: 'meeting',
       start_time: formatDateTimeForInput(startTime),
-      end_time: formatDateTimeForInput(startTime) // End time will be set automatically
+      end_time: '' // End time will be set automatically for meetings
     };
     
     customMeetingType = '';
@@ -246,22 +273,36 @@
     try {
       // Build the meeting data
       const startTime = new Date(meetingForm.start_time);
-      const endTime = isCreating ? new Date(startTime.getTime() + 60 * 60 * 1000) : new Date(meetingForm.end_time);
+      let endTime = null;
       
-      // Determine title based on meeting type
+      // For meetings, auto-calculate end time if not provided
+      if (meetingForm.event_type === 'meeting') {
+        endTime = isCreating ? new Date(startTime.getTime() + 60 * 60 * 1000) : new Date(meetingForm.end_time);
+      } else if (meetingForm.end_time) {
+        // For events, use provided end time if available
+        endTime = new Date(meetingForm.end_time);
+      }
+      
+      // Determine title based on event type and meeting type
       let title;
-      if (meetingForm.meeting_type === 'other') {
-        title = customMeetingType || 'Other Meeting';
+      if (meetingForm.event_type === 'meeting') {
+        if (meetingForm.meeting_type === 'other') {
+          title = customMeetingType || 'Other Meeting';
+        } else {
+          title = meetingTypes.find(t => t.value === meetingForm.meeting_type)?.label || meetingForm.meeting_type;
+        }
       } else {
-        title = meetingTypes.find(t => t.value === meetingForm.meeting_type)?.label || meetingForm.meeting_type;
+        // For non-meeting events, use description or event type as title
+        title = meetingForm.description || eventTypes.find(t => t.value === meetingForm.event_type)?.label || meetingForm.event_type;
       }
       
       const meetingData = {
         title: title,
         description: meetingForm.description,
         meeting_type: meetingForm.meeting_type,
+        event_type: meetingForm.event_type,
         start_time: startTime.toISOString(),
-        end_time: endTime.toISOString()
+        end_time: endTime ? endTime.toISOString() : null
       };
       
       if (isCreating) {
@@ -420,7 +461,7 @@
         class="btn-primary"
         on:click={() => createMeeting()}
       >
-        Add Meeting
+        Add Event
       </button>
     {/if}
   </div>
@@ -474,7 +515,7 @@
             <!-- Meetings for this day -->
             {#each getMeetingsForDay(day) as meeting}
               <button 
-                class="block w-full text-left mb-1 px-2 py-1 rounded text-xs {meetingTypeColors[meeting.meeting_type]} hover:opacity-90 truncate relative z-10 {isAdmin || isFaculty ? 'cursor-move' : ''} shadow-sm"
+                class="block w-full text-left mb-1 px-2 py-1 rounded text-xs {getEventColor(meeting)} hover:opacity-90 truncate relative z-10 {isAdmin || isFaculty ? 'cursor-move' : ''} shadow-sm"
                 draggable={isAdmin || isFaculty}
                 on:dragstart={(e) => handleDragStart(e, meeting)}
                 on:click={() => selectMeeting(meeting)}
@@ -519,7 +560,7 @@
         
         <div>
           <span class="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Type:</span>
-          <p class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium {meetingTypeColors[selectedMeeting.meeting_type]} shadow-sm">
+          <p class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium {getEventColor(selectedMeeting)} shadow-sm">
             {selectedMeeting.meeting_type === 'other' ? selectedMeeting.title : (meetingTypes.find(t => t.value === selectedMeeting.meeting_type)?.label || selectedMeeting.meeting_type)}
           </p>
         </div>
@@ -544,34 +585,47 @@
       style="left: {Math.min(popupPosition.x, window.innerWidth - 400)}px; top: {Math.min(popupPosition.y, window.innerHeight - 500)}px;"
     >
       <h3 class="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4">
-        Add New Meeting
+        Add New Event
       </h3>
       
       <form on:submit|preventDefault={handleSubmit} class="space-y-4">
         <div>
-          <label for="meeting_type" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
-            Meeting Type
+          <label for="event_type" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+            Event Type
           </label>
-          <select id="meeting_type" class="input" bind:value={meetingForm.meeting_type} on:change={() => customMeetingType = ''}>
-            {#each meetingTypes as type}
+          <select id="event_type" class="input" bind:value={meetingForm.event_type}>
+            {#each eventTypes as type}
               <option value={type.value}>{type.label}</option>
             {/each}
           </select>
-          
-          {#if meetingForm.meeting_type === 'other'}
-            <input 
-              type="text" 
-              class="input mt-2" 
-              bind:value={customMeetingType}
-              placeholder="Enter custom meeting type..."
-              required
-            />
-          {/if}
         </div>
+
+        {#if meetingForm.event_type === 'meeting'}
+          <div>
+            <label for="meeting_type" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+              Meeting Type
+            </label>
+            <select id="meeting_type" class="input" bind:value={meetingForm.meeting_type} on:change={() => customMeetingType = ''}>
+              {#each meetingTypes as type}
+                <option value={type.value}>{type.label}</option>
+              {/each}
+            </select>
+            
+            {#if meetingForm.meeting_type === 'other'}
+              <input 
+                type="text" 
+                class="input mt-2" 
+                bind:value={customMeetingType}
+                placeholder="Enter custom meeting type..."
+                required
+              />
+            {/if}
+          </div>
+        {/if}
         
         <div>
           <label for="start_time" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
-            Start Time
+            {meetingForm.event_type === 'meeting' ? 'Start Time' : 'Start Date/Time'}
           </label>
           <input 
             type="datetime-local" 
@@ -581,6 +635,20 @@
             required
           />
         </div>
+
+        {#if meetingForm.event_type !== 'meeting'}
+          <div>
+            <label for="end_time" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+              End Date/Time (Optional)
+            </label>
+            <input 
+              type="datetime-local" 
+              id="end_time" 
+              class="input" 
+              bind:value={meetingForm.end_time}
+            />
+          </div>
+        {/if}
         
         <div>
           <label for="description" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
@@ -607,7 +675,7 @@
             type="submit" 
             class="btn-primary"
           >
-            Create Meeting
+            Create {meetingForm.event_type === 'meeting' ? 'Meeting' : 'Event'}
           </button>
         </div>
       </form>
