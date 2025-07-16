@@ -196,8 +196,9 @@
     meetingForm = {
       description: selectedMeeting.description || '',
       meeting_type: selectedMeeting.meeting_type,
+      event_type: selectedMeeting.event_type || 'meeting',
       start_time: formatDateTimeForInput(selectedMeeting.start_time),
-      end_time: formatDateTimeForInput(selectedMeeting.end_time)
+      end_time: selectedMeeting.end_time ? formatDateTimeForInput(selectedMeeting.end_time) : ''
     };
     
     // Set custom meeting type if it's 'other'
@@ -554,14 +555,23 @@
         <div>
           <span class="text-sm font-medium text-[rgb(var(--color-text-secondary))]">When:</span>
           <p class="mt-1">
-            {formatDate(selectedMeeting.start_time)}, {formatTime(selectedMeeting.start_time)} - {formatTime(selectedMeeting.end_time)}
+            {#if selectedMeeting.event_type === 'meeting' || !selectedMeeting.event_type}
+              {formatDate(selectedMeeting.start_time)}, {formatTime(selectedMeeting.start_time)}
+            {:else}
+              {formatDate(selectedMeeting.start_time)}, {formatTime(selectedMeeting.start_time)}
+              {#if selectedMeeting.end_time}
+                - {formatDate(selectedMeeting.end_time)}, {formatTime(selectedMeeting.end_time)}
+              {/if}
+            {/if}
           </p>
         </div>
         
         <div>
           <span class="text-sm font-medium text-[rgb(var(--color-text-secondary))]">Type:</span>
           <p class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium {getEventColor(selectedMeeting)} shadow-sm">
-            {selectedMeeting.meeting_type === 'other' ? selectedMeeting.title : (meetingTypes.find(t => t.value === selectedMeeting.meeting_type)?.label || selectedMeeting.meeting_type)}
+            {selectedMeeting.event_type && selectedMeeting.event_type !== 'meeting' ? 
+              eventTypes.find(t => t.value === selectedMeeting.event_type)?.label || selectedMeeting.event_type :
+              selectedMeeting.meeting_type === 'other' ? selectedMeeting.title : (meetingTypes.find(t => t.value === selectedMeeting.meeting_type)?.label || selectedMeeting.meeting_type)}
           </p>
         </div>
         
@@ -686,34 +696,47 @@
   {#if isEditing && !showPopup}
     <div class="mt-8 card p-6">
       <h3 class="text-lg font-semibold text-[rgb(var(--color-text-primary))] mb-4">
-        Edit Meeting
+        Edit Event
       </h3>
       
       <form on:submit|preventDefault={handleSubmit} class="space-y-4">
         <div>
-          <label for="meeting_type" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
-            Meeting Type
+          <label for="event_type_edit" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+            Event Type
           </label>
-          <select id="meeting_type" class="input" bind:value={meetingForm.meeting_type} on:change={() => customMeetingType = ''}>
-            {#each meetingTypes as type}
+          <select id="event_type_edit" class="input" bind:value={meetingForm.event_type}>
+            {#each eventTypes as type}
               <option value={type.value}>{type.label}</option>
             {/each}
           </select>
-          
-          {#if meetingForm.meeting_type === 'other'}
-            <input 
-              type="text" 
-              class="input mt-2" 
-              bind:value={customMeetingType}
-              placeholder="Enter custom meeting type..."
-              required
-            />
-          {/if}
         </div>
+
+        {#if meetingForm.event_type === 'meeting'}
+          <div>
+            <label for="meeting_type" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+              Meeting Type
+            </label>
+            <select id="meeting_type" class="input" bind:value={meetingForm.meeting_type} on:change={() => customMeetingType = ''}>
+              {#each meetingTypes as type}
+                <option value={type.value}>{type.label}</option>
+              {/each}
+            </select>
+            
+            {#if meetingForm.meeting_type === 'other'}
+              <input 
+                type="text" 
+                class="input mt-2" 
+                bind:value={customMeetingType}
+                placeholder="Enter custom meeting type..."
+                required
+              />
+            {/if}
+          </div>
+        {/if}
         
         <div>
           <label for="start_time" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
-            Start Time
+            {meetingForm.event_type === 'meeting' ? 'Start Time' : 'Start Date/Time'}
           </label>
           <input 
             type="datetime-local" 
@@ -723,6 +746,20 @@
             required
           />
         </div>
+
+        {#if meetingForm.event_type !== 'meeting'}
+          <div>
+            <label for="end_time_edit" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
+              End Date/Time (Optional)
+            </label>
+            <input 
+              type="datetime-local" 
+              id="end_time_edit" 
+              class="input" 
+              bind:value={meetingForm.end_time}
+            />
+          </div>
+        {/if}
         
         <div>
           <label for="description" class="block text-sm font-medium text-[rgb(var(--color-text-primary))] mb-1">
